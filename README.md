@@ -7,7 +7,7 @@ confirmación en una hoja de Google.
 - Backend: proyecto de Google Apps Script publicado como aplicación web.
 - Datos: hoja de cálculo de Google, pestaña `Invitados`
   (`token`, `nombre`, `asiste`, `fecha_respuesta`, `alergenos`, `nota`,
-  `vuelta`).
+  `vuelta`) y pestaña `Canciones` con las sugerencias de música.
 
 ## Despliegue
 
@@ -38,8 +38,8 @@ es `{ id, titulo }` y se descarta sola si ese `id` no existe en la página.
 Para añadir una sección: crea el `<section>` dentro de `pintar()` y añade su
 entrada a `SECCIONES` en el mismo orden en que aparece.
 
-Orden actual: inicio, fotos, el día, confirmar, cuenta atrás, save the date,
-dedicatoria, playlist, transporte, alojamiento, sitio web.
+Orden actual: inicio, fotos, el día, confirmar, cuenta atrás (con el *save the
+date* dentro), dedicatoria, playlist, transporte, alojamiento, sitio web.
 
 *Confirmar* va arriba a propósito: es lo único que necesitamos de verdad, y así
 se responde sin bajar por toda la invitación.
@@ -79,6 +79,37 @@ En pantallas de 62rem o más el índice es un raíl fijo a la izquierda del text
 por debajo es un panel que se abre con el botón de la esquina superior. La
 sección activa se marca con `aria-current`, midiendo las secciones en cada
 `scroll`: manda la última cuyo borde superior haya pasado el 42% de la pantalla.
+
+## Cuenta atrás y save the date
+
+Una sola sección, `cuenta-atras`: el reloj arriba y debajo el *save the date*,
+separados por una línea fina. Las dos cosas hablan del mismo día y por separado
+no daban para una sección cada una.
+
+La pinta `seccionCuenta()`, y el bloque de guardar la fecha `bloqueCalendario()`.
+Pasado el día de la boda no se pinta ninguna de las dos y el índice descarta su
+entrada él solo.
+
+El botón *Añadir a mi calendario* fabrica un `.ics` en el propio navegador
+—`contenidoIcs()`, sin pedir nada al backend— y lo baja como `boda.ics`: es el
+formato que entienden el Calendario del iPhone, Outlook y los demás. El evento
+lleva un aviso un día antes (`VALARM`) y un `UID` fijo, así que añadirlo dos
+veces lo actualiza en vez de duplicarlo. Debajo va el enlace a Google Calendar
+(`enlaceGoogle()`), que abre la misma cita ya en su pantalla de guardar.
+
+Las horas viajan en UTC a los dos sitios, calculadas desde `BODA.iso`, para no
+arrastrar la zona de la boda. Lo que se puede tocar en `BODA`:
+
+- `evento` — el nombre que el invitado verá en su agenda. Corto: en la vista de
+  mes se lee a medias.
+- `duracion` — horas que se le reservan a partir de `hora`.
+- `direccion` — la dirección postal completa, que es la que el calendario del
+  invitado convierte en un mapa. `lugar` es el nombre corto que se lee en *El
+  día* y no le sirve para llegar. Si se queda vacía, se usa `lugar`.
+
+La descripción del evento no lleva el enlace de la invitación a propósito: ese
+enlace lleva el token del invitado, y los eventos se comparten y se sincronizan
+con más servicios de los que uno cree.
 
 ## Transporte
 
@@ -143,6 +174,39 @@ magick mogrify -path img -resize 1200x1200\> -quality 75 -strip -format webp ori
 
 El `<meta robots>` mantiene la página fuera de los buscadores, pero
 cualquiera con la URL puede descargar las fotos directamente.
+
+## Playlist
+
+Cada invitado puede proponer canciones desde la sección *Pon tú la música*.
+Buscan en el catálogo de iTunes y lo que eligen cae en la pestaña `Canciones`
+de la misma hoja, con una fila por canción:
+
+```
+id  fecha  token  nombre  cancion  artista  album  itunes_id  enlace
+```
+
+`nombre` se copia de la pestaña de invitados al escribir, así que la lista dice
+quién pidió cada cosa sin tener que cruzar tokens. `enlace` es la ficha de la
+canción en Apple Music, útil para encontrarla luego en otro servicio.
+
+La pestaña se crea sola con la primera sugerencia. Para verla montada antes,
+ejecuta `crearHojaCanciones()` a mano desde el editor de Apps Script, igual que
+`generarTokens()`.
+
+El tope son **tres canciones por invitado**, en `MAX_CANCIONES`. Al añadir una
+cuarta no se rechaza: sustituye a la más antigua, escribiendo encima de su fila
+para no mover el resto. La constante está en los dos archivos (`Code.gs` e
+`index.html`) y manda la del backend; si cambias una, cambia la otra.
+
+La búsqueda va por **JSONP** (`<script>` con `&callback=`), no por `fetch`:
+iTunes no promete cabeceras CORS y ese parámetro es la vía que documenta Apple.
+Corta sobre las 20 búsquedas por minuto y por IP, así que el buscador espera
+400 ms desde la última tecla antes de preguntar. Si una canción no aparece,
+la página ofrece mandarla tal cual se escribió, sin `itunes_id`.
+
+La sección va detrás de *Confirmar*, así que cae con las demás cuando alguien
+pulsa *No podré ir* (ver *Quien no puede venir*). Lo que ya hubiese mandado se
+queda en la hoja; solo desaparece la sección, y vuelve si cambia de idea.
 
 ## Notas
 

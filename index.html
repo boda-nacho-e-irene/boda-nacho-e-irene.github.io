@@ -472,7 +472,7 @@
 
   label.campo { display: block; font-size: .9375rem; font-weight: 600; margin-bottom: .375rem; }
 
-  input[type="text"], textarea {
+  input[type="text"], input[type="search"], textarea {
     font: inherit;
     width: 100%;
     background: rgba(255,255,255,.45);
@@ -504,6 +504,70 @@
   .estado.mal { color: var(--error); }
 
   .centrado { text-align: center; padding: 4rem 0; color: var(--musgo); }
+
+  /* ---------- sugerencias de música ---------- */
+
+  .resultados { margin: 0 0 1.75rem; }
+
+  .resultado {
+    display: grid;
+    grid-template-columns: 48px 1fr auto;
+    align-items: center;
+    gap: .75rem;
+    padding: .625rem 0;
+    border-top: 1px solid var(--hueco);
+  }
+  .resultado:first-child { border-top: 0; }
+
+  .caratula {
+    display: block;
+    width: 48px;
+    height: 48px;
+    border-radius: 2px;
+    background: var(--hueco);
+  }
+
+  /* Hay títulos y artistas larguísimos y la columna mide lo que mide: se
+     recortan en una línea en vez de romper la fila. El min-width deja que la
+     columna 1fr encoja; sin él la rejilla se pasa de ancho. */
+  .pista { min-width: 0; }
+  .pista b, .pista span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pista b { font-size: .9375rem; font-weight: 600; }
+  .pista span { font-size: .8125rem; color: var(--musgo); }
+
+  .anadir, .quitar {
+    background: transparent;
+    border: 1px solid var(--hueco);
+    padding: .45rem .8rem;
+    font-size: .875rem;
+    white-space: nowrap;
+    transition: border-color .18s, background-color .18s, color .18s;
+  }
+  .anadir:hover { border-color: var(--ocre); background: rgba(156,107,36,.1); }
+  .quitar { color: var(--musgo); }
+  .quitar:hover { border-color: var(--error); color: var(--error); }
+
+  .subtitulo { font-size: .9375rem; font-weight: 600; margin: 0 0 .5rem; }
+
+  /* Va encima del buscador, así que necesita el mismo aire que un fieldset. */
+  .mis-canciones { list-style: none; margin: 0 0 1.75rem; padding: 0; }
+  .mis-canciones li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: .75rem;
+    padding: .625rem 0;
+    border-top: 1px solid var(--hueco);
+  }
+  .mis-canciones li:first-child { border-top: 0; }
+  .mis-canciones li.vacio { display: block; }
+
+  .vacio { color: var(--musgo); font-size: .9375rem; margin: 0; }
 
   /* ---------- cuenta atrás ---------- */
 
@@ -540,6 +604,55 @@
     text-align: center;
     margin: 0;
   }
+
+  /* ---------- guardar la fecha ---------- */
+
+  /* Vive debajo de la cuenta atrás, dentro de la misma sección, separado por la
+     misma línea fina que las juntas del resto de la página. */
+  .calendario {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--hueco);
+    text-align: center;
+  }
+
+  .calendario-rotulo {
+    display: block;
+    margin-bottom: .5rem;
+    font-size: .6875rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--musgo);
+  }
+
+  .calendario-texto {
+    margin: 0 0 1.125rem;
+    font-size: .9375rem;
+    color: var(--musgo);
+    text-wrap: pretty;
+  }
+
+  .guardar {
+    background: transparent;
+    color: var(--ocre);
+    border: 1px solid var(--ocre);
+    padding: .8rem 1.25rem;
+    min-height: 3rem;
+    font-size: .9375rem;
+    letter-spacing: .02em;
+    transition: background-color .18s, color .18s;
+  }
+  .guardar:hover { background: var(--ocre); color: var(--piedra); }
+
+  .calendario-otro { margin: .875rem 0 0; font-size: .875rem; }
+
+  .calendario-otro a {
+    color: var(--musgo);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hueco);
+    padding-bottom: 1px;
+  }
+  .calendario-otro a:hover { color: var(--tinta); border-bottom-color: currentColor; }
 
   /* Visible solo para lectores de pantalla. */
   .solo-voz {
@@ -772,7 +885,7 @@ window.onerror = function (msg, src, linea) {
 
 <script>
 /* ====== EDITA ESTO ====== */
-const API = 'https://script.google.com/macros/s/AKfycbygwIhM3-9eDwUsqPTYGLdtgf-MoX4u5VbGHkquXxA5z6kq-sVztRcosEjrZg615P9poA/exec';
+const API = 'https://script.google.com/macros/s/AKfycbxgaJDj8g97VHfoSDT7qPiOqBnx92-OVjUKvFIwARfpjo_lmUcrLF1jYteHPtzHHrhGtA/exec';
 
 var BODA = {
   novios: 'Irene Alcalde Méndez e Ignacio Arenas Guerra',
@@ -784,7 +897,18 @@ var BODA = {
   // España en julio (+02:00), para que la cuenta atrás salga bien también si
   // alguien abre la invitación desde otro huso. Si cambias 'fecha' u 'hora',
   // cambia esto también.
-  iso:    '2027-07-17T12:30:00+02:00'
+  iso:    '2027-07-17T12:30:00+02:00',
+
+  // Cómo entra el evento en el calendario del invitado cuando pulsa «Añadir a
+  // mi calendario»: el nombre que verá en su agenda (corto, que en la vista de
+  // mes se lee a medias) y las horas que le reservamos a partir de 'hora'.
+  evento:   'Boda de Irene e Ignacio',
+  duracion: 8,
+
+  // La dirección completa, la que el calendario del invitado le convierte en un
+  // mapa: 'lugar' es el nombre corto de la página y no le sirve para llegar.
+  direccion: 'Hotel El Convento, Monasterio s/n, C. Mayor Smmv, 31, ' +
+             '34492 Santa María de Mave, Palencia, España'
 };
 
 /* El autobús: los dos trayectos, con sus horas de salida y sus paradas en
@@ -835,7 +959,6 @@ var SECCIONES = [
   { id: 'el-dia',        titulo: 'El gran día' },
   { id: 'confirmar',     titulo: 'Confirmar' },
   { id: 'cuenta-atras',  titulo: 'Cuenta atrás' },
-  { id: 'save-the-date', titulo: 'Save the date' },
   { id: 'dedicatoria',   titulo: 'Dedicatoria' },
   { id: 'playlist',      titulo: 'Playlist' },
   { id: 'transporte',    titulo: 'Transporte' },
@@ -848,14 +971,8 @@ var SECCIONES = [
    que manda; estas se pintan solas donde toque. Para rellenar una, bórrala de
    aquí y escribe su <section> a mano en pintar(). */
 var EN_OBRAS = [
-  { id: 'save-the-date', titulo: 'Save the date',
-    texto: 'Estamos preparando el recordatorio para que guardes la fecha en tu calendario de un toque.' },
-
   { id: 'dedicatoria', titulo: 'Dedicatoria',
     texto: 'Aquí irán unas palabras nuestras. Todavía las estamos escribiendo.' },
-
-  { id: 'playlist', titulo: 'Sugerencias de playlist',
-    texto: 'Queremos que suene lo que te haga levantarte de la silla. Pronto podrás proponer canciones.' },
 
   { id: 'alojamiento', titulo: 'Alojamiento',
     texto: 'Estamos apalabrando habitaciones cerca del convento. Aquí verás los sitios y los precios.' },
@@ -874,6 +991,13 @@ var ALERGENOS = [
   'Gluten', 'Lactosa', 'Frutos secos', 'Marisco',
   'Pescado', 'Huevo', 'Soja', 'Vegetariano', 'Vegano'
 ];
+
+/* Canciones que puede proponer cada invitado. Tiene que ser el mismo número
+   que MAX_CANCIONES en Code.gs, que es quien manda: al añadir una de más, el
+   backend sustituye a la más antigua en vez de rechazarla.
+   ITUNES_PAIS es el catálogo de iTunes en el que se busca. */
+var MAX_CANCIONES = 3;
+var ITUNES_PAIS = 'ES';
 
 /* Fotos de la sección «Fotos». Van en la carpeta img/ del repo, con la ruta
    relativa: en un repo de proyecto la página cuelga de /REPO/, así que
@@ -903,6 +1027,11 @@ var token = (function () {
 var elegido = null;          // true | false | null
 var marcados = {};           // alérgenos seleccionados
 var vuelta = null;           // hora del autobús de vuelta, SIN_VUELTA, o null
+
+var canciones = [];          // las que ya ha mandado este invitado
+var hallazgos = [];          // lo último que devolvió iTunes
+var buscador = null;         // temporizador del debounce del buscador
+var buscadaN = 0;            // descarta lo que llegue de búsquedas ya pasadas
 
 /* --- el sobre: tapa la página hasta que el invitado la toca --- */
 
@@ -972,6 +1101,34 @@ function pedir(metodo, url, cuerpo, alTerminar) {
   x.onerror = function () { alTerminar(null); };
   x.ontimeout = function () { alTerminar(null); };
   x.send(cuerpo || null);
+}
+
+/* iTunes no promete cabeceras CORS, así que se le pide por JSONP: un <script>
+   con el nombre de una función global nuestra en el parámetro 'callback', que
+   es la vía que documenta Apple. `url` tiene que traer ya su '?'. */
+var jsonpN = 0;
+function jsonp(url, alTerminar) {
+  var nombre = '__itunes' + (++jsonpN);
+  var etiqueta = document.createElement('script');
+  var reloj = null;
+
+  /* Quitar la etiqueta no siempre cancela un script que ya venía de camino: si
+     luego no encontrase su función, el fallo subiría a window.onerror, que
+     borra la invitación entera. Por eso queda un cascarón vacío salvo cuando
+     sabemos que ese script ya no va a ejecutarse. */
+  function recoger(borrar) {
+    if (reloj) { clearTimeout(reloj); reloj = null; }
+    window[nombre] = function () {};
+    if (borrar) { try { delete window[nombre]; } catch (e) {} }
+    if (etiqueta.parentNode) { etiqueta.parentNode.removeChild(etiqueta); }
+  }
+
+  window[nombre] = function (d) { recoger(true); alTerminar(d); };
+  etiqueta.onerror = function () { recoger(true); alTerminar(null); };
+  reloj = setTimeout(function () { recoger(false); alTerminar(null); }, 10000);
+
+  etiqueta.src = url + '&callback=' + nombre;
+  document.head.appendChild(etiqueta);
 }
 
 function escapar(s) {
@@ -1074,7 +1231,175 @@ function seccionCuenta() {
   return '<section class="seccion" id="cuenta-atras">' +
            '<h2 class="titulo">Cuenta atrás</h2>' +
            '<div id="cuenta"></div>' +
+           bloqueCalendario() +
          '</section>';
+}
+
+/* ---------- guardar la fecha ---------- */
+
+/* El «save the date» vive dentro de la sección de la cuenta atrás: las dos
+   hablan del mismo día y por separado no daban para una sección cada una. Así
+   el invitado ve lo que falta y guarda la fecha en el mismo sitio. */
+
+/* Hasta cuándo llega el evento en el calendario: desde la hora de la ceremonia,
+   las horas de BODA.duracion. Nadie sabe cuándo acaba una boda, pero el
+   calendario pide un final. */
+var finEventoMs = objetivoMs === null
+  ? null
+  : objetivoMs + Math.max(1, +BODA.duracion || 1) * 3600000;
+
+/* 20270717T103000Z: el sello de tiempo en UTC que piden por igual el .ics y
+   Google Calendar. En UTC no hay que arrastrar la zona de la boda a ninguno de
+   los dos. */
+function selloUtc(ms) {
+  var d = new Date(ms);
+  return String(d.getUTCFullYear()) + dos(d.getUTCMonth() + 1) + dos(d.getUTCDate()) +
+         'T' + dos(d.getUTCHours()) + dos(d.getUTCMinutes()) + dos(d.getUTCSeconds()) + 'Z';
+}
+
+/* Lo que el invitado leerá en el evento. Sin el enlace de la invitación a
+   propósito: lleva su token, y los eventos se comparten y se sincronizan con
+   más servicios de los que uno cree. */
+function descripcionEvento() {
+  return 'Nos casamos en ' + BODA.lugar + '. La ceremonia es a las ' + BODA.hora + '.';
+}
+
+/* Los valores de texto del .ics escapan la barra, la coma y el punto y coma, y
+   los saltos de línea viajan como \n literal. */
+function textoIcs(s) {
+  return String(s == null ? '' : s)
+    .replace(/\\/g, '\\\\')
+    .replace(/([,;])/g, '\\$1')
+    .replace(/\r\n|\r|\n/g, '\\n');
+}
+
+/* Cuántos octetos ocupa este carácter en UTF-8: el formato cuenta bytes, no
+   letras, y «Méndez» pesa más de lo que mide. */
+function octetos(caracter) {
+  var n = caracter.charCodeAt(0);
+  if (n < 0x80) return 1;
+  if (n < 0x800) return 2;
+  if (n >= 0xD800 && n < 0xDC00) return 4;   // par subrogado: cuenta por los dos
+  return 3;
+}
+
+/* Ninguna línea del .ics pasa de 75 octetos: lo que sobra sigue en la
+   siguiente, empezando por un espacio. Sin esto, un nombre o un lugar largos
+   rompen el archivo en algunos calendarios. */
+function plegar(linea) {
+  var partes = [];
+  var trozo = '';
+  var bytes = 0;
+  for (var i = 0; i < linea.length; i++) {
+    var caracter = linea.charAt(i);
+    var codigo = linea.charCodeAt(i);
+    if (codigo >= 0xD800 && codigo < 0xDC00 && i + 1 < linea.length) {
+      caracter += linea.charAt(++i);         // los dos medios del par van juntos
+    }
+    var peso = octetos(caracter);
+    if (bytes + peso > 75) {
+      partes.push(trozo);
+      trozo = '';
+      bytes = 1;                             // el espacio de la continuación cuenta
+    }
+    trozo += caracter;
+    bytes += peso;
+  }
+  partes.push(trozo);
+  return partes.join('\r\n ');
+}
+
+/* El archivo del evento, entero, hecho aquí mismo sin pedirle nada al servidor.
+   Las líneas van separadas por CRLF porque es lo que pide el formato. */
+function contenidoIcs() {
+  var lineas = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//boda//invitacion//ES',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    /* Siempre el mismo: si el invitado lo añade dos veces, el calendario
+       reconoce el evento y lo actualiza en vez de duplicarlo. */
+    'UID:boda-' + selloUtc(objetivoMs) + '@invitacion',
+    'DTSTAMP:' + selloUtc(Date.now()),
+    'DTSTART:' + selloUtc(objetivoMs),
+    'DTEND:' + selloUtc(finEventoMs),
+    'SUMMARY:' + textoIcs(BODA.evento),
+    'LOCATION:' + textoIcs(BODA.direccion || BODA.lugar),
+    'DESCRIPTION:' + textoIcs(descripcionEvento()),
+    /* Un aviso el día antes: es lo que el invitado viene a buscar aquí. */
+    'BEGIN:VALARM',
+    'ACTION:DISPLAY',
+    'TRIGGER:-P1D',
+    'DESCRIPTION:' + textoIcs(BODA.evento),
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ];
+  for (var i = 0; i < lineas.length; i++) { lineas[i] = plegar(lineas[i]); }
+  return lineas.join('\r\n') + '\r\n';
+}
+
+/* Para quien vive en Google Calendar: el mismo evento, pero abierto ya en su
+   pantalla de guardar. Ahí no hace falta descargar nada. */
+function enlaceGoogle() {
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+         '&text='     + encodeURIComponent(BODA.evento) +
+         '&dates='    + selloUtc(objetivoMs) + '/' + selloUtc(finEventoMs) +
+         '&location=' + encodeURIComponent(BODA.direccion || BODA.lugar) +
+         '&details='  + encodeURIComponent(descripcionEvento());
+}
+
+/* El .ics se le pasa al calendario que tenga el invitado —Calendario en el
+   iPhone, Outlook en el trabajo— y el evento entra con su aviso puesto. Si el
+   navegador no sabe fabricar el archivo, le queda el enlace de Google. */
+function guardarEnCalendario() {
+  var aviso = document.getElementById('calendario-aviso');
+  var url;
+
+  try {
+    url = URL.createObjectURL(new Blob([contenidoIcs()], { type: 'text/calendar;charset=utf-8' }));
+  } catch (e) {
+    if (aviso) {
+      aviso.className = 'estado mal';
+      aviso.textContent = 'Este navegador no nos deja preparar el archivo. Abre el enlace de Google Calendar.';
+    }
+    return;
+  }
+
+  var enlace = document.createElement('a');
+  enlace.href = url;
+  enlace.download = 'boda.ics';
+  enlace.rel = 'noopener';
+  document.body.appendChild(enlace);
+  enlace.click();
+  document.body.removeChild(enlace);
+
+  /* El objeto se suelta con un poco de aire: revocarlo en el mismo tic corta la
+     descarga en algunos navegadores. */
+  setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+
+  if (aviso) {
+    aviso.className = 'estado';
+    aviso.textContent = 'Listo: abre el archivo y tu calendario hace el resto.';
+  }
+}
+
+/* Sin fecha válida no hay nada que guardar y el bloque no se pinta. */
+function bloqueCalendario() {
+  if (objetivoMs === null) return '';
+  return '<div class="calendario">' +
+           '<span class="calendario-rotulo">Save the date</span>' +
+           '<p class="calendario-texto">Guarda el ' + escapar(BODA.fecha) +
+             ' en tu calendario y deja que te avise él.</p>' +
+           '<button type="button" class="guardar" id="guardar">Añadir a mi calendario</button>' +
+           '<p class="calendario-otro">' +
+             '<a href="' + escapar(enlaceGoogle()) + '" target="_blank" rel="noopener">' +
+               'Abrir en Google Calendar</a>' +
+           '</p>' +
+           '<p class="estado" id="calendario-aviso" aria-live="polite"></p>' +
+         '</div>';
 }
 
 /* --- transporte --- */
@@ -1239,6 +1564,203 @@ function arrancarCuenta() {
   if (Date.now() < objetivoMs) { reloj = setInterval(pintarCuenta, 1000); }
 }
 
+/* --- sugerencias de música --- */
+
+/* Va detrás de «Confirmar», así que `ajustarAlcance()` se la lleva por delante
+   en cuanto alguien dice que no puede venir, como al resto de las de después.
+   Las canciones que hubiese mandado antes siguen en la hoja: solo desaparece
+   la sección. */
+function seccionPlaylist() {
+  return '<section class="seccion" id="playlist">' +
+           '<h2 class="titulo">Pon tú la música</h2>' +
+           '<p class="ayuda">Busca hasta ' + MAX_CANCIONES + ' canciones y te las apuntamos. ' +
+             'Si añades una más, sustituye a la más antigua.</p>' +
+           '<h3 class="subtitulo">Tus canciones</h3>' +
+           '<ul class="mis-canciones" id="mis-canciones"></ul>' +
+           '<fieldset>' +
+             '<label class="campo" for="buscar">Busca una canción</label>' +
+             '<input type="search" id="buscar" placeholder="Título o artista" autocomplete="off">' +
+           '</fieldset>' +
+           '<div class="resultados" id="resultados" aria-live="polite"></div>' +
+           '<p class="estado" id="estado-musica" role="status" aria-live="polite"></p>' +
+         '</section>';
+}
+
+function estadoMusica(texto, mal) {
+  var e = document.getElementById('estado-musica');
+  if (!e) return;
+  e.className = mal ? 'estado mal' : 'estado';
+  e.textContent = texto;
+}
+
+/* Las que ya ha mandado, cada una con su botón de quitar. */
+function pintarMisCanciones() {
+  var caja = document.getElementById('mis-canciones');
+  if (!caja) return;
+
+  if (!canciones.length) {
+    caja.innerHTML = '<li class="vacio">Todavía no has propuesto ninguna.</li>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < canciones.length; i++) {
+    var c = canciones[i];
+    html += '<li>' +
+              '<span class="pista"><b>' + escapar(c.cancion) + '</b>' +
+                '<span>' + escapar(c.artista || 'Sin artista') + '</span></span>' +
+              '<button type="button" class="quitar" data-id="' + escapar(c.id) + '">Quitar</button>' +
+            '</li>';
+  }
+  caja.innerHTML = html;
+}
+
+/* Los objetos de iTunes se guardan en `hallazgos` y las filas los señalan por
+   posición: así no hay que meter JSON dentro de un atributo. */
+function pintarHallazgos(lista) {
+  var caja = document.getElementById('resultados');
+  if (!caja) return;
+
+  hallazgos = lista || [];
+  var html = '';
+
+  for (var i = 0; i < hallazgos.length; i++) {
+    var r = hallazgos[i];
+    var album = r.collectionName ? ' · ' + r.collectionName : '';
+    html += '<div class="resultado">' +
+              (r.artworkUrl100
+                ? '<img class="caratula" src="' + escapar(r.artworkUrl100) + '" ' +
+                    'width="48" height="48" alt="" loading="lazy" decoding="async">'
+                : '<span class="caratula"></span>') +
+              '<span class="pista"><b>' + escapar(r.trackName) + '</b>' +
+                '<span>' + escapar(r.artistName + album) + '</span></span>' +
+              '<button type="button" class="anadir" data-i="' + i + '">Añadir</button>' +
+            '</div>';
+  }
+  caja.innerHTML = html;
+}
+
+function limpiarHallazgos() {
+  buscadaN++;                                   // lo que venga de camino ya no vale
+  hallazgos = [];
+  var caja = document.getElementById('resultados');
+  if (caja) { caja.innerHTML = ''; }
+}
+
+/* Con la canción ya apuntada arriba, la búsqueda que la encontró sobra: se
+   vacía para empezar la siguiente en limpio. */
+function limpiarBusqueda() {
+  if (buscador) { clearTimeout(buscador); buscador = null; }
+  var campo = document.getElementById('buscar');
+  if (campo) { campo.value = ''; }
+  limpiarHallazgos();
+}
+
+function buscarEnItunes(texto) {
+  var mia = ++buscadaN;
+  var url = 'https://itunes.apple.com/search?media=music&entity=song&limit=6' +
+            '&country=' + encodeURIComponent(ITUNES_PAIS) +
+            '&term=' + encodeURIComponent(texto);
+
+  jsonp(url, function (d) {
+    if (mia !== buscadaN) return;               // llegó tarde: ya hay otra búsqueda
+    var caja = document.getElementById('resultados');
+    if (!caja) return;
+
+    if (!d) {
+      hallazgos = [];
+      caja.innerHTML = '';
+      estadoMusica('No hemos podido buscar. Prueba otra vez en un momento.', true);
+      return;
+    }
+
+    var lista = d.results || [];
+    if (!lista.length) {
+      // No está en iTunes (o se escribe de otra manera): que la mande a mano.
+      hallazgos = [];
+      caja.innerHTML = '<p class="vacio">No encontramos nada con eso. ' +
+        '<button type="button" class="anadir" data-manual="1">Añadirla tal cual</button></p>';
+      return;
+    }
+
+    pintarHallazgos(lista);
+  });
+}
+
+/* iTunes corta sobre las 20 búsquedas por minuto y por IP, así que se espera a
+   que el invitado deje de teclear. */
+function programarBusqueda(texto) {
+  if (buscador) { clearTimeout(buscador); buscador = null; }
+  var limpio = texto.replace(/^\s+|\s+$/g, '');
+
+  if (limpio.length < 2) { limpiarHallazgos(); return; }
+  buscador = setTimeout(function () { buscarEnItunes(limpio); }, 400);
+}
+
+function buscarYa() {
+  if (buscador) { clearTimeout(buscador); buscador = null; }
+  var texto = document.getElementById('buscar').value.replace(/^\s+|\s+$/g, '');
+  if (texto.length >= 2) { buscarEnItunes(texto); }
+}
+
+/* El backend devuelve siempre la lista entera ya resuelta, así que aquí no hay
+   que saber nada de límites ni de sustituciones: se repinta lo que llega. */
+function anadirCancion(c) {
+  estadoMusica('Guardando…');
+
+  pedir('POST', API, JSON.stringify({
+    token: token,
+    accion: 'cancion',
+    cancion: c.cancion,
+    artista: c.artista,
+    album: c.album,
+    itunes_id: c.itunes_id,
+    enlace: c.enlace
+  }), function (d) {
+    if (!d || !d.ok) {
+      estadoMusica('No se ha podido guardar. Inténtalo otra vez.', true);
+      return;
+    }
+    canciones = d.canciones || [];
+    pintarMisCanciones();
+
+    if (d.repetida) {
+      // No se ha apuntado nada: le dejamos los resultados por si quiere otra.
+      estadoMusica('Esa ya la tenías apuntada.');
+      return;
+    }
+
+    limpiarBusqueda();
+    estadoMusica(d.quitada
+      ? 'Apuntada. Hemos quitado «' + d.quitada.cancion + '» para hacerle sitio.'
+      : 'Apuntada.');
+  });
+}
+
+function quitarCancion(id) {
+  estadoMusica('Quitando…');
+
+  pedir('POST', API, JSON.stringify({
+    token: token, accion: 'quitar_cancion', id: id
+  }), function (d) {
+    if (!d || !d.ok) {
+      estadoMusica('No se ha podido quitar. Inténtalo otra vez.', true);
+      return;
+    }
+    canciones = d.canciones || [];
+    pintarMisCanciones();
+    estadoMusica('Quitada.');
+  });
+}
+
+/* Sube desde donde se hizo clic hasta el botón: el clic puede caer en la
+   carátula o en el texto de dentro. */
+function botonDe(destino, tope) {
+  var b = destino;
+  while (b && b !== tope && b.tagName !== 'BUTTON') { b = b.parentNode; }
+  return b && b !== tope ? b : null;
+}
+
 /* Los `id` de SECCIONES que van detrás de «Confirmar»: son los que se caen de
    la página cuando alguien nos dice que no puede venir. Salen de la lista y no
    a mano, así que reordenar SECCIONES los recoloca solos. */
@@ -1267,12 +1789,52 @@ function ajustarAlcance(asiste) {
   montarIndice();
 }
 
-function pintar(d) {
-  var chips = '';
+/* Lo que se guarda cuando el invitado no tiene ninguna alergia: así la celda
+   de la hoja distingue «no necesita nada» de «todavía no lo ha dicho», y el
+   formulario se puede dejar completo sin marcar alérgenos falsos. */
+var SIN_ALERGIAS = 'Ninguna';
+
+/* Los alérgenos, y al final la salida para quien no tiene ninguno. */
+function chipsAlergenos() {
+  var botones = '';
   for (var i = 0; i < ALERGENOS.length; i++) {
-    chips += '<button type="button" class="chip" data-a="' + escapar(ALERGENOS[i]) + '" aria-pressed="false">'
-           + escapar(ALERGENOS[i]) + '</button>';
+    botones += '<button type="button" class="chip" data-a="' + escapar(ALERGENOS[i]) + '" aria-pressed="false">'
+             + escapar(ALERGENOS[i]) + '</button>';
   }
+  botones += '<button type="button" class="chip" data-a="' + escapar(SIN_ALERGIAS) + '" aria-pressed="false">'
+           + 'Ninguna</button>';
+  return botones;
+}
+
+/* «Ninguna» no convive con nada: marcarla limpia el resto, y marcar cualquier
+   alérgeno la apaga. Así nunca sale a la cocina una lista que se contradice. */
+function alternarAlergeno(boton) {
+  var caja = document.getElementById('chips');
+  var nombre = boton.getAttribute('data-a');
+  var activo = boton.getAttribute('aria-pressed') === 'true';
+
+  if (activo) {
+    boton.setAttribute('aria-pressed', 'false');
+    delete marcados[nombre];
+    return;
+  }
+
+  var b = caja.getElementsByTagName('button');
+  for (var i = 0; i < b.length; i++) {
+    var otro = b[i].getAttribute('data-a');
+    var choca = (nombre === SIN_ALERGIAS) ? otro !== SIN_ALERGIAS : otro === SIN_ALERGIAS;
+    if (choca) {
+      b[i].setAttribute('aria-pressed', 'false');
+      delete marcados[otro];
+    }
+  }
+
+  boton.setAttribute('aria-pressed', 'true');
+  marcados[nombre] = true;
+}
+
+function pintar(d) {
+  var chips = chipsAlergenos();
 
   pantalla(
     '<div id="contenido">' +
@@ -1332,9 +1894,8 @@ function pintar(d) {
       '</section>' +
 
       seccionCuenta() +
-      seccionEnObras('save-the-date') +
       seccionEnObras('dedicatoria') +
-      seccionEnObras('playlist') +
+      seccionPlaylist() +
       seccionTransporte() +
       seccionEnObras('alojamiento') +
       seccionEnObras('sitio-web') +
@@ -1346,15 +1907,54 @@ function pintar(d) {
   document.getElementById('no').onclick = function () { elegir(false); };
   document.getElementById('enviar').onclick = enviar;
 
+  /* La cuenta atrás —y con ella el botón de guardar la fecha— no se pinta
+     pasado el día de la boda. */
+  var botonGuardar = document.getElementById('guardar');
+  if (botonGuardar) { botonGuardar.onclick = guardarEnCalendario; }
+
   var botonesChip = document.getElementById('chips').getElementsByTagName('button');
   for (var j = 0; j < botonesChip.length; j++) {
-    botonesChip[j].onclick = function () {
-      var nombre = this.getAttribute('data-a');
-      var activo = this.getAttribute('aria-pressed') === 'true';
-      this.setAttribute('aria-pressed', activo ? 'false' : 'true');
-      if (activo) { delete marcados[nombre]; } else { marcados[nombre] = true; }
-    };
+    botonesChip[j].onclick = function () { alternarAlergeno(this); };
   }
+
+  var buscar = document.getElementById('buscar');
+  buscar.oninput = function () { programarBusqueda(this.value); };
+  // Sin formulario que enviar, el Enter no hace nada por sí solo: que busque.
+  buscar.onkeydown = function (e) {
+    if (e.key === 'Enter' || e.keyCode === 13) { buscarYa(); }
+  };
+
+  /* Delegación en los dos contenedores: sus filas se repintan enteras cada vez
+     y así no hay que volver a colgar un onclick por botón, como sí pasa con
+     los chips, que se pintan una sola vez. */
+  document.getElementById('resultados').onclick = function (e) {
+    var b = botonDe(e.target, this);
+    if (!b) return;
+
+    if (b.getAttribute('data-manual')) {
+      var texto = document.getElementById('buscar').value.replace(/^\s+|\s+$/g, '');
+      if (texto) {
+        anadirCancion({ cancion: texto, artista: '', album: '', itunes_id: '', enlace: '' });
+      }
+      return;
+    }
+
+    var r = hallazgos[Number(b.getAttribute('data-i'))];
+    if (!r) return;
+    anadirCancion({
+      cancion:   r.trackName || '',
+      artista:   r.artistName || '',
+      album:     r.collectionName || '',
+      itunes_id: r.trackId ? String(r.trackId) : '',
+      enlace:    r.trackViewUrl || ''
+    });
+  };
+
+  document.getElementById('mis-canciones').onclick = function (e) {
+    var b = botonDe(e.target, this);
+    var id = b && b.getAttribute('data-id');
+    if (id) { quitarCancion(id); }
+  };
 
   var cajaVuelta = document.getElementById('vuelta');
   if (cajaVuelta) {
@@ -1470,8 +2070,12 @@ function montarIndice() {
   repasar();
 }
 
-/* Si ya había respondido antes, dejamos su respuesta puesta. */
+/* Si ya había respondido antes, dejamos su respuesta puesta. Las canciones
+   vienen en el mismo GET, así que se reponen aquí igual que los alérgenos. */
 function restaurar(d) {
+  canciones = d.canciones || [];
+  pintarMisCanciones();
+
   if (d.alergenos) {
     var previos = String(d.alergenos).split(',');
     var botones = document.getElementById('chips').getElementsByTagName('button');
@@ -1522,9 +2126,15 @@ function enviar() {
   estado.className = 'estado';
   estado.textContent = 'Guardando…';
 
-  var lista = [];
-  for (var k in marcados) { if (marcados.hasOwnProperty(k)) lista.push(k); }
   var otros = document.getElementById('otros').value.replace(/^\s+|\s+$/g, '');
+  var lista = [];
+  for (var k in marcados) {
+    if (!marcados.hasOwnProperty(k)) continue;
+    /* Si nos cuenta algo por escrito, «Ninguna» ya no vale como respuesta:
+       la quitamos para que la hoja no diga las dos cosas a la vez. */
+    if (k === SIN_ALERGIAS && otros) continue;
+    lista.push(k);
+  }
   if (otros) lista.push(otros);
 
   var cuerpo = JSON.stringify({
