@@ -20,6 +20,18 @@ const HOJA_CANCIONES = 'Canciones';
 
 const COL = { token: 1, nombre: 2, asiste: 3, fecha: 4, alergenos: 5, nota: 6, vuelta: 7 };
 
+/* Cada sección de la invitación guarda lo suyo por separado, así que el cuerpo
+   del POST trae solo sus campos: la confirmación manda `asiste` y `nota`, las
+   alergias `alergenos`, el transporte `vuelta`. La tabla dice a qué columna va
+   cada uno y cómo se normaliza; lo que no venga en el cuerpo no se toca, que es
+   lo que permite guardar un formulario sin borrar los otros. */
+const CAMPOS = {
+  asiste:    { col: COL.asiste,    valor: function (v) { return v === true ? 'SI' : 'NO'; } },
+  alergenos: { col: COL.alergenos, valor: function (v) { return String(v || '').slice(0, 500); } },
+  nota:      { col: COL.nota,      valor: function (v) { return String(v || '').slice(0, 1000); } },
+  vuelta:    { col: COL.vuelta,    valor: function (v) { return String(v || '').slice(0, 20); } }
+};
+
 const COL_C = { id: 1, fecha: 2, token: 3, nombre: 4,
                 cancion: 5, artista: 6, album: 7, itunes_id: 8, enlace: 9 };
 
@@ -154,25 +166,35 @@ function doGet(e) {
   });
 }
 
-/* Guarda la confirmación. Devuelve el objeto de respuesta, sin serializar. */
+/*
+ * Guarda los campos de CAMPOS que traiga el cuerpo, celda a celda, y deja el
+ * resto de la fila como estaba. Es lo que hace que los formularios de la
+ * invitación sean independientes: antes se escribía C a G de una vez y guardar
+ * solo la hora del autobús borraba los alérgenos.
+ *
+ * Devuelve el objeto de respuesta, sin serializar.
+ */
 function guardarRespuesta_(datos, fila) {
-  const asiste = datos.asiste === true ? 'SI' : 'NO';
   const h = hoja_();
+  const escritos = [];
 
-  // Texto plano en la columna de la vuelta: si no, Sheets se queda "21:30"
-  // como una hora y deja de coincidir con los botones de la invitación.
-  h.getRange(fila, COL.vuelta).setNumberFormat('@');
+  Object.keys(CAMPOS).forEach(function (nombre) {
+    if (!Object.prototype.hasOwnProperty.call(datos, nombre)) return;
+    const campo = CAMPOS[nombre];
 
-  // Una sola escritura de C a G: menos llamadas, menos riesgo de fila a medias.
-  h.getRange(fila, COL.asiste, 1, 5).setValues([[
-    asiste,
-    new Date(),
-    String(datos.alergenos || '').slice(0, 500),
-    String(datos.nota || '').slice(0, 1000),
-    String(datos.vuelta || '').slice(0, 20)
-  ]]);
+    // Texto plano en la columna de la vuelta: si no, Sheets se queda "21:30"
+    // como una hora y deja de coincidir con los botones de la invitación.
+    if (campo.col === COL.vuelta) { h.getRange(fila, campo.col).setNumberFormat('@'); }
 
-  return { ok: true, asiste: asiste };
+    h.getRange(fila, campo.col).setValue(campo.valor(datos[nombre]));
+    escritos.push(nombre);
+  });
+
+  // Ni un campo conocido: mejor decirlo que devolver un ok que no guardó nada.
+  if (!escritos.length) return { ok: false, error: 'sin_campos' };
+
+  h.getRange(fila, COL.fecha).setValue(new Date());
+  return { ok: true, guardado: escritos };
 }
 
 /*
@@ -252,9 +274,11 @@ function quitarCancion_(datos, token) {
 /**
  * POST con cuerpo JSON (enviado como text/plain para evitar el preflight CORS).
  *
- * Confirmación (sin `accion`, o con "rsvp"):
- *   { "token": "XXXX", "asiste": true, "alergenos": "Gluten, Marisco",
- *     "vuelta": "21:30", "nota": "…" }
+ * Confirmación (sin `accion`, o con "rsvp"). Cada formulario de la invitación
+ * manda solo sus campos y los demás se quedan como estaban:
+ *   { "token": "XXXX", "asiste": true, "nota": "…" }      ← Confirmar
+ *   { "token": "XXXX", "alergenos": "Gluten, Marisco" }   ← Alergias
+ *   { "token": "XXXX", "vuelta": "21:30" }                ← Transporte
  *
  * Canción:
  *   { "token": "XXXX", "accion": "cancion", "cancion": "…", "artista": "…",

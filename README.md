@@ -38,8 +38,9 @@ es `{ id, titulo }` y se descarta sola si ese `id` no existe en la página.
 Para añadir una sección: crea el `<section>` dentro de `pintar()` y añade su
 entrada a `SECCIONES` en el mismo orden en que aparece.
 
-Orden actual: inicio, fotos, el día, confirmar, cuenta atrás (con el *save the
-date* dentro), dedicatoria, playlist, transporte, alojamiento, sitio web.
+Orden actual: inicio, fotos, el día, confirmar, alergias, cuenta atrás (con el
+*save the date* dentro), dedicatoria, playlist, transporte, alojamiento, sitio
+web.
 
 *Confirmar* va arriba a propósito: es lo único que necesitamos de verdad, y así
 se responde sin bajar por toda la invitación.
@@ -102,9 +103,49 @@ mano en `pintar()`, en el mismo sitio donde estaba la llamada. Si se te olvida
 lo segundo, la sección desaparece de la página y el índice descarta su entrada
 él solo; no se rompe nada.
 
-Los alérgenos no son una sección aparte: van dentro de *Confirmar*, plegados
-hasta que alguien dice que sí, porque comparten el botón de enviar con ella.
-Lo mismo con la elección de autobús de vuelta.
+### Formularios independientes y plegado
+
+Cada sección que nos pide algo lleva su formulario dentro y su propio botón de
+enviar, y guarda solo lo suyo: *Confirmar* manda `asiste` y `nota`, *Alergias*
+manda `alergenos`, *Transporte* manda `vuelta`, y *Playlist* guarda cada canción
+al añadirla. Ninguna espera a las demás, así que la invitación se contesta a
+trozos, en el orden que quiera el invitado.
+
+Lo que hace posible eso es que el backend **escribe solo los campos que vengan
+en el cuerpo del POST**: la tabla `CAMPOS` de `Code.gs` dice a qué columna va
+cada uno, y `guardarRespuesta_()` deja intacto lo que no llegue. Antes escribía
+la fila entera de una vez, así que guardar una cosa borraba las demás.
+
+Guardado lo suyo, el cuerpo del formulario se pliega y deja en su sitio una
+línea de resumen —con su marca de hecho y el valor guardado— y un botón
+*Cambiar* que lo vuelve a abrir para reenviarlo; abierto, el botón dice
+*Cerrar*. Se pliega en dos momentos: al guardar con éxito y al volver a entrar,
+si la hoja ya tenía esos datos. Mientras se rellena no se mueve nada.
+
+Las piezas, todas en `index.html`:
+
+- `BLOQUES` — un `{ id, alto, resumen }` por formulario. `alto` es el tope de
+  `max-height` del cuerpo plegable: con holgura sobre lo que mide abierto,
+  porque por debajo se recorta.
+- `bloque(id, alto, cuerpo)` — pinta el envoltorio: línea de resumen, cuerpo y
+  el `.estado` del formulario, que va **fuera** del pliegue para que el
+  «Guardado» no se plegue con él justo al aparecer.
+- `repasarBloques(abrir)` — el único sitio que decide qué se pliega. Si un
+  bloque tiene resumen, sus datos están en la hoja. `abrir` deja uno abierto
+  aunque lo tenga, que es lo que necesita *Playlist* al añadir una canción.
+- `plegarBloque(id, si)` y `guardado` — el estado. `guardado` dice qué campos
+  están en la hoja, y es eso y no los campos del formulario lo que da algo por
+  hecho: un chip marcado sin enviar no cuenta.
+
+Las secciones con formulario ya guardado se marcan además en el índice lateral
+(`data-hecho`, arco relleno en musgo): ahí es donde el índice se lee como una
+lista de recados.
+
+Los alérgenos sí son una sección aparte —antes vivían dentro de *Confirmar*
+porque compartían su botón de enviar—, y la elección de autobús de vuelta ha
+vuelto a *Transporte*, con los recorridos. En *Confirmar* se queda *Un mensaje
+para nosotros*: es lo único de esa sección que también tiene sentido para quien
+no puede venir, y allí no se lo esconde.
 
 ### Quien no puede venir
 
@@ -173,11 +214,13 @@ en el índice lateral entra la sección entera, no cada trayecto.
 ### Elegir autobús de vuelta
 
 El trayecto marcado con `elegible: true` —y con más de una hora en `salidas`—
-saca sus horas como botones dentro de *Confirmar*, junto a los alérgenos, más
-un «No lo necesito». Los pinta `camposVuelta()` y la elección es exclusiva.
+saca sus horas como botones debajo de los recorridos, en la propia sección
+*Transporte*, más un «No lo necesito». Los pinta `camposVuelta()`, que añade
+también el botón de guardar, y la elección es exclusiva. Sin trayecto elegible
+no hay botones ni botón de enviar: la sección se queda en los recorridos.
 
-Lo elegido viaja a la hoja en el mismo POST que la confirmación, en el campo
-`vuelta`, y acaba en la columna G:
+Lo elegido viaja a la hoja en su propio POST, con el campo `vuelta` y nada más,
+y acaba en la columna G:
 
 - `21:30` / `23:30` — la hora elegida, tal cual está escrita en `salidas`.
 - `No` — no coge el autobús (la constante `SIN_VUELTA`).
@@ -264,3 +307,7 @@ queda en la hoja; solo desaparece la sección, y vuelve si cambia de idea.
 - `robots.txt` y el `<meta robots>` evitan que los enlaces acaben indexados.
 - El POST se manda con `Content-Type: text/plain` a propósito: `application/json`
   dispara el preflight CORS, que Apps Script no responde.
+- Los formularios independientes necesitan la escritura parcial de
+  `guardarRespuesta_()`, así que con un backend viejo implementado se pisarían
+  unos a otros: al tocar `Code.gs` hay que **crear una implementación nueva**
+  (ver *Configuración*), no solo guardar el archivo.
