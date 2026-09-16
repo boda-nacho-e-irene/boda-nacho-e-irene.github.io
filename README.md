@@ -44,6 +44,39 @@ date* dentro), dedicatoria, playlist, transporte, alojamiento, sitio web.
 *Confirmar* va arriba a propósito: es lo único que necesitamos de verdad, y así
 se responde sin bajar por toda la invitación.
 
+### Emblema de sección
+
+Cada sección se presenta con un emblema encima del título. Por defecto es un
+arco románico dibujado con CSS —un rectángulo con las esquinas de arriba
+redondeadas y sin borde abajo—, así que no cuesta ni un archivo ni una petición.
+
+Para darle icono propio a una sección basta con dejar el archivo en `img/iconos/`
+con el `id` de la sección como nombre y extensión `.svg`:
+
+```
+img/iconos/el-dia.svg
+img/iconos/transporte.svg
+img/iconos/inicio.svg       (sustituye al arco grande de la portada)
+```
+
+No hay que tocar el código. `probarIcono()` lo busca al pintar y lo pone si está.
+El arco se dibuja primero y el icono solo lo sustituye si llega a cargarse, así
+que una sección sin icono se queda con el suyo sin enterarse: ni parpadea ni da
+un salto de maqueta. Los `id` son los de `SECCIONES`: `inicio`, `fotos`,
+`el-dia`, `confirmar`, `cuenta-atras`, `dedicatoria`, `playlist`, `transporte`,
+`alojamiento`, `sitio-web`.
+
+El icono entra como `<img>`, y a un `<img>` la hoja de estilos no puede cambiarle
+el color: dibújalo ya en el ocre de la casa, `#9C6B24`. Manda su altura y no su
+ancho —28 px en los títulos, 84 px en la portada—, así que uno cuadrado y uno
+apaisado se plantan a la misma altura que el arco al que sustituyen.
+
+De cada sección sin icono sale una petición que acaba en 404. Son nueve como
+mucho, van en paralelo y GitHub Pages las contesta con poco más de medio
+kilobyte: es lo que cuesta que añadir un icono no sea más que dejar el archivo
+en su sitio. Si algún día molestan, la alternativa es declarar a mano qué
+secciones tienen icono.
+
 ### Secciones en obras
 
 Las que todavía no tienen contenido viven en la constante `EN_OBRAS`
