@@ -18,12 +18,56 @@
 
 <style>
   :root {
+    /* ---------- color ---------- */
     --tinta:   #26302B;   /* verde-negro de la sombra de la nave */
     --piedra:  #E9E5D9;   /* caliza fría, fondo */
     --hueco:   #D8D2C2;   /* juntas y bordes */
     --ocre:    #9C6B24;   /* piedra románica a última hora de la tarde */
     --musgo:   #5B6B57;   /* texto secundario */
     --error:   #8A3324;
+
+    /* Derivados. Antes andaban sueltos por la hoja como rgba() escritos a mano;
+       juntos aquí se cambian de una vez y no se descuadran entre sí. */
+    --tinta-honda: #1A221D;               /* tinta un punto más oscura: hover del botón */
+    --papel:       #F3F0E7;               /* medio tono por encima de la piedra */
+    --velo:        rgba(38,48,43,.35);
+    --tinta-suave: rgba(38,48,43,.055);
+    --ocre-suave:  rgba(156,107,36,.10);
+    --campo:       rgba(255,255,255,.45);
+
+    /* ---------- tipos ---------- */
+    --serif: "Cormorant Garamond", Georgia, serif;
+    --sans:  Karla, "Segoe UI", system-ui, sans-serif;
+
+    --t-rotulo: .6875rem;   /* versalitas: rótulos, sellos, pistas */
+    --t-menor:  .8125rem;
+    --t-nota:   .875rem;
+    --t-ui:     .9375rem;   /* etiquetas, botones, texto de formulario */
+    --t-medio:  1.125rem;
+    --t-sub:    1.25rem;
+    --t-titulo: clamp(1.6rem, 5.5vw, 2.1rem);
+    --t-reloj:  clamp(2.2rem, 11vw, 3.2rem);
+    --t-nombre: clamp(2.4rem, 13vw, 4.4rem);
+
+    /* ---------- espacio ---------- */
+    /* Seis pasos para todo. El margen de página va aparte porque lo usan también
+       las sangrías: cambiarlo ahí mueve la galería con él, sin tocar nada más. */
+    --e1: .5rem;
+    --e2: .75rem;
+    --e3: 1.25rem;
+    --e4: 2rem;
+    --e5: 3.25rem;
+    --e6: 5rem;
+    --margen: 1.5rem;
+    /* Lo que el hilo se queda corto antes del emblema: baja hasta aquí y para,
+       no llega a tocarlo. */
+    --hilo-aire: .875rem;
+
+    /* ---------- forma ---------- */
+    --r:   3px;
+    --r-g: 6px;
+    --linea:  1px solid var(--hueco);
+    --sombra: 0 1px 2px rgba(38,48,43,.04), 0 6px 20px rgba(38,48,43,.06);
   }
 
   * { box-sizing: border-box; }
@@ -32,18 +76,27 @@
 
   body {
     margin: 0;
-    background: var(--piedra);
     color: var(--tinta);
-    font-family: Karla, "Segoe UI", system-ui, sans-serif;
+    font-family: var(--sans);
     font-size: 17px;
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
+
+    /* Grano de papel: un feTurbulence de unos 200 bytes en el propio CSS, sin
+       archivo ni petición de red. La capa de color de encima lo deja en un 4%,
+       que es lo justo para que la caliza no sea un plano liso. Sin `fixed`: el
+       grano baja con la página, como el papel, y de paso nos ahorramos el
+       repintado caro de los fondos fijos en móvil. */
+    background-color: var(--piedra);
+    background-image:
+      linear-gradient(rgba(233,229,217,.96), rgba(233,229,217,.96)),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
   }
 
   main {
     max-width: 30rem;
     margin: 0 auto;
-    padding: 2.5rem 1.5rem 4rem;
+    padding: var(--e4) var(--margen) var(--e6);
   }
 
   /* ---------- secciones ---------- */
@@ -51,76 +104,180 @@
   /* El botón del índice ocupa la esquina superior en móvil: dejamos hueco
      para que al saltar a una sección el título no quede debajo. */
   .seccion, .trayecto { scroll-margin-top: 4.5rem; }
-  .seccion + .seccion { margin-top: 3.75rem; }
+  .seccion { position: relative; }
+  .seccion + .seccion { margin-top: var(--e5); }
   /* Las secciones de después de «Confirmar» se esconden si alguien no viene. */
   .seccion[hidden] { display: none; }
 
+  /* El hilo. Antes el hueco entre secciones estaba vacío y la página se leía
+     como una pila de bloques sueltos; ahora baja por él un filete que muere en
+     el arco del título siguiente, y las secciones quedan encadenadas.
+     Va colgado del margen y no del bloque: en «Confirmar», que es una caja con
+     fondo, el hilo llega hasta su borde de arriba en vez de dibujarse dentro. */
+  .seccion + .seccion::before {
+    content: '';
+    position: absolute;
+    left: calc(50% - .5px);
+    bottom: calc(100% + var(--hilo-aire));
+    width: 1px;
+    height: calc(var(--e5) - var(--hilo-aire));
+    background: var(--hueco);
+  }
+  /* La portada se despide con más aire y el hilo lo cruza entero. */
+  #inicio + .seccion::before { height: calc(var(--e6) - var(--hilo-aire)); }
+
+  /* Emblema de sección: el arco por defecto, o el icono de `img/iconos/<id>.svg`
+     si lo hay. La altura va fija para que cambiar de uno a otro no mueva nada
+     de sitio, y el contenido va centrado en ella. */
+  .emblema {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    margin: 0 0 var(--e2);
+  }
+
+  /* Arco románico en miniatura: el mismo motivo que el sobre y el índice. Es un
+     rectángulo con las esquinas de arriba redondeadas y sin borde abajo, así que
+     no hace falta ni SVG ni imagen para dibujarlo. */
+  .arco-chico {
+    display: block;
+    width: 14px;
+    height: 17px;
+    border: 1px solid var(--ocre);
+    border-bottom: 0;
+    border-radius: 50% 50% 0 0;
+  }
+
+  /* El icono manda sobre su alto, no sobre su ancho: así uno cuadrado y uno
+     apaisado se plantan a la misma altura que el arco al que sustituyen. */
+  .icono {
+    display: block;
+    width: auto;
+    height: 28px;
+    max-width: 44px;
+  }
+
   .titulo {
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: 1.6rem;
+    font-family: var(--serif);
+    font-size: var(--t-titulo);
     font-style: italic;
     font-weight: 400;
+    letter-spacing: -.01em;
     text-align: center;
-    margin: 0 0 1.25rem;
+    margin: 0 0 var(--e3);
   }
 
   /* ---------- portada ---------- */
 
-  .arco { display: block; margin: 0 auto 1.75rem; width: 88px; height: auto; }
+  /* La única sección que se lleva la pantalla entera: el nombre del invitado es
+     lo primero y lo único que se ve al apartar el sobre. `svh` en vez de `vh`
+     para que no pegue el salto de la barra del navegador en móvil. */
+  #inicio {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 74vh;
+    min-height: 74svh;
+    padding-bottom: var(--e4);
+  }
+  #inicio + .seccion { margin-top: var(--e6); }
+
+  .emblema-grande { height: 84px; margin-bottom: var(--e3); }
+  .emblema-grande .icono { height: 84px; max-width: 132px; }
+
+  .arco { display: block; width: 76px; height: auto; }
   .arco path { fill: none; stroke: var(--ocre); stroke-width: 1.25; }
 
+  /* Rótulo de invitación impresa: versalitas sobre una línea fina. */
   .novios {
     text-align: center;
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: 1.0625rem;
-    letter-spacing: .14em;
+    font-family: var(--sans);
+    font-size: var(--t-rotulo);
+    font-weight: 500;
+    letter-spacing: .22em;
+    text-transform: uppercase;
     color: var(--ocre);
-    margin: 0 0 2.25rem;
+    margin: 0 0 var(--e5);
+    padding-bottom: var(--e2);
+    border-bottom: var(--linea);
   }
 
   .nombre {
-    font-family: "Cormorant Garamond", Georgia, serif;
+    font-family: var(--serif);
     font-style: italic;
     font-weight: 300;
-    font-size: clamp(2.4rem, 13vw, 3.9rem);
-    line-height: 1.05;
+    font-size: var(--t-nombre);
+    letter-spacing: -.015em;
+    line-height: 1.02;
     text-align: center;
-    margin: 0 0 1.25rem;
+    margin: 0 0 var(--e3);
     text-wrap: balance;
   }
 
   .cita {
     text-align: center;
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: 1.25rem;
+    font-family: var(--serif);
+    font-size: var(--t-sub);
     line-height: 1.5;
     color: var(--musgo);
     margin: 0;
+    text-wrap: pretty;
   }
   .cita strong { font-weight: 400; color: var(--tinta); }
 
   /* ---------- fotos ---------- */
 
-  /* El margen inferior lo pone `.seccion + .seccion`, como en las demás. */
-  .galeria { display: grid; gap: .75rem; margin: 0; }
-  .galeria figure { margin: 0; }
+  /* El margen inferior lo pone `.seccion + .seccion`, como en las demás.
+     Rejilla de dos columnas: una de cada tres fotos ocupa el ancho entero, así
+     el ojo baja con un ritmo desigual en vez de por una escalera de imágenes
+     iguales. `dense` rellena los huecos que deja el salto de anchura.
+     El margen negativo cancela el padding de `main`: las fotos llegan al borde
+     de la columna y el texto se queda con su medida. */
+  .galeria {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-flow: dense;
+    gap: var(--e1);
+    margin: 0 calc(var(--margen) * -1);
+  }
+
+  /* Los hijos son `<figure>` o `<img>` pelado, según la foto lleve pie o no: las
+     reglas de rejilla van sobre `.galeria > *`, nunca sobre `figure`. */
+  .galeria > * { margin: 0; min-width: 0; }
+  .galeria > *:nth-child(3n+1) { grid-column: 1 / -1; }
 
   .foto {
     display: block;
     width: 100%;
     height: auto;
-    border-radius: 2px;
+    border-radius: var(--r);
     /* el hueco queda del color de las juntas mientras la foto baja */
     background: var(--hueco);
   }
 
+  /* Solo se recortan las estrechas, y a un vertical suave: son pequeñas y así
+     las dos de una fila acaban a la misma altura. Las de ancho completo van con
+     su proporción real, que es donde se ve la gente y donde un recorte hace
+     daño. */
+  .galeria > *:not(:nth-child(3n+1)) .foto,
+  .galeria > .foto:not(:nth-child(3n+1)) {
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+
   .pie {
-    font-family: "Cormorant Garamond", Georgia, serif;
+    font-family: var(--serif);
     font-style: italic;
-    font-size: 1rem;
+    font-size: var(--t-ui);
     text-align: center;
     color: var(--musgo);
-    margin: .5rem 0 0;
+    margin: var(--e1) 0 0;
+  }
+  /* La foto ancha llega al borde de la columna; su pie no puede ir pegado a él. */
+  .galeria > *:nth-child(3n+1) .pie {
+    text-align: left;
+    padding: 0 var(--margen);
   }
 
   /* ---------- el día ---------- */
@@ -130,12 +287,12 @@
     display: grid;
     grid-template-columns: 5.5rem 1fr;
     gap: 0 1rem;
-    padding: .8rem 0;
-    border-top: 1px solid var(--hueco);
+    padding: var(--e2) 0;
+    border-top: var(--linea);
   }
-  .datos > div:last-child { border-bottom: 1px solid var(--hueco); }
+  .datos > div:last-child { border-bottom: var(--linea); }
   .datos dt {
-    font-size: .8125rem;
+    font-size: var(--t-menor);
     letter-spacing: .1em;
     text-transform: uppercase;
     color: var(--musgo);
@@ -145,8 +302,8 @@
 
   .mapa {
     display: inline-block;
-    margin-top: 1.125rem;
-    font-size: .9375rem;
+    margin-top: var(--e3);
+    font-size: var(--t-ui);
     color: var(--ocre);
     text-decoration: none;
     border-bottom: 1px solid currentColor;
@@ -160,8 +317,8 @@
 
   .nav-boton {
     position: fixed;
-    top: .75rem;
-    left: .75rem;
+    top: var(--e2);
+    left: var(--e2);
     z-index: 40;
     width: 2.75rem;
     height: 2.75rem;
@@ -170,7 +327,8 @@
     align-items: center;
     justify-content: center;
     background: var(--piedra);
-    border: 1px solid var(--hueco);
+    border: var(--linea);
+    border-radius: var(--r);
   }
   .nav-boton span {
     display: block;
@@ -188,7 +346,7 @@
     position: fixed;
     top: 0; right: 0; bottom: 0; left: 0;
     z-index: 30;
-    background: rgba(38,48,43,.35);
+    background: var(--velo);
     opacity: 0;
     visibility: hidden;
     transition: opacity .3s ease, visibility .3s ease;
@@ -200,9 +358,11 @@
     top: 0; left: 0; bottom: 0;
     z-index: 35;
     width: min(76vw, 16rem);
-    padding: 4.75rem 1.5rem 2rem;
+    padding: 4.75rem var(--margen) var(--e4);
     background: var(--piedra);
-    border-right: 1px solid var(--hueco);
+    border-right: var(--linea);
+    /* El panel se despega del velo en vez de quedarse plano contra él. */
+    box-shadow: 8px 0 28px rgba(38,48,43,.12);
     overflow-y: auto;
     /* visibility apagada: con el panel cerrado los enlaces salen del orden
        de tabulación en vez de quedarse fuera de pantalla y enfocables. */
@@ -212,29 +372,44 @@
   }
   .nav.abierto { visibility: visible; transform: none; }
 
-  .nav ol { list-style: none; margin: 0; padding: 0; }
+  /* El mismo hilo que encadena las secciones, aquí colgando las entradas del
+     índice. Va de centro a centro de arco, no de punta a punta de la lista. */
+  .nav ol { list-style: none; margin: 0; padding: 0; position: relative; }
+  .nav ol::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: calc(.55rem + 5px);
+    bottom: calc(.55rem + 5px);
+    width: 1px;
+    background: var(--hueco);
+  }
   .nav li + li { margin-top: .125rem; }
 
   .nav-enlace {
     display: flex;
     align-items: center;
-    gap: .75rem;
+    gap: var(--e2);
     padding: .55rem 0;
     color: var(--musgo);
     text-decoration: none;
-    font-size: .8125rem;
+    font-size: var(--t-menor);
     letter-spacing: .12em;
     text-transform: uppercase;
     transition: color .18s;
   }
   .nav-enlace:hover { color: var(--tinta); }
 
+  /* El mismo arco de los títulos, a tamaño de viñeta. */
   .nav-punto {
+    position: relative;
+    z-index: 1;
     flex: none;
-    width: 8px;
-    height: 8px;
+    width: 9px;
+    height: 11px;
+    background: var(--piedra);
     border: 1px solid var(--musgo);
-    border-radius: 50%;
+    border-radius: 50% 50% 1px 1px;
     transition: background-color .22s, border-color .22s, transform .22s;
   }
 
@@ -242,7 +417,7 @@
   .nav-enlace[aria-current="true"] .nav-punto {
     background: var(--ocre);
     border-color: var(--ocre);
-    transform: scale(1.35);
+    transform: scale(1.2);
   }
 
   @media (min-width: 62rem) {
@@ -251,28 +426,38 @@
       top: 50%;
       bottom: auto;
       left: 2rem;
-      left: max(1.5rem, calc(50vw - 25.5rem));
+      left: max(1.5rem, calc(50vw - 29rem));
       width: auto;
-      padding: 0;
+      padding: var(--e1) 0;
       background: none;
       border: 0;
+      box-shadow: none;
       overflow: visible;
       visibility: visible;
       transform: translateY(-50%);
     }
     .seccion, .trayecto { scroll-margin-top: 2.5rem; }
+    /* La columna respira: con 30rem al lado del raíl la página se veía como un
+       móvil estirado. El margen de página sube con ella y las sangrías van solas. */
+    :root { --margen: 2rem; }
+    main { max-width: 34rem; }
   }
 
   /* ---------- secciones en obras ---------- */
 
-  .wip-linea { text-align: center; margin: -.5rem 0 1.25rem; }
+  .wip-linea {
+    text-align: center;
+    margin: calc(var(--e1) * -1) 0 var(--e3);
+  }
 
+  /* Rótulo entre dos líneas finas, no una caja gris: se lee como pendiente sin
+     parecer que algo ha fallado. */
   .wip {
     display: inline-block;
-    padding: .2rem .7rem;
-    border: 1px solid var(--hueco);
-    border-radius: 2px;
-    font-size: .6875rem;
+    padding: var(--e1) var(--e2);
+    border-top: var(--linea);
+    border-bottom: var(--linea);
+    font-size: var(--t-rotulo);
     letter-spacing: .16em;
     text-transform: uppercase;
     color: var(--ocre);
@@ -281,6 +466,10 @@
   /* lo que irá aquí cuando la sección deje de estar en obras */
   .promesa {
     text-align: center;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: var(--t-medio);
+    line-height: 1.45;
     color: var(--musgo);
     margin: 0;
     text-wrap: pretty;
@@ -289,7 +478,7 @@
   /* ---------- transporte ---------- */
 
   /* Base = pantalla estrecha: uno debajo del otro. */
-  .trayectos { display: grid; gap: 2rem; }
+  .trayectos { display: grid; gap: var(--e4); }
 
   /* En cuanto caben, van en paralelo —ida a un lado, vuelta al otro— separados
      por la misma línea fina que las juntas del resto de la página. El grid se
@@ -301,21 +490,21 @@
       grid-auto-columns: 1fr;
       gap: 0;
     }
-    .trayecto { padding-right: 1.125rem; }
+    .trayecto { padding-right: var(--e3); }
     .trayecto + .trayecto {
       padding-right: 0;
-      padding-left: 1.125rem;
-      border-left: 1px solid var(--hueco);
+      padding-left: var(--e3);
+      border-left: var(--linea);
     }
   }
 
   .sub-titulo {
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: 1.25rem;
+    font-family: var(--serif);
+    font-size: var(--t-sub);
     font-style: italic;
     font-weight: 400;
     text-align: center;
-    margin: 0 0 .75rem;
+    margin: 0 0 var(--e2);
   }
 
   /* La hora (o las dos horas) a las que sale ese autobús. */
@@ -324,7 +513,7 @@
     flex-direction: column;
     align-items: center;
     gap: .45rem;
-    margin: 0 0 1.375rem;
+    margin: 0 0 var(--e3);
   }
 
   /* Con dos horas y la columna muy justa, la segunda baja de línea en vez de
@@ -332,7 +521,7 @@
   .horas { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; }
 
   .salidas-rotulo {
-    font-size: .6875rem;
+    font-size: var(--t-rotulo);
     letter-spacing: .14em;
     text-transform: uppercase;
     color: var(--musgo);
@@ -341,9 +530,9 @@
   .hora {
     padding: .15rem .55rem;
     border: 1px solid var(--ocre);
-    border-radius: 2px;
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: 1.125rem;
+    border-radius: var(--r);
+    font-family: var(--serif);
+    font-size: var(--t-medio);
     line-height: 1.35;
     font-variant-numeric: tabular-nums;
   }
@@ -352,7 +541,7 @@
      origen y en el destino, hueco en las paradas de en medio. */
   .ruta { list-style: none; margin: 0; padding: 0; }
 
-  .ruta li { position: relative; padding: 0 0 1.125rem 1.5rem; }
+  .ruta li { position: relative; padding: 0 0 var(--e3) 1.5rem; }
   .ruta li:last-child { padding-bottom: 0; }
 
   /* La línea baja desde debajo de un punto hasta justo encima del siguiente. */
@@ -362,7 +551,7 @@
     left: 3px;
     top: 1rem;
     bottom: -.375rem;
-    border-left: 1px solid var(--hueco);
+    border-left: var(--linea);
   }
   .ruta li:last-child::before { display: none; }
 
@@ -379,6 +568,9 @@
   }
   .ruta li:first-child::after,
   .ruta li:last-child::after {
+    left: -1px;
+    width: 9px;
+    height: 9px;
     background: var(--ocre);
     border-color: var(--ocre);
   }
@@ -387,13 +579,25 @@
 
   .ruta-detalle {
     display: block;
-    font-size: .875rem;
+    font-size: var(--t-nota);
     color: var(--musgo);
   }
 
   /* ---------- formulario ---------- */
 
-  .eleccion { display: grid; gap: .625rem; margin-bottom: .75rem; }
+  /* Confirmar es lo único que necesitamos de verdad, así que es lo único que se
+     levanta del fondo. El margen negativo cancela el padding de `main`: la caja
+     se ensancha pero el contenido conserva la misma medida que antes. */
+  #confirmar {
+    margin-inline: calc(var(--margen) * -1);
+    padding: var(--e4) var(--margen);
+    background: var(--papel);
+    border: var(--linea);
+    border-radius: var(--r-g);
+    box-shadow: var(--sombra);
+  }
+
+  .eleccion { display: grid; gap: var(--e1); margin-bottom: var(--e2); }
 
   /* Sale al elegir y se queda plegado mientras no haya respuesta. Plegado,
      sus dos márgenes suman los 2rem que había bajo los botones, así que la
@@ -404,12 +608,12 @@
     opacity: 0;
     transition: max-height .35s ease, opacity .3s ease;
     text-align: center;
-    font-family: "Cormorant Garamond", Georgia, serif;
+    font-family: var(--serif);
     font-style: italic;
-    font-size: 1.125rem;
+    font-size: var(--t-medio);
     line-height: 1.4;
     color: var(--ocre);
-    margin: 0 0 1.25rem;
+    margin: 0 0 var(--e3);
     text-wrap: pretty;
   }
   .respuesta.visible { max-height: 6rem; opacity: 1; }
@@ -418,21 +622,25 @@
     font: inherit;
     color: inherit;
     cursor: pointer;
-    border-radius: 2px;
+    border-radius: var(--r);
   }
 
   .opcion {
     background: transparent;
-    border: 1px solid var(--hueco);
-    padding: .9rem 1rem;
-    min-height: 3rem;
+    border: var(--linea);
+    border-radius: var(--r);
+    padding: var(--e2) 1rem;
+    min-height: 3.25rem;
     text-align: center;
-    transition: border-color .18s, background-color .18s;
+    transition: border-color .18s, background-color .18s, box-shadow .18s;
   }
   .opcion:hover { border-color: var(--musgo); }
+  /* El acento va de sombra interior, no de borde: marcar la elección no mueve
+     el texto ni un píxel. */
   .opcion[aria-pressed="true"] {
     border-color: var(--tinta);
-    background: rgba(38,48,43,.055);
+    background: var(--tinta-suave);
+    box-shadow: inset 3px 0 0 var(--ocre);
     font-weight: 600;
   }
 
@@ -444,43 +652,46 @@
   }
   .detalle.abierto { max-height: 70rem; opacity: 1; }
 
-  fieldset { border: 0; padding: 0; margin: 0 0 1.75rem; }
+  fieldset { border: 0; padding: 0; margin: 0 0 var(--e4); }
 
   legend {
     padding: 0;
-    font-size: .9375rem;
+    font-size: var(--t-ui);
     font-weight: 600;
     margin-bottom: .25rem;
   }
 
-  .ayuda { font-size: .875rem; color: var(--musgo); margin: 0 0 .875rem; }
+  .ayuda { font-size: var(--t-nota); color: var(--musgo); margin: 0 0 var(--e2); }
 
-  .chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: var(--e1); }
 
   .chip {
     background: transparent;
-    border: 1px solid var(--hueco);
-    padding: .5rem .875rem;
-    font-size: .9375rem;
+    border: var(--linea);
+    padding: var(--e1) .875rem;
+    font-size: var(--t-ui);
     transition: border-color .18s, background-color .18s;
   }
+  .chip:hover { border-color: var(--musgo); }
   .chip[aria-pressed="true"] {
     border-color: var(--ocre);
-    background: rgba(156,107,36,.1);
+    background: var(--ocre-suave);
     font-weight: 500;
   }
 
-  label.campo { display: block; font-size: .9375rem; font-weight: 600; margin-bottom: .375rem; }
+  label.campo { display: block; font-size: var(--t-ui); font-weight: 600; margin-bottom: .375rem; }
 
   input[type="text"], input[type="search"], textarea {
     font: inherit;
     width: 100%;
-    background: rgba(255,255,255,.45);
-    border: 1px solid var(--hueco);
-    border-radius: 2px;
-    padding: .7rem .75rem;
+    background: var(--campo);
+    border: var(--linea);
+    border-radius: var(--r);
+    padding: var(--e2);
     color: inherit;
+    transition: border-color .18s;
   }
+  input[type="text"]:hover, input[type="search"]:hover, textarea:hover { border-color: var(--musgo); }
   textarea { resize: vertical; min-height: 4.5rem; }
 
   .enviar {
@@ -489,41 +700,44 @@
     background: var(--tinta);
     color: var(--piedra);
     border: 1px solid var(--tinta);
+    border-radius: var(--r);
     padding: 1rem;
     min-height: 3.25rem;
     font-weight: 600;
     letter-spacing: .02em;
-    transition: opacity .18s;
+    transition: background-color .18s, border-color .18s, opacity .18s;
   }
-  .enviar:hover { opacity: .88; }
+  /* Oscurecer, no desteñir: sobre fondo claro bajar la opacidad lo aclaraba. */
+  .enviar:hover { background: var(--tinta-honda); border-color: var(--tinta-honda); }
   .enviar[disabled] { opacity: .45; cursor: default; }
+  .enviar[disabled]:hover { background: var(--tinta); border-color: var(--tinta); }
 
   :focus-visible { outline: 2px solid var(--ocre); outline-offset: 2px; }
 
-  .estado { text-align: center; font-size: .9375rem; margin: 1rem 0 0; min-height: 1.5rem; }
+  .estado { text-align: center; font-size: var(--t-ui); margin: 1rem 0 0; min-height: 1.5rem; }
   .estado.mal { color: var(--error); }
 
-  .centrado { text-align: center; padding: 4rem 0; color: var(--musgo); }
+  .centrado { text-align: center; padding: var(--e6) 0; color: var(--musgo); }
 
   /* ---------- sugerencias de música ---------- */
 
-  .resultados { margin: 0 0 1.75rem; }
+  .resultados { margin: 0 0 var(--e4); }
 
   .resultado {
     display: grid;
-    grid-template-columns: 48px 1fr auto;
+    grid-template-columns: 56px 1fr auto;
     align-items: center;
-    gap: .75rem;
-    padding: .625rem 0;
-    border-top: 1px solid var(--hueco);
+    gap: var(--e2);
+    padding: var(--e2) 0;
+    border-top: var(--linea);
   }
   .resultado:first-child { border-top: 0; }
 
   .caratula {
     display: block;
-    width: 48px;
-    height: 48px;
-    border-radius: 2px;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--r);
     background: var(--hueco);
   }
 
@@ -537,69 +751,74 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .pista b { font-size: .9375rem; font-weight: 600; }
-  .pista span { font-size: .8125rem; color: var(--musgo); }
+  .pista b { font-size: var(--t-ui); font-weight: 600; }
+  .pista span { font-size: var(--t-menor); color: var(--musgo); }
 
   .anadir, .quitar {
     background: transparent;
-    border: 1px solid var(--hueco);
+    border: var(--linea);
     padding: .45rem .8rem;
-    font-size: .875rem;
+    font-size: var(--t-nota);
     white-space: nowrap;
     transition: border-color .18s, background-color .18s, color .18s;
   }
-  .anadir:hover { border-color: var(--ocre); background: rgba(156,107,36,.1); }
+  .anadir:hover { border-color: var(--ocre); background: var(--ocre-suave); }
   .quitar { color: var(--musgo); }
   .quitar:hover { border-color: var(--error); color: var(--error); }
 
-  .subtitulo { font-size: .9375rem; font-weight: 600; margin: 0 0 .5rem; }
+  .subtitulo { font-size: var(--t-ui); font-weight: 600; margin: 0 0 var(--e1); }
 
   /* Va encima del buscador, así que necesita el mismo aire que un fieldset. */
-  .mis-canciones { list-style: none; margin: 0 0 1.75rem; padding: 0; }
+  .mis-canciones { list-style: none; margin: 0 0 var(--e4); padding: 0; }
   .mis-canciones li {
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
-    gap: .75rem;
-    padding: .625rem 0;
-    border-top: 1px solid var(--hueco);
+    gap: var(--e2);
+    padding: var(--e2) 0;
+    border-top: var(--linea);
   }
   .mis-canciones li:first-child { border-top: 0; }
   .mis-canciones li.vacio { display: block; }
 
-  .vacio { color: var(--musgo); font-size: .9375rem; margin: 0; }
+  .vacio { color: var(--musgo); font-size: var(--t-ui); margin: 0; }
 
   /* ---------- cuenta atrás ---------- */
 
-  /* Columnas de ancho fijo: las cifras no mueven la maqueta al cambiar. */
+  /* Columnas de ancho fijo: las cifras no mueven la maqueta al cambiar. Las
+     juntas verticales entre celdas son las mismas líneas finas del resto de la
+     página, aquí haciendo de sillería. */
   .digitos {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: .5rem;
+    gap: 0;
     text-align: center;
   }
 
+  .digitos > div { padding: var(--e1) 0; }
+  .digitos > div + div { border-left: var(--linea); }
+
   .digitos .valor {
     display: block;
-    font-family: "Cormorant Garamond", Georgia, serif;
+    font-family: var(--serif);
     font-weight: 300;
-    font-size: clamp(1.9rem, 9vw, 2.6rem);
+    font-size: var(--t-reloj);
     line-height: 1;
     font-variant-numeric: tabular-nums;
   }
 
   .digitos .rotulo {
     display: block;
-    margin-top: .375rem;
-    font-size: .6875rem;
+    margin-top: var(--e1);
+    font-size: var(--t-rotulo);
     letter-spacing: .14em;
     text-transform: uppercase;
     color: var(--musgo);
   }
 
   .hoy {
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: 1.6rem;
+    font-family: var(--serif);
+    font-size: var(--t-titulo);
     font-style: italic;
     text-align: center;
     margin: 0;
@@ -610,24 +829,24 @@
   /* Vive debajo de la cuenta atrás, dentro de la misma sección, separado por la
      misma línea fina que las juntas del resto de la página. */
   .calendario {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--hueco);
+    margin-top: var(--e4);
+    padding-top: var(--e3);
+    border-top: var(--linea);
     text-align: center;
   }
 
   .calendario-rotulo {
     display: block;
-    margin-bottom: .5rem;
-    font-size: .6875rem;
+    margin-bottom: var(--e1);
+    font-size: var(--t-rotulo);
     letter-spacing: .16em;
     text-transform: uppercase;
     color: var(--musgo);
   }
 
   .calendario-texto {
-    margin: 0 0 1.125rem;
-    font-size: .9375rem;
+    margin: 0 0 var(--e3);
+    font-size: var(--t-ui);
     color: var(--musgo);
     text-wrap: pretty;
   }
@@ -636,20 +855,20 @@
     background: transparent;
     color: var(--ocre);
     border: 1px solid var(--ocre);
-    padding: .8rem 1.25rem;
+    padding: var(--e2) var(--e3);
     min-height: 3rem;
-    font-size: .9375rem;
+    font-size: var(--t-ui);
     letter-spacing: .02em;
     transition: background-color .18s, color .18s;
   }
   .guardar:hover { background: var(--ocre); color: var(--piedra); }
 
-  .calendario-otro { margin: .875rem 0 0; font-size: .875rem; }
+  .calendario-otro { margin: var(--e2) 0 0; font-size: var(--t-nota); }
 
   .calendario-otro a {
     color: var(--musgo);
     text-decoration: none;
-    border-bottom: 1px solid var(--hueco);
+    border-bottom: var(--linea);
     padding-bottom: 1px;
   }
   .calendario-otro a:hover { color: var(--tinta); border-bottom-color: currentColor; }
@@ -677,8 +896,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2rem;
-    padding: 1.5rem;
+    gap: var(--e4);
+    padding: var(--margen);
     background: var(--piedra);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
@@ -712,7 +931,7 @@
     top: 0; right: 0; bottom: 0; left: 0;
     z-index: 1;
     background: var(--hueco);
-    border-radius: 3px;
+    border-radius: var(--r);
     box-shadow: 0 14px 30px rgba(38,48,43,.15);
   }
 
@@ -723,7 +942,7 @@
     z-index: 2;
     background: #FAF8F1;
     border: 1px solid rgba(38,48,43,.08);
-    border-radius: 2px;
+    border-radius: var(--r);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -738,7 +957,7 @@
   .sobre-frente {
     top: 38%; right: 0; bottom: 0; left: 0;
     z-index: 3;
-    border-radius: 0 0 3px 3px;
+    border-radius: 0 0 var(--r) var(--r);
     background:
       linear-gradient(to bottom right, transparent calc(50% - .5px), rgba(38,48,43,.08) 50%, transparent calc(50% + .5px)) left / 50% 100% no-repeat,
       linear-gradient(to bottom left,  transparent calc(50% - .5px), rgba(38,48,43,.08) 50%, transparent calc(50% + .5px)) right / 50% 100% no-repeat,
@@ -763,7 +982,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: "Cormorant Garamond", Georgia, serif;
+    font-family: var(--serif);
     font-style: italic;
     font-weight: 300;
     font-size: calc(var(--w) * .078);
@@ -807,7 +1026,7 @@
 
   .sobre-pista {
     margin: 0;
-    font-size: .8125rem;
+    font-size: var(--t-menor);
     letter-spacing: .14em;
     text-transform: uppercase;
     color: var(--musgo);
@@ -834,11 +1053,31 @@
     100% { transform: rotateX(-167deg); z-index: 0; }
   }
 
-  /* ---------- entrada ---------- */
+  /* ---------- entrada y revelado ---------- */
 
   .entra { animation: subir .7s ease both; }
   .arco path { stroke-dasharray: 340; stroke-dashoffset: 340; }
   .entra .arco path { animation: trazo 1.1s ease .15s forwards; }
+
+  /* Las secciones se esconden solo bajo `.con-revelado`, y esa clase la pone el
+     JS al montar el observador. Si el navegador no trae IntersectionObserver, o
+     si el script se cae antes, la clase no llega y la invitación se ve entera:
+     nunca una página en blanco por culpa de una animación. */
+  .con-revelado .seccion {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity .6s ease .18s, transform .6s ease .18s;
+  }
+  .con-revelado .seccion.dentro { opacity: 1; transform: none; }
+
+  /* El retardo de arriba es para esto: primero baja el hilo, y la sección que
+     cuelga de él aparece después. */
+  .con-revelado .seccion::before {
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform .45s ease;
+  }
+  .con-revelado .seccion.dentro::before { transform: scaleY(1); }
 
   @keyframes subir { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   @keyframes trazo { to { stroke-dashoffset: 0; } }
@@ -848,6 +1087,8 @@
     * { animation: none !important; transition: none !important; }
     .arco path { stroke-dashoffset: 0; }
     .detalle, .respuesta { transition: none; }
+    .con-revelado .seccion { opacity: 1; transform: none; }
+    .con-revelado .seccion::before { transform: scaleY(1); }
   }
 </style>
 </head>
@@ -1053,7 +1294,36 @@ function nombreEnSobre(nombre) {
    entrada espera a que el sobre se aparte. */
 function animarEntrada() {
   var c = document.getElementById('contenido');
-  if (c) { c.className = 'entra'; }
+  if (!c) return;
+  c.className = 'entra';
+  revelarSecciones(c);
+}
+
+/* Cada sección entra sola al asomar por la pantalla. La clase `con-revelado`
+   se pone aquí y no en el HTML a propósito: es la que esconde las secciones en
+   la hoja de estilos, así que si el navegador no trae IntersectionObserver —o
+   si esto se cae antes de llegar— la invitación se ve entera en vez de
+   quedarse en blanco. */
+function revelarSecciones(c) {
+  var secciones = c.getElementsByTagName('section');
+  var i;
+
+  if (sinMovimiento || !window.IntersectionObserver || !secciones.length) return;
+
+  c.className = 'entra con-revelado';
+  /* La portada ya está en pantalla: se la damos por vista antes de observar
+     nada, para que no parpadee esperando al primer aviso del observador. */
+  secciones[0].className += ' dentro';
+
+  var ojo = new IntersectionObserver(function (entradas) {
+    for (var j = 0; j < entradas.length; j++) {
+      if (!entradas[j].isIntersecting) continue;
+      entradas[j].target.className += ' dentro';
+      ojo.unobserve(entradas[j].target);   // una vez dentro ya no vuelve a salir
+    }
+  }, { rootMargin: '0px 0px -12% 0px' });
+
+  for (i = 1; i < secciones.length; i++) { ojo.observe(secciones[i]); }
 }
 
 function quitarCapa() {
@@ -1137,6 +1407,38 @@ function escapar(s) {
     .replace(/"/g, '&quot;');
 }
 
+/* Cada sección se presenta con su emblema encima del título. Por defecto es el
+   arco románico, dibujado con CSS: no cuesta ni un archivo ni una petición.
+   Si en el repositorio hay un `img/iconos/<id>.svg` con el id de la sección, ese
+   icono lo sustituye. La comprobación la hace `probarIcono()` después de pintar:
+   el arco ya está puesto y solo se cambia si el icono llega, así que ni parpadea
+   ni da un salto, y una sección sin icono se queda con su arco sin enterarse. */
+function titulo(id, texto) {
+  return '<p class="emblema" id="emblema-' + escapar(id) + '" aria-hidden="true">' +
+           '<span class="arco-chico"></span>' +
+         '</p>' +
+         '<h2 class="titulo">' + escapar(texto) + '</h2>';
+}
+
+function ponerIconos() {
+  for (var i = 0; i < SECCIONES.length; i++) { probarIcono(SECCIONES[i].id); }
+}
+
+function probarIcono(id) {
+  var hueco = document.getElementById('emblema-' + id);
+  if (!hueco) return;
+
+  var ruta = 'img/iconos/' + id + '.svg';
+  var prueba = new Image();
+
+  /* Sin `onerror`: si el archivo no está, no hay nada que hacer. El arco lleva
+     pintado desde el principio y se queda como estaba. */
+  prueba.onload = function () {
+    hueco.innerHTML = '<img class="icono" src="' + escapar(ruta) + '" alt="">';
+  };
+  prueba.src = ruta;
+}
+
 /* La invitación se pinta detrás del sobre, así que la primera foto tiene
    los ~1,9 s de la animación para bajar y ya está puesta cuando el sobre
    se aparta. Las demás esperan a que el invitado baje hasta ellas. */
@@ -1165,7 +1467,7 @@ function seccionFotos() {
   var g = galeria(FOTOS);
   if (!g) return '';
   return '<section class="seccion" id="fotos">' +
-           '<h2 class="titulo">Fotos</h2>' + g +
+           titulo('fotos', 'Fotos') + g +
          '</section>';
 }
 
@@ -1229,7 +1531,7 @@ function hayCuenta() {
 function seccionCuenta() {
   if (!hayCuenta()) return '';
   return '<section class="seccion" id="cuenta-atras">' +
-           '<h2 class="titulo">Cuenta atrás</h2>' +
+           titulo('cuenta-atras', 'Cuenta atrás') +
            '<div id="cuenta"></div>' +
            bloqueCalendario() +
          '</section>';
@@ -1495,7 +1797,7 @@ function seccionTransporte() {
   }
 
   return '<section class="seccion" id="transporte">' +
-           '<h2 class="titulo">Transporte</h2>' +
+           titulo('transporte', 'Transporte') +
            '<div class="trayectos">' + html + '</div>' +
            (TRANSPORTE.nota
              ? '<p class="promesa" style="margin-top:2rem">' + escapar(TRANSPORTE.nota) + '</p>'
@@ -1511,7 +1813,7 @@ function seccionEnObras(id) {
   for (var i = 0; i < EN_OBRAS.length; i++) {
     if (EN_OBRAS[i].id !== id) continue;
     return '<section class="seccion" id="' + escapar(id) + '">' +
-             '<h2 class="titulo">' + escapar(EN_OBRAS[i].titulo) + '</h2>' +
+             titulo(id, EN_OBRAS[i].titulo) +
              '<p class="wip-linea"><span class="wip">En preparación</span></p>' +
              '<p class="promesa">' + escapar(EN_OBRAS[i].texto) + '</p>' +
            '</section>';
@@ -1572,7 +1874,7 @@ function arrancarCuenta() {
    la sección. */
 function seccionPlaylist() {
   return '<section class="seccion" id="playlist">' +
-           '<h2 class="titulo">Pon tú la música</h2>' +
+           titulo('playlist', 'Pon tú la música') +
            '<p class="ayuda">Busca hasta ' + MAX_CANCIONES + ' canciones y te las apuntamos. ' +
              'Si añades una más, sustituye a la más antigua.</p>' +
            '<h3 class="subtitulo">Tus canciones</h3>' +
@@ -1840,18 +2142,20 @@ function pintar(d) {
     '<div id="contenido">' +
 
       '<section class="seccion" id="inicio">' +
-        // '<svg class="arco" viewBox="0 0 120 132" aria-hidden="true">' +
-        //  '<path d="M4 130 L4 64 A56 56 0 0 1 116 64 L116 130"/>' +
-        //'</svg>' +
-        '<p class="novios"> FD: ' + escapar(BODA.novios) + '</p>' +
+        '<p class="emblema emblema-grande" id="emblema-inicio" aria-hidden="true">' +
+          '<svg class="arco" viewBox="0 0 120 132">' +
+            '<path d="M4 130 L4 64 A56 56 0 0 1 116 64 L116 130"/>' +
+          '</svg>' +
+        '</p>' +
+        '<p class="novios">' + escapar(BODA.novios) + '</p>' +
         '<h1 class="nombre"> ¡Hola, ' + escapar(d.nombre) + '!</h1>' +
-        '<p class="cita">Como ya sabes <strong> ¡Nos casamos! </strong> y nos encantaría que nos acompañases en este día ta especial. <br> Aquí te dejamos algunos detalles y toda la información que necesitas.</p>' +
+        '<p class="cita">Como ya sabes <strong> ¡Nos casamos! </strong> y nos encantaría que nos acompañases en este día tan especial. <br> Aquí te dejamos algunos detalles y toda la información que necesitas.</p>' +
       '</section>' +
 
       seccionFotos() +
 
       '<section class="seccion" id="el-dia">' +
-        '<h2 class="titulo">El gran día</h2>' +
+        titulo('el-dia', 'El gran día') +
         '<dl class="datos">' +
           '<div><dt>Fecha</dt><dd>' + escapar(BODA.fecha) + '</dd></div>' +
           '<div><dt>Hora</dt><dd>' + escapar(BODA.hora) + '</dd></div>' +
@@ -1863,7 +2167,7 @@ function pintar(d) {
       '</section>' +
 
       '<section class="seccion" id="confirmar">' +
-        '<h2 class="titulo">¿Nos acompañas?</h2>' +
+        titulo('confirmar', '¿Nos acompañas?') +
         '<div class="eleccion">' +
           '<button type="button" class="opcion" id="si" aria-pressed="false">Sí, allí estaré</button>' +
           '<button type="button" class="opcion" id="no" aria-pressed="false">No podré ir</button>' +
@@ -1964,6 +2268,7 @@ function pintar(d) {
     }
   }
 
+  ponerIconos();
   arrancarCuenta();
   montarIndice();
   restaurar(d);
@@ -2066,7 +2371,19 @@ function montarIndice() {
     marcar(mejor);
   }
 
-  window.onscroll = repasar;
+  /* Medir todas las secciones en cada evento de scroll sale caro: el navegador
+     dispara muchos más scrolls que fotogramas pinta. Con el pestillo medimos
+     una sola vez por fotograma. */
+  var pendiente = false;
+  var porFotograma = window.requestAnimationFrame
+    ? function (f) { return window.requestAnimationFrame(f); }
+    : function (f) { return setTimeout(f, 16); };
+
+  window.onscroll = function () {
+    if (pendiente) return;
+    pendiente = true;
+    porFotograma(function () { pendiente = false; repasar(); });
+  };
   repasar();
 }
 
