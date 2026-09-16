@@ -77,6 +77,19 @@ kilobyte: es lo que cuesta que añadir un icono no sea más que dejar el archivo
 en su sitio. Si algún día molestan, la alternativa es declarar a mano qué
 secciones tienen icono.
 
+### Icono del sitio
+
+El mismo arco románico, esta vez en la pestaña del navegador: `favicon.svg`
+(el que usan los navegadores actuales), `favicon.ico` con 16, 32 y 48 px para
+los que aún piden el `.ico`, y `apple-touch-icon.png` de 180 px para cuando la
+invitación se guarda en la pantalla de inicio del móvil. Los tres van en la raíz
+y se enlazan con ruta relativa desde `index.html`, como las fotos: la absoluta
+da 404 en un repositorio de proyecto.
+
+`404.html` lleva el icono incrustado como `data:` en vez de enlazarlo. GitHub
+Pages sirve esa página en rutas de cualquier profundidad, y una ruta relativa
+se rompería en cuanto la URL fallida tuviera una carpeta de más.
+
 ### Secciones en obras
 
 Las que todavía no tienen contenido viven en la constante `EN_OBRAS`
