@@ -31,17 +31,96 @@
     --error:   #8A3324;
 
     /* Derivados. Antes andaban sueltos por la hoja como rgba() escritos a mano;
-       juntos aquí se cambian de una vez y no se descuadran entre sí. */
-    --tinta-honda: #1A221D;               /* tinta un punto más oscura: hover del botón */
-    --papel:       #F3F0E7;               /* medio tono por encima de la piedra */
+       juntos aquí se cambian de una vez y no se descuadran entre sí.
+
+       Por transparencia: cada uno es su color base rebajado a un tanto por
+       ciento. Escritos a mano aquí para el navegador viejo; el @supports de
+       debajo los recalcula solos donde haya `color-mix`. */
     --velo:        rgba(38,48,43,.35);
     --tinta-suave: rgba(38,48,43,.055);
     --ocre-suave:  rgba(156,107,36,.10);
-    --campo:       rgba(255,255,255,.45);
+    --pliegue:     rgba(38,48,43,.08);    /* dobleces del sobre y borde de la carta */
+    --capa-grano:  rgba(233,229,217,.96); /* la capa que apaga el grano del papel */
+    --campo:       rgba(255,255,255,.45); /* luz, no piedra: no sigue a la paleta */
+
+    /* Por tono. Estos no salen de una mezcla exacta de nada —se eligieron a
+       ojo— así que se quedan escritos. El laboratorio los recalcula al mover
+       el color base; aquí manda el literal. */
+    --tinta-honda: #1A221D;               /* tinta un punto más oscura: hover del botón */
+    --papel:       #F3F0E7;               /* medio tono por encima de la piedra */
+
+    /* Las sombras son color con una forma delante: viven aquí para que sigan a
+       la tinta y no se queden de otro color al cambiar la paleta. */
+    --sombra-indice: 8px 0 28px rgba(38,48,43,.12);
+    --sombra-sobre:  0 14px 30px rgba(38,48,43,.15);
+    --sombra-lacre:  0 1px 3px rgba(38,48,43,.35);
+
+    /* ---------- el sobre ---------- */
+    /* Cuatro papeles distintos del mismo juego: la carta que asoma, el bolsillo
+       de delante, las solapas de los lados y la de arriba con su degradado. */
+    --sobre-carta:  #FAF8F1;
+    --sobre-frente: #F1EDE2;
+    --sobre-lado:   #EDE8DB;
+    --solapa-alta:  #E1DBC8;
+    --solapa-baja:  #EDE9DC;
+    --lacre-trazo:  rgba(249,246,238,.9); /* el arco grabado en el lacre */
 
     /* ---------- tipos ---------- */
+    /* Las dos familias son el material. */
     --serif: "Cormorant Garamond", Georgia, serif;
     --sans:  Karla, "Segoe UI", system-ui, sans-serif;
+
+    /* Y los papeles dicen quién lo usa. Cada voz de la página —el título, el
+       nombre del invitado, las citas, las versalitas, las cifras y el texto
+       corriente— lleva los suyos, así que se le puede cambiar la letra a una
+       sin tocar las demás.
+
+       Cursiva y peso van aparte de la familia a propósito: las caligráficas y
+       las de capitales no tienen ni cursiva ni peso 300, y sin poder apagarlos
+       el navegador se los inventa y la letra sale emborronada.
+
+       `--escala-*` multiplica el tamaño de ese papel. Vale 1 y no hace nada;
+       está para compensar las familias de altura de x pequeña, que al mismo
+       font-size se ven la mitad de grandes. */
+    --letra-titulo:   var(--serif);
+    --cursiva-titulo: italic;
+    --peso-titulo:    400;
+    --escala-titulo:  1;
+
+    --letra-nombre:   var(--serif);
+    --cursiva-nombre: italic;
+    --peso-nombre:    300;
+    --escala-nombre:  1;
+
+    --letra-cita:     var(--serif);
+    --cursiva-cita:   italic;
+    --escala-cita:    1;
+
+    --letra-rotulo:   var(--sans);
+    --peso-rotulo:    500;
+    --caja-rotulo:    uppercase;  /* una versalita de verdad no quiere mayúsculas encima */
+    --escala-rotulo:  1;
+
+    --letra-cifra:    var(--serif);
+    --peso-cifra:     300;
+    --escala-cifra:   1;
+
+    --letra-texto:    var(--sans);
+    --t-base:         17px;
+
+    /* Interletraje de las versalitas, con un mando único delante: subir
+       `--aire-escala` las abre todas a la vez y mantiene la proporción entre
+       ellas. El `em` de dentro se resuelve en cada elemento, no aquí, así que
+       el aire sigue siendo proporcional a su propio tamaño. */
+    --aire-escala: 1;
+    --aire-novios: calc(.22em * var(--aire-escala));
+    --aire-marco:  calc(.16em * var(--aire-escala));
+    --aire-rotulo: calc(.14em * var(--aire-escala));
+    --aire-indice: calc(.12em * var(--aire-escala));
+    --aire-dato:   calc(.10em * var(--aire-escala));
+    --aire-boton:  calc(.02em * var(--aire-escala));
+    --aire-titulo: -.01em;
+    --aire-nombre: -.015em;
 
     --t-rotulo: .6875rem;   /* versalitas: rótulos, sellos, pistas */
     --t-menor:  .8125rem;
@@ -74,6 +153,28 @@
     --sombra: 0 1px 2px rgba(38,48,43,.04), 0 6px 20px rgba(38,48,43,.06);
   }
 
+  /* Los derivados por transparencia, otra vez, ahora atados a su color base.
+     Las cuentas dan exactamente los mismos valores que los literales de
+     arriba, así que aquí no se mueve nada: lo que cambia es que ahora tocar
+     `--tinta` arrastra con ella el velo, las sombras y los pliegues del sobre.
+     Va dentro de un @supports porque un navegador que no entienda `color-mix`
+     invalidaría la declaración entera y dejaría esas zonas sin color. */
+  @supports (color: color-mix(in srgb, #000 50%, #fff)) {
+    :root {
+      --velo:        color-mix(in srgb, var(--tinta)  35%,  transparent);
+      --tinta-suave: color-mix(in srgb, var(--tinta)  5.5%, transparent);
+      --ocre-suave:  color-mix(in srgb, var(--ocre)   10%,  transparent);
+      --pliegue:     color-mix(in srgb, var(--tinta)  8%,   transparent);
+      --capa-grano:  color-mix(in srgb, var(--piedra) 96%,  transparent);
+
+      --sombra:        0 1px 2px  color-mix(in srgb, var(--tinta) 4%,  transparent),
+                       0 6px 20px color-mix(in srgb, var(--tinta) 6%,  transparent);
+      --sombra-indice: 8px 0 28px color-mix(in srgb, var(--tinta) 12%, transparent);
+      --sombra-sobre:  0 14px 30px color-mix(in srgb, var(--tinta) 15%, transparent);
+      --sombra-lacre:  0 1px 3px  color-mix(in srgb, var(--tinta) 35%, transparent);
+    }
+  }
+
   * { box-sizing: border-box; }
 
   html { scroll-behavior: smooth; }
@@ -81,8 +182,8 @@
   body {
     margin: 0;
     color: var(--tinta);
-    font-family: var(--sans);
-    font-size: 17px;
+    font-family: var(--letra-texto);
+    font-size: var(--t-base);
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
 
@@ -93,7 +194,7 @@
        repintado caro de los fondos fijos en móvil. */
     background-color: var(--piedra);
     background-image:
-      linear-gradient(rgba(233,229,217,.96), rgba(233,229,217,.96)),
+      linear-gradient(var(--capa-grano), var(--capa-grano)),
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
   }
 
@@ -163,11 +264,11 @@
   }
 
   .titulo {
-    font-family: var(--serif);
-    font-size: var(--t-titulo);
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: -.01em;
+    font-family: var(--letra-titulo);
+    font-size: calc(var(--t-titulo) * var(--escala-titulo));
+    font-style: var(--cursiva-titulo);
+    font-weight: var(--peso-titulo);
+    letter-spacing: var(--aire-titulo);
     text-align: center;
     margin: 0 0 var(--e3);
   }
@@ -196,11 +297,11 @@
   /* Rótulo de invitación impresa: versalitas sobre una línea fina. */
   .novios {
     text-align: center;
-    font-family: var(--sans);
-    font-size: var(--t-rotulo);
-    font-weight: 500;
-    letter-spacing: .22em;
-    text-transform: uppercase;
+    font-family: var(--letra-rotulo);
+    font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
+    font-weight: var(--peso-rotulo);
+    letter-spacing: var(--aire-novios);
+    text-transform: var(--caja-rotulo);
     color: var(--ocre);
     margin: 0 0 var(--e5);
     padding-bottom: var(--e2);
@@ -208,11 +309,11 @@
   }
 
   .nombre {
-    font-family: var(--serif);
-    font-style: italic;
-    font-weight: 300;
-    font-size: var(--t-nombre);
-    letter-spacing: -.015em;
+    font-family: var(--letra-nombre);
+    font-style: var(--cursiva-nombre);
+    font-weight: var(--peso-nombre);
+    font-size: calc(var(--t-nombre) * var(--escala-nombre));
+    letter-spacing: var(--aire-nombre);
     line-height: 1.02;
     text-align: center;
     margin: 0 0 var(--e3);
@@ -221,8 +322,8 @@
 
   .cita {
     text-align: center;
-    font-family: var(--serif);
-    font-size: var(--t-sub);
+    font-family: var(--letra-cita);
+    font-size: calc(var(--t-sub) * var(--escala-cita));
     line-height: 1.5;
     color: var(--musgo);
     margin: 0;
@@ -271,9 +372,9 @@
   }
 
   .pie {
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: var(--t-ui);
+    font-family: var(--letra-cita);
+    font-style: var(--cursiva-cita);
+    font-size: calc(var(--t-ui) * var(--escala-cita));
     text-align: center;
     color: var(--musgo);
     margin: var(--e1) 0 0;
@@ -296,9 +397,10 @@
   }
   .datos > div:last-child { border-bottom: var(--linea); }
   .datos dt {
-    font-size: var(--t-menor);
-    letter-spacing: .1em;
-    text-transform: uppercase;
+    font-family: var(--letra-rotulo);
+    font-size: calc(var(--t-menor) * var(--escala-rotulo));
+    letter-spacing: var(--aire-dato);
+    text-transform: var(--caja-rotulo);
     color: var(--musgo);
     align-self: center;
   }
@@ -366,7 +468,7 @@
     background: var(--piedra);
     border-right: var(--linea);
     /* El panel se despega del velo en vez de quedarse plano contra él. */
-    box-shadow: 8px 0 28px rgba(38,48,43,.12);
+    box-shadow: var(--sombra-indice);
     overflow-y: auto;
     /* visibility apagada: con el panel cerrado los enlaces salen del orden
        de tabulación en vez de quedarse fuera de pantalla y enfocables. */
@@ -397,9 +499,10 @@
     padding: .55rem 0;
     color: var(--musgo);
     text-decoration: none;
-    font-size: var(--t-menor);
-    letter-spacing: .12em;
-    text-transform: uppercase;
+    font-family: var(--letra-rotulo);
+    font-size: calc(var(--t-menor) * var(--escala-rotulo));
+    letter-spacing: var(--aire-indice);
+    text-transform: var(--caja-rotulo);
     transition: color .18s;
   }
   .nav-enlace:hover { color: var(--tinta); }
@@ -473,18 +576,19 @@
     padding: var(--e1) var(--e2);
     border-top: var(--linea);
     border-bottom: var(--linea);
-    font-size: var(--t-rotulo);
-    letter-spacing: .16em;
-    text-transform: uppercase;
+    font-family: var(--letra-rotulo);
+    font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
+    letter-spacing: var(--aire-marco);
+    text-transform: var(--caja-rotulo);
     color: var(--ocre);
   }
 
   /* lo que irá aquí cuando la sección deje de estar en obras */
   .promesa {
     text-align: center;
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: var(--t-medio);
+    font-family: var(--letra-cita);
+    font-style: var(--cursiva-cita);
+    font-size: calc(var(--t-medio) * var(--escala-cita));
     line-height: 1.45;
     color: var(--musgo);
     margin: 0;
@@ -523,10 +627,10 @@
   }
 
   .sub-titulo {
-    font-family: var(--serif);
-    font-size: var(--t-sub);
-    font-style: italic;
-    font-weight: 400;
+    font-family: var(--letra-titulo);
+    font-size: calc(var(--t-sub) * var(--escala-titulo));
+    font-style: var(--cursiva-titulo);
+    font-weight: var(--peso-titulo);
     text-align: center;
     margin: 0 0 var(--e2);
   }
@@ -545,9 +649,10 @@
   .horas { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; }
 
   .salidas-rotulo {
-    font-size: var(--t-rotulo);
-    letter-spacing: .14em;
-    text-transform: uppercase;
+    font-family: var(--letra-rotulo);
+    font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
+    letter-spacing: var(--aire-rotulo);
+    text-transform: var(--caja-rotulo);
     color: var(--musgo);
   }
 
@@ -555,8 +660,8 @@
     padding: .15rem .55rem;
     border: 1px solid var(--ocre);
     border-radius: var(--r);
-    font-family: var(--serif);
-    font-size: var(--t-medio);
+    font-family: var(--letra-cifra);
+    font-size: calc(var(--t-medio) * var(--escala-cifra));
     line-height: 1.35;
     font-variant-numeric: tabular-nums;
   }
@@ -632,9 +737,9 @@
     opacity: 0;
     transition: max-height .35s ease, opacity .3s ease;
     text-align: center;
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: var(--t-medio);
+    font-family: var(--letra-cita);
+    font-style: var(--cursiva-cita);
+    font-size: calc(var(--t-medio) * var(--escala-cita));
     line-height: 1.4;
     color: var(--ocre);
     margin: 0 0 var(--e3);
@@ -776,7 +881,7 @@
     padding: 1rem;
     min-height: 3.25rem;
     font-weight: 600;
-    letter-spacing: .02em;
+    letter-spacing: var(--aire-boton);
     transition: background-color .18s, border-color .18s, opacity .18s;
   }
   /* Oscurecer, no desteñir: sobre fondo claro bajar la opacidad lo aclaraba. */
@@ -872,9 +977,9 @@
 
   .digitos .valor {
     display: block;
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: var(--t-reloj);
+    font-family: var(--letra-cifra);
+    font-weight: var(--peso-cifra);
+    font-size: calc(var(--t-reloj) * var(--escala-cifra));
     line-height: 1;
     font-variant-numeric: tabular-nums;
   }
@@ -882,16 +987,18 @@
   .digitos .rotulo {
     display: block;
     margin-top: var(--e1);
-    font-size: var(--t-rotulo);
-    letter-spacing: .14em;
-    text-transform: uppercase;
+    font-family: var(--letra-rotulo);
+    font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
+    letter-spacing: var(--aire-rotulo);
+    text-transform: var(--caja-rotulo);
     color: var(--musgo);
   }
 
   .hoy {
-    font-family: var(--serif);
-    font-size: var(--t-titulo);
-    font-style: italic;
+    font-family: var(--letra-titulo);
+    font-size: calc(var(--t-titulo) * var(--escala-titulo));
+    font-style: var(--cursiva-titulo);
+    font-weight: var(--peso-titulo);
     text-align: center;
     margin: 0;
   }
@@ -910,9 +1017,10 @@
   .calendario-rotulo {
     display: block;
     margin-bottom: var(--e1);
-    font-size: var(--t-rotulo);
-    letter-spacing: .16em;
-    text-transform: uppercase;
+    font-family: var(--letra-rotulo);
+    font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
+    letter-spacing: var(--aire-marco);
+    text-transform: var(--caja-rotulo);
     color: var(--musgo);
   }
 
@@ -930,7 +1038,7 @@
     padding: var(--e2) var(--e3);
     min-height: 3rem;
     font-size: var(--t-ui);
-    letter-spacing: .02em;
+    letter-spacing: var(--aire-boton);
     transition: background-color .18s, color .18s;
   }
   .guardar:hover { background: var(--ocre); color: var(--piedra); }
@@ -1004,7 +1112,7 @@
     z-index: 1;
     background: var(--hueco);
     border-radius: var(--r);
-    box-shadow: 0 14px 30px rgba(38,48,43,.15);
+    box-shadow: var(--sombra-sobre);
   }
 
   /* la carta, que asoma al abrirse la solapa */
@@ -1012,8 +1120,8 @@
     top: 7%; left: 5%;
     width: 90%; height: 86%;
     z-index: 2;
-    background: #FAF8F1;
-    border: 1px solid rgba(38,48,43,.08);
+    background: var(--sobre-carta);
+    border: 1px solid var(--pliegue);
     border-radius: var(--r);
     display: flex;
     align-items: center;
@@ -1031,9 +1139,9 @@
     z-index: 3;
     border-radius: 0 0 var(--r) var(--r);
     background:
-      linear-gradient(to bottom right, transparent calc(50% - .5px), rgba(38,48,43,.08) 50%, transparent calc(50% + .5px)) left / 50% 100% no-repeat,
-      linear-gradient(to bottom left,  transparent calc(50% - .5px), rgba(38,48,43,.08) 50%, transparent calc(50% + .5px)) right / 50% 100% no-repeat,
-      #F1EDE2;
+      linear-gradient(to bottom right, transparent calc(50% - .5px), var(--pliegue) 50%, transparent calc(50% + .5px)) left / 50% 100% no-repeat,
+      linear-gradient(to bottom left,  transparent calc(50% - .5px), var(--pliegue) 50%, transparent calc(50% + .5px)) right / 50% 100% no-repeat,
+      var(--sobre-frente);
   }
 
   /* solapas laterales: tapan las esquinas de arriba, que si no dejan ver la carta */
@@ -1041,7 +1149,7 @@
     top: 0; left: 0;
     width: 100%; height: 100%;
     z-index: 3;
-    background: #EDE8DB;
+    background: var(--sobre-lado);
   }
   .sobre-lado.izq { clip-path: polygon(0 0, 50% 52%, 0 100%); }
   .sobre-lado.der { clip-path: polygon(100% 0, 50% 52%, 100% 100%); }
@@ -1054,10 +1162,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: var(--serif);
-    font-style: italic;
-    font-weight: 300;
-    font-size: calc(var(--w) * .078);
+    font-family: var(--letra-nombre);
+    font-style: var(--cursiva-nombre);
+    font-weight: var(--peso-nombre);
+    font-size: calc(var(--w) * .078 * var(--escala-nombre));
     line-height: 1.14;
     text-align: center;
     color: var(--tinta);
@@ -1070,7 +1178,7 @@
     top: 0; left: 0;
     width: 100%; height: 52%;
     z-index: 5;
-    background: linear-gradient(to bottom, #E1DBC8, #EDE9DC);
+    background: linear-gradient(to bottom, var(--solapa-alta), var(--solapa-baja));
     clip-path: polygon(0 0, 100% 0, 50% 100%);
     transform-origin: top center;
     transform: rotateX(0deg);
@@ -1086,21 +1194,22 @@
     z-index: 6;
     border-radius: 50%;
     background: var(--ocre);
-    box-shadow: 0 1px 3px rgba(38,48,43,.35);
+    box-shadow: var(--sombra-lacre);
     display: flex;
     align-items: center;
     justify-content: center;
     transition: opacity .3s ease, transform .3s ease;
   }
   .sobre-lacre svg { width: 46%; height: auto; }
-  .sobre-lacre path { fill: none; stroke: rgba(249,246,238,.9); stroke-width: 9; }
+  .sobre-lacre path { fill: none; stroke: var(--lacre-trazo); stroke-width: 9; }
   .sobre.abriendo .sobre-lacre { opacity: 0; transform: scale(.55); }
 
   .sobre-pista {
     margin: 0;
-    font-size: var(--t-menor);
-    letter-spacing: .14em;
-    text-transform: uppercase;
+    font-family: var(--letra-rotulo);
+    font-size: calc(var(--t-menor) * var(--escala-rotulo));
+    letter-spacing: var(--aire-rotulo);
+    text-transform: var(--caja-rotulo);
     color: var(--musgo);
     animation: latido 2.8s ease-in-out 1.4s infinite;
     transition: opacity .3s ease;
@@ -1566,8 +1675,13 @@ function aviso(texto) {
 
 /* --- carga --- */
 function cargar() {
+  var lab = /[?&]lab(?=[&=]|$)/.test(location.search);
+  if (lab) { abrirLaboratorio(); }
+
   if (!token) {
-    aviso('Este enlace está incompleto. Escríbenos y te mandamos el tuyo.');
+    /* Con ?lab y sin token no hay nada que pedirle al servidor: el laboratorio
+       se pinta a sí mismo con datos de mentira. */
+    if (!lab) { aviso('Este enlace está incompleto. Escríbenos y te mandamos el tuyo.'); }
     return;
   }
   pedir('GET', API + '?token=' + encodeURIComponent(token), null, function (d) {
@@ -1576,6 +1690,16 @@ function cargar() {
     nombreEnSobre(d.nombre);
     pintar(d);
   });
+}
+
+/* El laboratorio de estilos —el panel para probar colores y letras— vive en
+   lab/ y solo baja con ?lab en la dirección. Para un invitado esto es un
+   regex y nada más: ni una petición de más ni un byte de panel. */
+function abrirLaboratorio() {
+  var s = document.createElement('script');
+  s.src = 'lab/lab.js';
+  s.onerror = function () { aviso('No hemos podido abrir el laboratorio.'); };
+  document.head.appendChild(s);
 }
 
 /* ---------- cuenta atrás ---------- */
