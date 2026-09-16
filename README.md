@@ -118,8 +118,8 @@ No hay que tocar el código. `probarIcono()` lo busca al pintar y lo pone si est
 El arco se dibuja primero y el icono solo lo sustituye si llega a cargarse, así
 que una sección sin icono se queda con el suyo sin enterarse: ni parpadea ni da
 un salto de maqueta. Los `id` son los de `SECCIONES`: `inicio`, `fotos`,
-`el-dia`, `confirmar`, `cuenta-atras`, `dedicatoria`, `playlist`, `transporte`,
-`alojamiento`, `sitio-web`.
+`el-dia`, `confirmar`, `alergias`, `cuenta-atras`, `dedicatoria`, `playlist`,
+`transporte`, `alojamiento`, `sitio-web`.
 
 El icono entra como `<img>`, y a un `<img>` la hoja de estilos no puede cambiarle
 el color: dibújalo ya en el ocre de la casa, `#9C6B24`. Manda su altura y no su
