@@ -527,6 +527,18 @@
     transform: scale(1.2);
   }
 
+  /* Las secciones cuyo formulario ya está guardado llevan el arco relleno: el
+     índice hace de lista de recados. En musgo y no en ocre, que es el color de
+     «aquí estás»; siendo las dos cosas a la vez manda el ocre. */
+  .nav-enlace[data-hecho="true"] .nav-punto {
+    background: var(--musgo);
+    border-color: var(--musgo);
+  }
+  .nav-enlace[data-hecho="true"][aria-current="true"] .nav-punto {
+    background: var(--ocre);
+    border-color: var(--ocre);
+  }
+
   @media (min-width: 62rem) {
     .nav-boton, .nav-velo { display: none; }
     .nav, .nav.abierto {
@@ -604,6 +616,14 @@
       padding-left: var(--e3);
       border-left: var(--linea);
     }
+  }
+
+  /* Los recorridos son para leerlos y esto es para contestar: la línea fina
+     marca dónde acaba lo uno y empieza lo otro. */
+  .campos-vuelta {
+    margin-top: var(--e4);
+    padding-top: var(--e4);
+    border-top: var(--linea);
   }
 
   .sub-titulo {
@@ -753,13 +773,61 @@
     font-weight: 600;
   }
 
-  .detalle {
+  /* ---------- formularios plegables ---------- */
+
+  /* Cada sección que nos pide algo lleva su formulario dentro y su propio botón
+     de enviar, así que se guardan por separado. Guardada, la sección se pliega
+     y deja en su sitio una línea de resumen con un botón para volver a abrirla:
+     la invitación se lee como una lista de recados hechos. */
+
+  .resumen {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e2);
+    margin: 0 0 var(--e3);
+    padding: var(--e2) 0;
+    border-top: var(--linea);
+    border-bottom: var(--linea);
+  }
+  /* Plegado no hay nada debajo, y la línea de abajo no tiene por qué separarse
+     de un título que está a un hilo de distancia. */
+  .bloque.plegado .resumen { margin-bottom: 0; }
+
+  .resumen-texto { font-size: var(--t-ui); text-wrap: pretty; }
+  /* La marca de hecho, en el ocre de la casa y no en un verde de semáforo. */
+  .resumen-marca { color: var(--ocre); font-weight: 600; }
+
+  .cambiar {
+    flex: none;
+    background: transparent;
+    border: var(--linea);
+    padding: var(--e1) .8rem;
+    font-size: var(--t-nota);
+    white-space: nowrap;
+    transition: border-color .18s, background-color .18s;
+  }
+  .cambiar:hover { border-color: var(--ocre); background: var(--ocre-suave); }
+
+  /* El mismo plegado que usaba «.detalle». El tope de `max-height` va por
+     bloque en `--alto` en vez de uno solo y generoso para todos: cuanto más
+     sobra el tope, más tarda la animación en empezar a verse. Tiene que superar
+     lo que mide el bloque abierto o se lo recorta. */
+  .cuerpo {
     overflow: hidden;
+    max-height: var(--alto, 60rem);
+    opacity: 1;
+    transition: max-height .45s ease, opacity .3s ease, visibility 0s;
+  }
+  /* visibility apagada al final de la transición: plegado, sus campos salen del
+     orden de tabulación en vez de quedarse invisibles y enfocables. Es el mismo
+     motivo que en `.nav`. */
+  .bloque.plegado .cuerpo {
     max-height: 0;
     opacity: 0;
-    transition: max-height .45s ease, opacity .3s ease;
+    visibility: hidden;
+    transition: max-height .45s ease, opacity .25s ease, visibility 0s .45s;
   }
-  .detalle.abierto { max-height: 70rem; opacity: 1; }
 
   fieldset { border: 0; padding: 0; margin: 0 0 var(--e4); }
 
@@ -1199,7 +1267,7 @@
     html { scroll-behavior: auto; }
     * { animation: none !important; transition: none !important; }
     .arco path { stroke-dashoffset: 0; }
-    .detalle, .respuesta { transition: none; }
+    .cuerpo, .respuesta { transition: none; }
     .con-revelado .seccion { opacity: 1; transform: none; }
     .con-revelado .seccion::before { transform: scaleY(1); }
   }
@@ -1239,7 +1307,7 @@ window.onerror = function (msg, src, linea) {
 
 <script>
 /* ====== EDITA ESTO ====== */
-const API = 'https://script.google.com/macros/s/AKfycbxgaJDj8g97VHfoSDT7qPiOqBnx92-OVjUKvFIwARfpjo_lmUcrLF1jYteHPtzHHrhGtA/exec';
+const API = 'https://script.google.com/macros/s/AKfycbylVOv614p1kH3pHOuUPaca0xuOKaK7o1miE0DUJaWQ3oLV4mHdkAEZVwf2fTtDPLPKpA/exec';
 
 var BODA = {
   novios: 'Irene Alcalde Méndez e Ignacio Arenas Guerra',
@@ -1312,6 +1380,7 @@ var SECCIONES = [
   { id: 'fotos',         titulo: 'Fotos' },
   { id: 'el-dia',        titulo: 'El gran día' },
   { id: 'confirmar',     titulo: 'Confirmar' },
+  { id: 'alergias',      titulo: 'Alergias' },
   { id: 'cuenta-atras',  titulo: 'Cuenta atrás' },
   { id: 'dedicatoria',   titulo: 'Dedicatoria' },
   { id: 'playlist',      titulo: 'Playlist' },
@@ -1386,6 +1455,12 @@ var token = (function () {
 var elegido = null;          // true | false | null
 var marcados = {};           // alérgenos seleccionados
 var vuelta = null;           // hora del autobús de vuelta, SIN_VUELTA, o null
+
+/* Lo que ya está en la hoja, campo a campo. Es lo que da un formulario por
+   hecho —y por tanto lo que se pliega—, y no lo que haya en los campos: un chip
+   marcado sin enviar no cuenta. Se llena al cargar con lo que devuelve el
+   backend y en cada envío que sale bien. */
+var guardado = { asiste: false, alergenos: false, vuelta: false };
 
 var canciones = [];          // las que ya ha mandado este invitado
 var hallazgos = [];          // lo último que devolvió iTunes
@@ -1883,8 +1958,8 @@ function salidasElegibles() {
   return [];
 }
 
-/* Van dentro de *Confirmar*, no en *Transporte*: la sección de transporte
-   queda por debajo del botón de enviar, y de allí no se envía nada. */
+/* Van con los recorridos, en *Transporte*, y llevan su propio botón: la
+   elección se guarda sola, sin pasar por la confirmación. */
 function camposVuelta() {
   var horas = salidasElegibles();
   if (!horas.length) return '';
@@ -1897,11 +1972,12 @@ function camposVuelta() {
   botones += '<button type="button" class="chip" data-v="' + SIN_VUELTA + '" aria-pressed="false">'
            + 'No lo necesito</button>';
 
-  return '<fieldset>' +
+  return '<fieldset class="campos-vuelta">' +
            '<legend>Autobús de vuelta</legend>' +
            '<p class="ayuda">Sale del convento hacia Palencia y Venta de Baños. Dinos con cuál contamos.</p>' +
            '<div class="chips" id="vuelta">' + botones + '</div>' +
-         '</fieldset>';
+         '</fieldset>' +
+         '<button type="button" class="enviar" id="enviar-transporte" disabled>Guardar mi autobús</button>';
 }
 
 /* Exclusiva: solo se vuelve en un autobús. */
@@ -1913,6 +1989,7 @@ function elegirVuelta(hora) {
   for (var i = 0; i < b.length; i++) {
     b[i].setAttribute('aria-pressed', b[i].getAttribute('data-v') === hora ? 'true' : 'false');
   }
+  document.getElementById('enviar-transporte').disabled = false;
 }
 
 function seccionTransporte() {
@@ -1931,10 +2008,13 @@ function seccionTransporte() {
 
   return '<section class="seccion" id="transporte">' +
            titulo('transporte', 'Transporte') +
-           '<div class="trayectos">' + html + '</div>' +
-           (TRANSPORTE.nota
-             ? '<p class="promesa" style="margin-top:2rem">' + escapar(TRANSPORTE.nota) + '</p>'
-             : '') +
+           bloque('transporte',
+             '<div class="trayectos">' + html + '</div>' +
+             (TRANSPORTE.nota
+               ? '<p class="promesa" style="margin-top:2rem">' + escapar(TRANSPORTE.nota) + '</p>'
+               : '') +
+             camposVuelta()
+           ) +
          '</section>';
 }
 
@@ -2005,27 +2085,38 @@ function arrancarCuenta() {
    en cuanto alguien dice que no puede venir, como al resto de las de después.
    Las canciones que hubiese mandado antes siguen en la hoja: solo desaparece
    la sección. */
+/* El único formulario sin botón de enviar: cada canción se guarda al añadirla,
+   así que no hay nada que reenviar. Se pliega igual al volver a entrar, y su
+   botón de resumen solo abre y cierra. */
 function seccionPlaylist() {
   return '<section class="seccion" id="playlist">' +
            titulo('playlist', 'Pon tú la música') +
-           '<p class="ayuda">Busca hasta ' + MAX_CANCIONES + ' canciones y te las apuntamos. ' +
-             'Si añades una más, sustituye a la más antigua.</p>' +
-           '<h3 class="subtitulo">Tus canciones</h3>' +
-           '<ul class="mis-canciones" id="mis-canciones"></ul>' +
-           '<fieldset>' +
-             '<label class="campo" for="buscar">Busca una canción</label>' +
-             '<input type="search" id="buscar" placeholder="Título o artista" autocomplete="off">' +
-           '</fieldset>' +
-           '<div class="resultados" id="resultados" aria-live="polite"></div>' +
-           '<p class="estado" id="estado-musica" role="status" aria-live="polite"></p>' +
+           bloque('playlist',
+             '<p class="ayuda">Busca hasta ' + MAX_CANCIONES + ' canciones y te las apuntamos. ' +
+               'Si añades una más, sustituye a la más antigua.</p>' +
+             '<h3 class="subtitulo">Tus canciones</h3>' +
+             '<ul class="mis-canciones" id="mis-canciones"></ul>' +
+             '<fieldset>' +
+               '<label class="campo" for="buscar">Busca una canción</label>' +
+               '<input type="search" id="buscar" placeholder="Título o artista" autocomplete="off">' +
+             '</fieldset>' +
+             '<div class="resultados" id="resultados" aria-live="polite"></div>'
+           ) +
          '</section>';
 }
 
+/* Escribe en el `.estado` del bloque, que está fuera del pliegue: lo que se
+   cuenta de una canción se sigue leyendo aunque la sección se plegase. */
 function estadoMusica(texto, mal) {
-  var e = document.getElementById('estado-musica');
-  if (!e) return;
-  e.className = mal ? 'estado mal' : 'estado';
-  e.textContent = texto;
+  estadoBloque('playlist', texto, mal);
+}
+
+/* La lista ha cambiado: repintarla, poner al día el resumen de la sección —sin
+   plegarla, que el invitado está en ello— y el índice, que lleva la cuenta. */
+function repasarCanciones() {
+  pintarMisCanciones();
+  repasarBloques('playlist');
+  montarIndice();
 }
 
 /* Las que ya ha mandado, cada una con su botón de quitar. */
@@ -2157,7 +2248,7 @@ function anadirCancion(c) {
       return;
     }
     canciones = d.canciones || [];
-    pintarMisCanciones();
+    repasarCanciones();
 
     if (d.repetida) {
       // No se ha apuntado nada: le dejamos los resultados por si quiere otra.
@@ -2183,7 +2274,7 @@ function quitarCancion(id) {
       return;
     }
     canciones = d.canciones || [];
-    pintarMisCanciones();
+    repasarCanciones();
     estadoMusica('Quitada.');
   });
 }
@@ -2251,6 +2342,7 @@ function alternarAlergeno(boton) {
   if (activo) {
     boton.setAttribute('aria-pressed', 'false');
     delete marcados[nombre];
+    repasarEnvioAlergias();
     return;
   }
 
@@ -2266,10 +2358,231 @@ function alternarAlergeno(boton) {
 
   boton.setAttribute('aria-pressed', 'true');
   marcados[nombre] = true;
+  repasarEnvioAlergias();
+}
+
+/* La lista tal como va a la hoja: los chips marcados y, al final, lo que haya
+   escrito en «otra cosa». La usan el envío y el resumen, que tienen que decir
+   lo mismo. */
+function alergenosTexto() {
+  var campo = document.getElementById('otros');
+  var otros = campo ? campo.value.replace(/^\s+|\s+$/g, '') : '';
+  var lista = [];
+
+  for (var k in marcados) {
+    if (!marcados.hasOwnProperty(k)) continue;
+    /* Si nos cuenta algo por escrito, «Ninguna» ya no vale como respuesta:
+       la quitamos para que la hoja no diga las dos cosas a la vez. */
+    if (k === SIN_ALERGIAS && otros) continue;
+    lista.push(k);
+  }
+  if (otros) lista.push(otros);
+  return lista.join(', ');
+}
+
+/* Su propia sección, con su formulario y su botón: los alérgenos se guardan sin
+   esperar a nada más. Antes vivían plegados dentro de *Confirmar* porque
+   compartían con ella el botón de enviar. El grupo de chips lleva su etiqueta a
+   mano: el <legend> que la daba es ahora el título de la sección. */
+function seccionAlergias() {
+  return '<section class="seccion" id="alergias">' +
+           titulo('alergias', 'Alergias e intolerancias') +
+           bloque('alergias',
+             '<fieldset>' +
+               '<p class="ayuda">Marca lo que necesites. Se lo pasamos tal cual a la cocina.</p>' +
+               '<div class="chips" id="chips" role="group" aria-label="Alergias e intolerancias">' +
+                 chipsAlergenos() +
+               '</div>' +
+             '</fieldset>' +
+             '<fieldset>' +
+               '<label class="campo" for="otros">Otra cosa que debamos saber</label>' +
+               '<input type="text" id="otros" placeholder="Otra alergia, medicación, lo que sea">' +
+             '</fieldset>' +
+             '<button type="button" class="enviar" id="enviar-alergias" disabled>Guardar alergias</button>'
+           ) +
+         '</section>';
+}
+
+/* --- formularios plegables --- */
+
+/* Cada sección que nos pide algo lleva su formulario dentro y su propio botón
+   de enviar: se guardan por separado y ninguna espera a las demás. Guardado lo
+   suyo, el cuerpo se pliega y queda la línea de resumen con su botón, que lo
+   vuelve a abrir para cambiarlo y reenviarlo.
+
+   `alto` es el tope de `max-height` del cuerpo (ver la hoja de estilos). Va
+   holgado a propósito: quedarse corto recorta el contenido, y pasarse solo
+   cuesta que el primer tramo de la animación no se vea, que es lo que tapa el
+   desvanecido. En móvil estrecho estos bloques crecen bastante —los dos
+   trayectos se apilan, y la playlist suma tres canciones y seis resultados—,
+   así que conviene medirlos antes de bajar ninguno.
+   `resumen` devuelve lo que se lee plegado, o cadena vacía si todavía no hay
+   nada guardado, y es también lo que decide si el bloque se pliega. */
+var BLOQUES = [
+  { id: 'confirmar',  alto: '44rem', resumen: resumenConfirmar },
+  { id: 'alergias',   alto: '44rem', resumen: resumenAlergias },
+  { id: 'transporte', alto: '90rem', resumen: resumenTransporte },
+  { id: 'playlist',   alto: '90rem', resumen: resumenPlaylist }
+];
+
+function altoDe(id) {
+  for (var i = 0; i < BLOQUES.length; i++) {
+    if (BLOQUES[i].id === id) return BLOQUES[i].alto;
+  }
+  return '90rem';
+}
+
+/* El `.estado` va fuera del cuerpo a propósito: dentro, el «Guardado» se
+   plegaría con el formulario justo al aparecer y nadie llegaría a leerlo. */
+function bloque(id, cuerpo) {
+  return '<div class="bloque" id="bloque-' + id + '">' +
+           '<p class="resumen" id="resumen-' + id + '" hidden>' +
+             '<span class="resumen-texto" id="resumen-texto-' + id + '"></span>' +
+             '<button type="button" class="cambiar" id="cambiar-' + id + '"' +
+               ' aria-expanded="false" aria-controls="cuerpo-' + id + '">Cambiar</button>' +
+           '</p>' +
+           '<div class="cuerpo" id="cuerpo-' + id + '" style="--alto:' + altoDe(id) + '">' +
+             cuerpo +
+           '</div>' +
+           '<p class="estado" id="estado-' + id + '" aria-live="polite"></p>' +
+         '</div>';
+}
+
+/* El botón dice lo que va a hacer, no en qué estado está. */
+function plegarBloque(id, si) {
+  var caja = document.getElementById('bloque-' + id);
+  var boton = document.getElementById('cambiar-' + id);
+  if (!caja || !boton) return;
+
+  caja.className = si ? 'bloque plegado' : 'bloque';
+  boton.setAttribute('aria-expanded', si ? 'false' : 'true');
+  boton.textContent = si ? 'Cambiar' : 'Cerrar';
+}
+
+/* El único sitio que decide qué se pliega: si un bloque tiene resumen es que
+   sus datos están en la hoja, así que se pliega. `abrir` es el id del bloque
+   que hay que dejar abierto aunque tenga resumen, porque el invitado está en
+   ello (las canciones se guardan una a una y no hay que cerrarle la sección en
+   mitad de la faena). */
+function repasarBloques(abrir) {
+  for (var i = 0; i < BLOQUES.length; i++) {
+    var b = BLOQUES[i];
+    var linea = document.getElementById('resumen-' + b.id);
+    if (!linea) continue;
+
+    var texto = b.resumen();
+    linea.hidden = !texto;
+
+    if (texto) {
+      document.getElementById('resumen-texto-' + b.id).innerHTML =
+        '<span class="solo-voz">Hecho: </span>' +
+        '<span class="resumen-marca" aria-hidden="true">✓ </span>' + escapar(texto);
+    }
+    plegarBloque(b.id, !!texto && b.id !== abrir);
+  }
+}
+
+/* Los botones de las líneas de resumen. Abren el bloque para reenviar, y lo
+   vuelven a plegar sin tocar nada si se abrió por error. */
+function cablearCambiar(id) {
+  var boton = document.getElementById('cambiar-' + id);
+  if (!boton) return;
+
+  boton.onclick = function () {
+    plegarBloque(id, boton.getAttribute('aria-expanded') === 'true');
+    // El «Guardado» de antes no dice nada del formulario que se acaba de abrir.
+    estadoBloque(id, '');
+  };
+}
+
+/* --- resúmenes --- */
+
+function resumenConfirmar() {
+  if (!guardado.asiste) return '';
+  var nota = document.getElementById('nota');
+  return (elegido ? 'Sí, allí estarás' : 'No podrás venir') +
+         (nota && nota.value.replace(/^\s+|\s+$/g, '') ? ' · con mensaje' : '');
+}
+
+function resumenAlergias() {
+  return guardado.alergenos ? (alergenosTexto() || SIN_ALERGIAS) : '';
+}
+
+function resumenTransporte() {
+  if (!guardado.vuelta) return '';
+  return vuelta === SIN_VUELTA ? 'Sin autobús de vuelta' : 'Vuelta a las ' + vuelta;
+}
+
+/* Este no mira `guardado`: cada canción se guarda al añadirla, así que tenerlas
+   ya es tenerlas mandadas. */
+function resumenPlaylist() {
+  if (!canciones.length) return '';
+  return canciones.length === 1
+    ? '1 canción propuesta'
+    : canciones.length + ' canciones propuestas';
+}
+
+/* --- envíos --- */
+
+function estadoBloque(id, texto, mal) {
+  var e = document.getElementById('estado-' + id);
+  if (!e) return;
+  e.className = mal ? 'estado mal' : 'estado';
+  e.textContent = texto;
+}
+
+/* Lo que es igual en los tres envíos: bloquear el botón, contar lo que pasa y,
+   si sale bien, dar el campo por guardado, plegar el bloque y repasar el índice
+   —que es donde se ve la lista de recados—. */
+function enviarBloque(id, cuerpo, campo, bien) {
+  var boton = document.getElementById('enviar-' + id);
+  boton.disabled = true;
+  estadoBloque(id, 'Guardando…');
+
+  pedir('POST', API, JSON.stringify(cuerpo), function (d) {
+    boton.disabled = false;
+    if (!d || !d.ok) {
+      estadoBloque(id, 'No se ha podido guardar. Inténtalo otra vez.', true);
+      return;
+    }
+    guardado[campo] = true;
+    estadoBloque(id, bien);
+    repasarBloques();
+    montarIndice();
+  });
+}
+
+function enviarConfirmacion() {
+  if (elegido === null) return;
+  enviarBloque('confirmar', {
+    token: token,
+    asiste: elegido,
+    nota: document.getElementById('nota').value
+  }, 'asiste', elegido ? 'Guardado. Nos vemos allí.' : 'Guardado. Te echaremos de menos.');
+}
+
+function enviarAlergias() {
+  var texto = alergenosTexto();
+  if (!texto) return;
+  enviarBloque('alergias', { token: token, alergenos: texto },
+               'alergenos', 'Guardado. Se lo pasamos a la cocina.');
+}
+
+function enviarVuelta() {
+  if (!vuelta) return;
+  enviarBloque('transporte', { token: token, vuelta: vuelta },
+               'vuelta', 'Guardado. Te guardamos sitio.');
+}
+
+/* El botón de alergias no se enciende hasta que haya algo que mandar: la celda
+   vacía de la hoja significa «todavía no ha contestado», y mandarla vacía
+   dejaría el formulario como sin hacer. */
+function repasarEnvioAlergias() {
+  var boton = document.getElementById('enviar-alergias');
+  if (boton) { boton.disabled = !alergenosTexto(); }
 }
 
 function pintar(d) {
-  var chips = chipsAlergenos();
 
   pantalla(
     '<div id="contenido">' +
@@ -2301,35 +2614,27 @@ function pintar(d) {
 
       '<section class="seccion" id="confirmar">' +
         titulo('confirmar', '¿Nos acompañas?') +
-        '<div class="eleccion">' +
-          '<button type="button" class="opcion" id="si" aria-pressed="false">Sí, allí estaré</button>' +
-          '<button type="button" class="opcion" id="no" aria-pressed="false">No podré ir</button>' +
-        '</div>' +
+        bloque('confirmar',
+          '<div class="eleccion">' +
+            '<button type="button" class="opcion" id="si" aria-pressed="false">Sí, allí estaré</button>' +
+            '<button type="button" class="opcion" id="no" aria-pressed="false">No podré ir</button>' +
+          '</div>' +
 
-        '<p class="respuesta" id="respuesta" aria-live="polite"></p>' +
+          '<p class="respuesta" id="respuesta" aria-live="polite"></p>' +
 
-        '<div class="detalle" id="detalle">' +
+          /* El mensaje se queda aquí y no en una sección propia: a quien no
+             puede venir se le esconde todo lo que va detrás de esta sección, y
+             es justo lo que sí tiene sentido que nos deje escrito. */
           '<fieldset>' +
-            '<legend>Alergias e intolerancias</legend>' +
-            '<p class="ayuda">Marca lo que necesites. Se lo pasamos tal cual a la cocina.</p>' +
-            '<div class="chips" id="chips">' + chips + '</div>' +
+            '<label class="campo" for="nota">Un mensaje para nosotros</label>' +
+            '<textarea id="nota" placeholder="Opcional"></textarea>' +
           '</fieldset>' +
-          '<fieldset>' +
-            '<label class="campo" for="otros">Otra cosa que debamos saber</label>' +
-            '<input type="text" id="otros" placeholder="Otra alergia, medicación, lo que sea">' +
-          '</fieldset>' +
-          camposVuelta() +
-        '</div>' +
 
-        '<fieldset>' +
-          '<label class="campo" for="nota">Un mensaje para nosotros</label>' +
-          '<textarea id="nota" placeholder="Opcional"></textarea>' +
-        '</fieldset>' +
-
-        '<button type="button" class="enviar" id="enviar" disabled>Enviar confirmación</button>' +
-        '<p class="estado" id="estado"></p>' +
+          '<button type="button" class="enviar" id="enviar-confirmar" disabled>Enviar confirmación</button>'
+        ) +
       '</section>' +
 
+      seccionAlergias() +
       seccionCuenta() +
       seccionEnObras('dedicatoria') +
       seccionPlaylist() +
@@ -2342,7 +2647,11 @@ function pintar(d) {
 
   document.getElementById('si').onclick = function () { elegir(true); };
   document.getElementById('no').onclick = function () { elegir(false); };
-  document.getElementById('enviar').onclick = enviar;
+  document.getElementById('enviar-confirmar').onclick = enviarConfirmacion;
+  document.getElementById('enviar-alergias').onclick = enviarAlergias;
+
+  /* Los botones de las líneas de resumen, uno por bloque. */
+  for (var p = 0; p < BLOQUES.length; p++) { cablearCambiar(BLOQUES[p].id); }
 
   /* La cuenta atrás —y con ella el botón de guardar la fecha— no se pinta
      pasado el día de la boda. */
@@ -2353,6 +2662,8 @@ function pintar(d) {
   for (var j = 0; j < botonesChip.length; j++) {
     botonesChip[j].onclick = function () { alternarAlergeno(this); };
   }
+
+  document.getElementById('otros').oninput = repasarEnvioAlergias;
 
   var buscar = document.getElementById('buscar');
   buscar.oninput = function () { programarBusqueda(this.value); };
@@ -2393,12 +2704,15 @@ function pintar(d) {
     if (id) { quitarCancion(id); }
   };
 
+  /* Sin trayecto elegible no hay botones que elegir ni nada que enviar desde
+     *Transporte*: la sección se queda en los recorridos y ya está. */
   var cajaVuelta = document.getElementById('vuelta');
   if (cajaVuelta) {
     var botonesVuelta = cajaVuelta.getElementsByTagName('button');
     for (var v = 0; v < botonesVuelta.length; v++) {
       botonesVuelta[v].onclick = function () { elegirVuelta(this.getAttribute('data-v')); };
     }
+    document.getElementById('enviar-transporte').onclick = enviarVuelta;
   }
 
   ponerIconos();
@@ -2408,6 +2722,16 @@ function pintar(d) {
 }
 
 /* --- índice lateral --- */
+
+/* Una sección está hecha cuando su formulario ya está guardado, o sea cuando
+   tiene resumen. Las que no piden nada no cuentan. */
+function seccionHecha(id) {
+  for (var i = 0; i < BLOQUES.length; i++) {
+    if (BLOQUES[i].id === id) return !!BLOQUES[i].resumen();
+  }
+  return false;
+}
+
 /* Se llama al pintar y cada vez que cambia el juego de secciones a la vista,
    así que empieza soltando lo que dejó la vez anterior. */
 function montarIndice() {
@@ -2423,9 +2747,14 @@ function montarIndice() {
     var seccion = document.getElementById(SECCIONES[i].id);
     if (!seccion || seccion.hidden) continue;
     presentes.push(SECCIONES[i].id);
-    lista += '<li><a class="nav-enlace" href="#' + escapar(SECCIONES[i].id) + '">'
+
+    var hecho = seccionHecha(SECCIONES[i].id);
+    lista += '<li><a class="nav-enlace" href="#' + escapar(SECCIONES[i].id) + '"'
+           + (hecho ? ' data-hecho="true"' : '') + '>'
            + '<span class="nav-punto" aria-hidden="true"></span>'
-           + '<span>' + escapar(SECCIONES[i].titulo) + '</span></a></li>';
+           + '<span>' + escapar(SECCIONES[i].titulo) + '</span>'
+           + (hecho ? '<span class="solo-voz"> (hecho)</span>' : '')
+           + '</a></li>';
   }
 
   /* Con una sola sección el índice sobra. Lo vaciamos en vez de dejarlo estar:
@@ -2526,27 +2855,45 @@ function restaurar(d) {
   canciones = d.canciones || [];
   pintarMisCanciones();
 
+  /* Los alérgenos vuelven en una sola línea de texto: lo que coincide con un
+     chip lo marca, y lo que no —lo que escribió en «otra cosa»— vuelve a su
+     campo. Sin esa segunda mitad, abrir el bloque y reenviarlo lo borraría de
+     la hoja, y el resumen diría menos de lo que hay guardado. */
   if (d.alergenos) {
     var previos = String(d.alergenos).split(',');
     var botones = document.getElementById('chips').getElementsByTagName('button');
+    var sueltos = [];
+
     for (var i = 0; i < previos.length; i++) {
       var v = previos[i].replace(/^\s+|\s+$/g, '');
+      if (!v) continue;
+
+      var suyo = false;
       for (var j = 0; j < botones.length; j++) {
         if (botones[j].getAttribute('data-a') === v) {
           botones[j].setAttribute('aria-pressed', 'true');
           marcados[v] = true;
+          suyo = true;
         }
       }
+      if (!suyo) { sueltos.push(v); }
     }
+    if (sueltos.length) { document.getElementById('otros').value = sueltos.join(', '); }
   }
   if (d.vuelta) { elegirVuelta(String(d.vuelta)); }
   if (d.nota) { document.getElementById('nota').value = d.nota; }
   if (d.asiste === 'SI') { elegir(true); }
   else if (d.asiste === 'NO') { elegir(false); }
-  if (d.asiste) {
-    document.getElementById('estado').textContent =
-      'Ya tenemos tu respuesta. Puedes cambiarla cuando quieras.';
-  }
+
+  /* Lo que ya está en la hoja es lo que da cada formulario por hecho, y es lo
+     que decide qué llega plegado y qué llega abierto. */
+  guardado.asiste = !!d.asiste;
+  guardado.alergenos = !!d.alergenos;
+  guardado.vuelta = !!d.vuelta;
+
+  repasarEnvioAlergias();
+  repasarBloques();
+  montarIndice();
 }
 
 function elegir(asiste) {
@@ -2558,56 +2905,9 @@ function elegir(asiste) {
   respuesta.textContent = asiste ? RESPUESTAS.si : RESPUESTAS.no;
   respuesta.className = 'respuesta visible';
 
-  var detalle = document.getElementById('detalle');
-  if (asiste) { detalle.className = 'detalle abierto'; }
-  else { detalle.className = 'detalle'; }
-
   ajustarAlcance(asiste);
 
-  document.getElementById('enviar').disabled = false;
-}
-
-function enviar() {
-  if (elegido === null) return;
-
-  var boton = document.getElementById('enviar');
-  var estado = document.getElementById('estado');
-  boton.disabled = true;
-  estado.className = 'estado';
-  estado.textContent = 'Guardando…';
-
-  var otros = document.getElementById('otros').value.replace(/^\s+|\s+$/g, '');
-  var lista = [];
-  for (var k in marcados) {
-    if (!marcados.hasOwnProperty(k)) continue;
-    /* Si nos cuenta algo por escrito, «Ninguna» ya no vale como respuesta:
-       la quitamos para que la hoja no diga las dos cosas a la vez. */
-    if (k === SIN_ALERGIAS && otros) continue;
-    lista.push(k);
-  }
-  if (otros) lista.push(otros);
-
-  var cuerpo = JSON.stringify({
-    token: token,
-    asiste: elegido,
-    alergenos: elegido ? lista.join(', ') : '',
-    /* Quien no viene no necesita autobús, y si no ha tocado los botones
-       mandamos la celda vacía en vez de inventarle una hora. */
-    vuelta: elegido && vuelta ? vuelta : '',
-    nota: document.getElementById('nota').value
-  });
-
-  pedir('POST', API, cuerpo, function (d) {
-    boton.disabled = false;
-    if (d && d.ok) {
-      estado.textContent = elegido
-        ? 'Guardado. Nos vemos allí.'
-        : 'Guardado. Te echaremos de menos.';
-    } else {
-      estado.className = 'estado mal';
-      estado.textContent = 'No se ha podido guardar. Inténtalo otra vez.';
-    }
-  });
+  document.getElementById('enviar-confirmar').disabled = false;
 }
 
 cargar();
