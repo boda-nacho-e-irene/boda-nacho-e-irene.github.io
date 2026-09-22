@@ -1,5 +1,8 @@
 /* ---------- cuenta atrás ---------- */
 
+/* Las cifras y el botón de guardar la fecha, debajo: una pantalla. */
+#cuenta-atras { --pantallas: 1; }
+
 /* Columnas de ancho fijo: las cifras no mueven la maqueta al cambiar. Las
    juntas verticales entre celdas son las mismas líneas finas del resto de la
    página, aquí haciendo de sillería. */

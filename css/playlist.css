@@ -1,5 +1,11 @@
 /* ---------- sugerencias de música ---------- */
 
+/* Una pantalla de suelo. Es la sección que más crece —las canciones que ya
+   ha mandado, el buscador y los resultados de iTunes, uno debajo de otro—,
+   pero crece sola según lo que haya: fijarle dos de entrada dejaba una
+   vacía mientras el buscador no ha encontrado nada. */
+#playlist { --pantallas: 1; }
+
 .resultados { margin: 0 0 var(--e4); }
 
 .resultado {

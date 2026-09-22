@@ -1,5 +1,10 @@
 /* ---------- transporte ---------- */
 
+/* Una pantalla de suelo: los dos recorridos con sus paradas van uno debajo
+   del otro en la columna estrecha y se pasan de largo ellos solos, sin que
+   haya que reservarles hueco de antemano. */
+#transporte { --pantallas: 1; }
+
 /* Base = pantalla estrecha: uno debajo del otro. */
 .trayectos { display: grid; gap: var(--e4); }
 

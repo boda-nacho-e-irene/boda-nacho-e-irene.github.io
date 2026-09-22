@@ -1,7 +1,10 @@
 /* ---------- índice lateral ---------- */
 
-/* Base = móvil: panel que entra desde la izquierda.
-   A partir de 62rem se convierte en un raíl fijo al lado del texto. */
+/* Un solo índice para todos los anchos: el botón en la esquina y el panel que
+   entra desde la izquierda. Hasta 62rem había un segundo índice, un raíl fijo
+   al lado del texto; con la invitación plantada a ancho de móvil dentro de su
+   marco ya no hay un «al lado» donde ponerlo, y de paso el escritorio se ve
+   igual que el teléfono, que es de lo que se trataba. */
 
 .nav-boton {
   position: fixed;
@@ -60,8 +63,10 @@
 }
 .nav.abierto { visibility: visible; transform: none; }
 
-/* El mismo hilo que encadena las secciones, aquí colgando las entradas del
-   índice. Va de centro a centro de arco, no de punta a punta de la lista. */
+/* El hilo que encadena las entradas del índice. En la página la junta entre
+   dos secciones va horizontal, porque son pantallas que se tocan; aquí la
+   lista sí baja, así que el hilo baja con ella. Va de centro a centro de arco,
+   no de punta a punta de la lista. */
 .nav ol { list-style: none; margin: 0; padding: 0; position: relative; }
 .nav ol::before {
   content: '';
@@ -121,30 +126,65 @@
   border-color: var(--ocre);
 }
 
-@media (min-width: 62rem) {
-  .nav-boton, .nav-velo { display: none; }
-  .nav, .nav.abierto {
-    top: 50%;
-    bottom: auto;
-    left: 2rem;
-    left: max(1.5rem, calc(50vw - 29rem));
-    width: auto;
-    padding: var(--e1) 0;
-    background: none;
-    border: 0;
-    box-shadow: none;
-    overflow: visible;
-    visibility: visible;
-    transform: translateY(-50%);
-  }
-  .seccion, .trayecto { scroll-margin-top: 2.5rem; }
-  /* La columna respira: con 30rem al lado del raíl la página se veía como un
-     móvil estirado. El margen de página sube con ella y las sangrías van solas. */
-  :root { --margen: 2rem; }
-  main { max-width: 34rem; }
+/* ---------- saltar de sección ---------- */
+
+/* Dos flechas en la esquina de abajo. Con cada sección ocupando una pantalla o
+   más, bajar a la siguiente a base de rueda o de dedo se hace largo: estas la
+   traen de un toque, y en el orden de `SECCIONES`, que es el mismo del
+   índice. El hueco que se reservan abajo lo pone `--paso-hueco` en el padding
+   de `.seccion`, así que no pisan nada. */
+.pasos {
+  position: fixed;
+  right: var(--e2);
+  bottom: var(--e2);
+  /* Por debajo del velo del índice (30): con el panel abierto se apagan con
+     el resto de la página en vez de quedarse encendidas encima. */
+  z-index: 25;
+  display: flex;
+  gap: var(--e1);
+}
+
+.paso {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--piedra);
+  border: var(--linea);
+  border-radius: var(--r);
+  color: var(--ocre);
+  transition: border-color .18s, background-color .18s, opacity .18s;
+}
+.paso:hover { border-color: var(--ocre); background: var(--ocre-suave); }
+
+/* En la primera sección y en la última se apaga la que no lleva a ninguna
+   parte. Apagada y no escondida: si desaparecieran, la otra cambiaría de sitio
+   al llegar abajo. */
+.paso[disabled] { opacity: .3; cursor: default; }
+.paso[disabled]:hover { border-color: var(--hueco); background: var(--piedra); }
+
+.paso svg { display: block; width: 16px; height: 12px; }
+.paso path { fill: none; stroke: currentColor; stroke-width: 1.5; }
+
+/* Con marco, el botón, el panel y las flechas se meten dentro de él: el índice se abre
+   encima de la invitación, como en el teléfono, en vez de quedarse colgado de
+   la esquina de la pantalla a un palmo del papel. El punto de corte es el
+   mismo que el del marco en `css/base.css`; si se mueve uno, se mueven los
+   dos. `%` y no `vw` porque a un elemento fijo el tanto por ciento no le
+   cuenta la barra de scroll, y el marco va centrado sin ella. */
+@media (min-width: 34rem) {
+  .nav-boton { left: max(var(--e2), calc(50% - var(--marco) / 2 + var(--e2))); }
+  .nav, .nav.abierto { left: max(0px, calc(50% - var(--marco) / 2)); }
+  .pasos { right: max(var(--e2), calc(50% - var(--marco) / 2 + var(--e2))); }
 }
 
 /* ---------- secciones en obras ---------- */
+
+/* Un sello y una línea de texto: una pantalla, y de sobra. Cuando se rellenen
+   se les sube el número aquí o en la hoja que estrenen. */
+#dedicatoria, #alojamiento, #sitio-web { --pantallas: 1; }
 
 .wip-linea {
   text-align: center;
