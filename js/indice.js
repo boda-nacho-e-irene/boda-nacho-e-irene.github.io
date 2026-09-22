@@ -1,4 +1,4 @@
-/* --- índice lateral --- */
+/* --- navegación: el índice lateral y las flechas de saltar sección --- */
 
 /* Una sección está hecha cuando su formulario ya está guardado, o sea cuando
    tiene resumen. Las que no piden nada no cuentan. */
@@ -50,12 +50,27 @@ function montarIndice() {
     '<div class="nav-velo" id="nav-velo"></div>' +
     '<nav class="nav" id="nav-indice" aria-label="Secciones de la invitación">' +
       '<ol>' + lista + '</ol>' +
+    '</nav>' +
+    '<nav class="pasos" aria-label="Saltar de sección">' +
+      '<button type="button" class="paso" id="paso-atras" aria-label="Sección anterior">' +
+        '<svg viewBox="0 0 16 12" aria-hidden="true">' +
+          '<path d="M2 8.5 L8 3.5 L14 8.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+      '</button>' +
+      '<button type="button" class="paso" id="paso-siguiente" aria-label="Sección siguiente">' +
+        '<svg viewBox="0 0 16 12" aria-hidden="true">' +
+          '<path d="M2 3.5 L8 8.5 L14 3.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+      '</button>' +
     '</nav>';
 
   var boton = document.getElementById('nav-boton');
   var panel = document.getElementById('nav-indice');
   var velo  = document.getElementById('nav-velo');
   var enlaces = panel.getElementsByTagName('a');
+  var atras = document.getElementById('paso-atras');
+  var siguiente = document.getElementById('paso-siguiente');
+  var enCurso = 0;   // la sección que manda, por su sitio en `presentes`
 
   function abrir(si) {
     boton.setAttribute('aria-expanded', si ? 'true' : 'false');
@@ -63,6 +78,19 @@ function montarIndice() {
     velo.className  = si ? 'nav-velo visible' : 'nav-velo';
     document.body.style.overflow = si ? 'hidden' : '';
   }
+
+  /* El salto deja el borde de arriba de la sección clavado en el de la
+     pantalla, y de eso se encarga el navegador solo: la sección mide una
+     pantalla y no lleva `scroll-margin-top`, así que cae centrada. Deslizar es
+     cosa de `scroll-behavior: smooth` (y no desliza para quien haya pedido
+     menos movimiento). Saltar es de sección a sección, tenga la de abajo una
+     pantalla o tres. */
+  function saltar(paso) {
+    var destino = document.getElementById(presentes[enCurso + paso]);
+    if (destino) { destino.scrollIntoView(); }
+  }
+  atras.onclick = function () { saltar(-1); };
+  siguiente.onclick = function () { saltar(1); };
 
   boton.onclick = function () { abrir(boton.getAttribute('aria-expanded') !== 'true'); };
   velo.onclick  = function () { abrir(false); };
@@ -73,13 +101,13 @@ function montarIndice() {
     var esc = e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27;
     if (esc && boton.getAttribute('aria-expanded') === 'true') { abrir(false); }
   };
-  // Si el móvil abierto pasa a ancho de escritorio (giro de pantalla), el panel
-  // se convierte en raíl y hay que soltar el bloqueo del scroll.
-  window.onresize = function () {
-    if (window.innerWidth >= 992) { abrir(false); }
-    repasar();
-  };
+  // El panel es el mismo a todos los anchos, así que al girar la pantalla no
+  // hay que cerrarlo; lo que sí cambia es el alto de las secciones, y con él
+  // cuál de ellas manda.
+  window.onresize = function () { repasar(); };
 
+  /* La sección que manda es la misma para el índice y para las flechas, así
+     que se marcan juntas: lo que el índice señala es de donde saltan. */
   function marcar(id) {
     for (var k = 0; k < enlaces.length; k++) {
       if (enlaces[k].getAttribute('href') === '#' + id) {
@@ -88,6 +116,12 @@ function montarIndice() {
         enlaces[k].removeAttribute('aria-current');
       }
     }
+
+    for (var m = 0; m < presentes.length; m++) {
+      if (presentes[m] === id) { enCurso = m; }
+    }
+    atras.disabled = enCurso === 0;
+    siguiente.disabled = enCurso === presentes.length - 1;
   }
 
   /* Manda la última sección cuyo borde superior haya pasado la franja de

@@ -119,5 +119,12 @@ textarea { resize: vertical; min-height: 4.5rem; }
 .estado { text-align: center; font-size: var(--t-ui); margin: 1rem 0 0; min-height: 1.5rem; }
 .estado.mal { color: var(--error); }
 
-.centrado { text-align: center; padding: var(--e6) 0; color: var(--musgo); }
+/* El «abriendo la invitación» y los avisos de error, que se pintan sueltos en
+   `main` y no dentro de una sección: el margen de página se lo tienen que
+   poner ellos o se pegan al borde. */
+.centrado {
+  text-align: center;
+  padding: var(--e6) var(--margen);
+  color: var(--musgo);
+}
 

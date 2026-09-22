@@ -19,6 +19,7 @@
   --pliegue:     rgba(38,48,43,.08);    /* dobleces del sobre y borde de la carta */
   --capa-grano:  rgba(233,229,217,.96); /* la capa que apaga el grano del papel */
   --campo:       rgba(255,255,255,.45); /* luz, no piedra: no sigue a la paleta */
+  --relleno:     #C6C4BA;               /* lo que se ve a los lados del marco */
 
   /* Por tono. Estos no salen de una mezcla exacta de nada —se eligieron a
      ojo— así que se quedan escritos. El laboratorio los recalcula al mover
@@ -119,15 +120,46 @@
   --e5: 3.25rem;
   --e6: 5rem;
   --margen: 1.5rem;
-  /* Lo que el hilo se queda corto antes del emblema: baja hasta aquí y para,
-     no llega a tocarlo. */
-  --hilo-aire: .875rem;
+  /* Lo que mide el filete que marca la junta entre dos pantallas. */
+  --costura: 2.5rem;
+
+  /* Lo que el paginador se reserva abajo para no pisar el contenido: su aire,
+     su botón y su aire otra vez. */
+  --paso-hueco: calc(var(--e2) * 2 + 2.75rem);
 
   /* ---------- forma ---------- */
   --r:   3px;
   --r-g: 6px;
   --linea:  1px solid var(--hueco);
   --sombra: 0 1px 2px rgba(38,48,43,.04), 0 6px 20px rgba(38,48,43,.06);
+
+  /* ---------- el marco ---------- */
+  /* En cuanto la pantalla es más ancha que un teléfono la invitación deja de
+     estirarse: se planta en medio con este ancho —el de un móvil— y lo que
+     sobra a los lados se rellena con una foto.
+
+     El ancho sale del alto de la pantalla y no de un número fijo: un móvil es
+     alto y estrecho, pero un monitor es bajo y panorámico, y con un ancho de
+     teléfono clavado la invitación se quedaba en una tira. Dividir por 1.5 le
+     da la proporción de un móvil ancho; es el número que se toca para que sea
+     más ancha o más estrecha.
+
+     Los otros dos de dentro del `min()` son los topes: nunca más de 38rem —por
+     encima el renglón se hace largo de leer— y nunca tanto que se coma el
+     relleno de los lados en una ventana estrecha y alta. El `max()` pone el
+     suelo. La línea de `vh` de encima es para el navegador sin `svh`.
+
+     La ruta lleva `../` porque un `url()` se resuelve contra la hoja y no
+     contra la página. Mientras el archivo no exista se ve `--relleno` y no se
+     rompe nada: deja `img/fondo.webp` en su sitio y aparece solo. */
+  --marco: min(38rem, calc(100vw - var(--e5) * 2), max(28rem, calc(100vh / 1.5)));
+  --marco: min(38rem, calc(100vw - var(--e5) * 2), max(28rem, calc(100svh / 1.5)));
+  --fondo-escritorio: url("../img/fondo.webp");
+
+  /* El grano del papel: un feTurbulence de unos 200 bytes en el propio CSS,
+     sin archivo ni petición de red. Vive aquí porque lo usan dos: el fondo de
+     la página en móvil y la columna de papel cuando hay marco. */
+  --grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
 }
 
 /* Los derivados por transparencia, otra vez, ahora atados a su color base.
@@ -143,6 +175,7 @@
     --ocre-suave:  color-mix(in srgb, var(--ocre)   10%,  transparent);
     --pliegue:     color-mix(in srgb, var(--tinta)  8%,   transparent);
     --capa-grano:  color-mix(in srgb, var(--piedra) 96%,  transparent);
+    --relleno:     color-mix(in srgb, var(--piedra) 82%,  var(--tinta));
 
     --sombra:        0 1px 2px  color-mix(in srgb, var(--tinta) 4%,  transparent),
                      0 6px 20px color-mix(in srgb, var(--tinta) 6%,  transparent);
@@ -164,49 +197,79 @@ body {
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 
-  /* Grano de papel: un feTurbulence de unos 200 bytes en el propio CSS, sin
-     archivo ni petición de red. La capa de color de encima lo deja en un 4%,
-     que es lo justo para que la caliza no sea un plano liso. Sin `fixed`: el
-     grano baja con la página, como el papel, y de paso nos ahorramos el
-     repintado caro de los fondos fijos en móvil. */
+  /* La capa de color de encima deja el grano en un 4%, que es lo justo para
+     que la caliza no sea un plano liso. Sin `fixed`: el grano baja con la
+     página, como el papel, y de paso nos ahorramos el repintado caro de los
+     fondos fijos en móvil. */
   background-color: var(--piedra);
   background-image:
     linear-gradient(var(--capa-grano), var(--capa-grano)),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+    var(--grano);
 }
 
-main {
-  max-width: 30rem;
-  margin: 0 auto;
-  padding: var(--e4) var(--margen) var(--e6);
-}
+/* Columna a secas: ni ancho ni margen de página. El margen se lo lleva ahora
+   cada sección, que es la que ocupa la pantalla entera; el ancho lo pone el
+   marco, y solo cuando hay sitio para él. */
+main { margin: 0 auto; }
 
 /* ---------- secciones ---------- */
 
-/* El botón del índice ocupa la esquina superior en móvil: dejamos hueco
-   para que al saltar a una sección el título no quede debajo. */
-.seccion, .trayecto { scroll-margin-top: 4.5rem; }
-.seccion { position: relative; }
-.seccion + .seccion { margin-top: var(--e5); }
-/* Las secciones de después de «Confirmar» se esconden si alguien no viene. */
+/* Una sección **no** lleva `scroll-margin-top`, y es a propósito: mide una
+   pantalla, así que al saltar a ella tiene que quedar clavada en la pantalla.
+   Cualquier margen la baja —los 4.5rem de antes la dejaban 72 px más abajo— y
+   entonces se ve el final de la anterior arriba y el contenido descentrado.
+   El título no se mete debajo del botón del índice porque va centrado y a media
+   altura, y el botón está arriba a la izquierda.
+
+   Un trayecto sí: es un ancla de dentro de una sección, no una pantalla. */
+.trayecto { scroll-margin-top: 4.5rem; }
+
+/* Cada sección es una pantalla, y las que necesitan más piden más: basta con
+   subirle `--pantallas` desde su propia hoja (`#playlist { --pantallas: 2 }`).
+   Admite decimales.
+
+   Es `min-height` y no `height` a propósito: lo que pide es un suelo, no un
+   tope. Una sección con más contenido del que le cabe crece y ya está —nunca
+   se recorta—, y el centrado solo se nota mientras sobra sitio.
+
+   Ojo al subirlo: el contenido se centra en la sección **entera**. Pedir dos
+   pantallas para algo que ocupa media deja el contenido a caballo entre las
+   dos, y al saltar a la sección lo primero que se ve es un vacío. Solo pide
+   más de una la sección cuyo contenido llene de verdad lo que pide.
+
+   `svh` en vez de `vh` para que no pegue el salto de la barra del navegador
+   en móvil; la línea de `vh` de encima es para el navegador que no lo
+   entienda. */
+.seccion {
+  --pantallas: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(var(--pantallas) * 100vh);
+  min-height: calc(var(--pantallas) * 100svh);
+  padding: var(--e4) var(--margen) var(--paso-hueco);
+}
+/* Las secciones de después de «Confirmar» se esconden si alguien no viene.
+   Gana al `display: flex` de arriba por especificidad, así que se van del todo
+   y no dejan la pantalla en blanco que ocupaban. */
 .seccion[hidden] { display: none; }
 
-/* El hilo. Antes el hueco entre secciones estaba vacío y la página se leía
-   como una pila de bloques sueltos; ahora baja por él un filete que muere en
-   el arco del título siguiente, y las secciones quedan encadenadas.
-   Va colgado del margen y no del bloque: en «Confirmar», que es una caja con
-   fondo, el hilo llega hasta su borde de arriba en vez de dibujarse dentro. */
+/* La costura: un filete corto y centrado en el borde de arriba de la sección,
+   que dice que aquí empieza otra. Antes era un hilo vertical que cosía una
+   sección con la de abajo cruzando el hueco que había entre ellas; ya no hay
+   hueco —cada sección es una pantalla y se tocan—, así que la junta que hay
+   que enseñar va en la otra dirección. La primera sección no la lleva: no
+   viene de ninguna parte. */
 .seccion + .seccion::before {
   content: '';
   position: absolute;
-  left: calc(50% - .5px);
-  bottom: calc(100% + var(--hilo-aire));
-  width: 1px;
-  height: calc(var(--e5) - var(--hilo-aire));
+  top: var(--e3);
+  left: calc(50% - var(--costura) / 2);
+  width: var(--costura);
+  height: 1px;
   background: var(--hueco);
 }
-/* La portada se despide con más aire y el hilo lo cruza entero. */
-#inicio + .seccion::before { height: calc(var(--e6) - var(--hilo-aire)); }
 
 /* Emblema de sección: el arco por defecto, o el icono de `img/iconos/<id>.svg`
    si lo hay. La altura va fija para que cambiar de uno a otro no mueva nada
@@ -250,3 +313,38 @@ main {
   margin: 0 0 var(--e3);
 }
 
+/* ---------- el marco ---------- */
+
+/* De aquí para arriba ya no es un teléfono. En vez de estirar la invitación
+   —que a 1200 px se lee como un móvil reventado— se deja tal cual, plantada
+   en medio a ancho de móvil, y lo que sobra a los lados se rellena con la
+   foto: lo de dentro es exactamente la misma maqueta que ve el invitado en su
+   teléfono, sin una segunda que mantener.
+
+   34rem (544 px) es el punto de corte: por encima del más ancho de los
+   móviles, y con sitio de sobra a los lados para que la foto se lea como un
+   fondo y no como dos franjas. Es el número que se toca para mover el límite. */
+@media (min-width: 34rem) {
+  body {
+    background-color: var(--relleno);
+    background-image: var(--fondo-escritorio);
+    background-size: cover;
+    background-position: center;
+    /* Aquí sí: la foto se queda quieta y la invitación baja por delante. El
+       repintado caro de un fondo fijo es cosa de móvil, y en móvil no entra. */
+    background-attachment: fixed;
+  }
+
+  /* El papel, ahora sí, es la columna: se lleva el fondo y el grano que en
+     móvil pone el body, y la sombra lo despega de la foto. */
+  main {
+    max-width: var(--marco);
+    min-height: 100vh;
+    min-height: 100svh;
+    background-color: var(--piedra);
+    background-image:
+      linear-gradient(var(--capa-grano), var(--capa-grano)),
+      var(--grano);
+    box-shadow: var(--sombra-sobre);
+  }
+}

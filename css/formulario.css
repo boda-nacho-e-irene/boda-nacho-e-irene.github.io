@@ -1,16 +1,25 @@
 /* ---------- formulario ---------- */
 
 /* Confirmar es lo único que necesitamos de verdad, así que es lo único que se
-   levanta del fondo. El margen negativo cancela el padding de `main`: la caja
-   se ensancha pero el contenido conserva la misma medida que antes. */
+   levanta del fondo. Ya no es una caja suelta con sus esquinas: la sección
+   ocupa la pantalla de lado a lado, así que se levanta como una franja de
+   papel de borde a borde, con una línea fina arriba y otra abajo. Sin
+   sombra: a lo ancho de la columna entera se saldría del marco y se
+   derramaría sobre la foto del fondo.
+
+   Una pantalla: los dos botones, el mensaje y el de enviar caben de sobra.
+   Con la pantalla y media que pedía antes el formulario se quedaba a media
+   altura de una caja el doble de alta, y al saltar aquí lo primero que se
+   veía era papel en blanco. Si algún día no cabe, crece solo. */
 #confirmar {
-  margin-inline: calc(var(--margen) * -1);
-  padding: var(--e4) var(--margen);
+  --pantallas: 1;
   background: var(--papel);
-  border: var(--linea);
-  border-radius: var(--r-g);
-  box-shadow: var(--sombra);
+  border-top: var(--linea);
+  border-bottom: var(--linea);
 }
+
+/* Nueve chips, el campo de «otra cosa» y el botón: lo mismo que Confirmar. */
+#alergias { --pantallas: 1; }
 
 .eleccion { display: grid; gap: var(--e1); margin-bottom: var(--e2); }
 
