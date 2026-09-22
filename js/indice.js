@@ -9,29 +9,170 @@ function seccionHecha(id) {
   return false;
 }
 
+/* El nombre con el que la sección sale en el índice. */
+function tituloDe(id) {
+  for (var i = 0; i < SECCIONES.length; i++) {
+    if (SECCIONES[i].id === id) return SECCIONES[i].titulo;
+  }
+  return id;
+}
+
+/* --- el orden de la página --- */
+
+/* Los `id` de las secciones que están puestas, en el orden en que están **hoy**
+   en la página. El índice y las flechas van por aquí y no por `SECCIONES`: lo
+   hecho se baja al final, así que esa constante es el orden de partida y el DOM
+   el de ahora. */
+function seccionesPuestas() {
+  var contenido = document.getElementById('contenido');
+  var ids = [];
+  if (!contenido) return ids;
+
+  var secciones = contenido.getElementsByTagName('section');
+  for (var i = 0; i < secciones.length; i++) {
+    if (!secciones[i].hidden && secciones[i].id) { ids.push(secciones[i].id); }
+  }
+  return ids;
+}
+
+/* La sección que ocupa el borde de arriba de la pantalla: la primera cuyo
+   final todavía no ha pasado. */
+function seccionAlFrente() {
+  var contenido = document.getElementById('contenido');
+  if (!contenido) return null;
+
+  var secciones = contenido.getElementsByTagName('section');
+  for (var i = 0; i < secciones.length; i++) {
+    if (secciones[i].hidden) continue;
+    if (secciones[i].getBoundingClientRect().bottom > 1) return secciones[i];
+  }
+  return null;
+}
+
+/* Mover la página sin deslizar. El `scroll-behavior: smooth` de la hoja está
+   para los saltos que pide el invitado; esto es un reajuste, y deslizarlo se
+   vería como un viaje que él no ha pedido. */
+function desplazar(px) {
+  if (!px) return;
+  var raiz = document.documentElement;
+  var comoEstaba = raiz.style.scrollBehavior;
+
+  raiz.style.scrollBehavior = 'auto';
+  window.scrollTo(0, (window.pageYOffset || raiz.scrollTop || 0) + px);
+  raiz.style.scrollBehavior = comoEstaba;
+}
+
+/* ¿Están ya las secciones en este orden? Mover nodo por nodo para dejarlo todo
+   como estaba le cuesta al navegador la maqueta entera. */
+function mismoOrden(contenido, orden) {
+  var secciones = contenido.getElementsByTagName('section');
+  if (secciones.length !== orden.length) return false;
+  for (var i = 0; i < orden.length; i++) {
+    if (secciones[i] !== orden[i]) return false;
+  }
+  return true;
+}
+
+/* Lo hecho, al final de la página. Así la invitación se lee como una lista de
+   recados: arriba lo que todavía nos tiene que decir, abajo lo que ya está
+   guardado. Dentro de cada montón manda el orden de `SECCIONES`, así que nada
+   se cruza con nada.
+
+   Lo llama montarIndice(), que es lo que corre cada vez que algo se guarda o se
+   esconde: la página y el índice se reordenan a la vez y nunca dicen cosas
+   distintas. */
+function ordenarSecciones() {
+  var contenido = document.getElementById('contenido');
+  if (!contenido) return;
+
+  var pendientes = [];
+  var hechas = [];
+  for (var i = 0; i < SECCIONES.length; i++) {
+    var sec = document.getElementById(SECCIONES[i].id);
+    if (!sec || sec.parentNode !== contenido) continue;
+    if (seccionHecha(SECCIONES[i].id)) { hechas.push(sec); } else { pendientes.push(sec); }
+  }
+
+  var orden = pendientes.concat(hechas);
+  if (mismoOrden(contenido, orden)) return;
+
+  /* Antes de tocar nada: qué sección tiene delante el invitado y a qué altura,
+     y dónde tiene el foco. Reinsertar un nodo se lleva por delante el foco que
+     hubiera dentro —y el que acaba de guardar lo tiene en su botón de enviar—,
+     así que se lo devolvemos en cuanto está en su sitio. */
+  var suya = seccionAlFrente();
+  var altura = suya ? suya.getBoundingClientRect().top : 0;
+  var foco = document.activeElement;
+
+  for (var j = 0; j < orden.length; j++) { contenido.appendChild(orden[j]); }
+
+  if (foco && foco.focus && contenido.contains(foco)) {
+    // El objeto no lo entiende el navegador viejo, que se limita a ignorarlo;
+    // el reajuste de debajo le corrige el salto de todos modos.
+    foco.focus({ preventScroll: true });
+  }
+
+  /* Y la sección que tenía delante, delante: la seguimos hasta su nuevo sitio
+     en vez de dejar que se le cuele otra por debajo. Lo que acaba de bajar al
+     final es casi siempre la suya —se reordena justo al guardar su formulario,
+     o al apuntar una canción con la playlist abierta—, y sacarle la pantalla
+     de debajo en ese momento es quitarle de delante lo que estaba mirando. El
+     cambio de orden lo cuenta el índice; la página no da ningún salto. */
+  if (suya) { desplazar(suya.getBoundingClientRect().top - altura); }
+}
+
+/* --- el índice --- */
+
+function entradaIndice(id) {
+  var hecho = seccionHecha(id);
+  return '<li><a class="nav-enlace" href="#' + escapar(id) + '"'
+       + (hecho ? ' data-hecho="true"' : '') + '>'
+       + '<span class="nav-punto" aria-hidden="true"></span>'
+       + '<span>' + escapar(tituloDe(id)) + '</span>'
+       + (hecho ? '<span class="solo-voz"> (hecho)</span>' : '')
+       + '</a></li>';
+}
+
+/* Las secciones en obras no se pintan en la página: se quedan aquí abajo, como
+   botones apagados debajo de la línea que dice que están por venir. Así se ve
+   que hay más invitación en camino sin que el invitado se tropiece con una
+   pantalla vacía cada vez que baja. El botón no lleva enlace porque no hay
+   adónde ir. */
+function listaEnObras() {
+  if (!EN_OBRAS || !EN_OBRAS.length) return '';
+
+  var lista = '';
+  for (var i = 0; i < EN_OBRAS.length; i++) {
+    lista += '<li><button type="button" class="nav-enlace nav-obra" disabled>' +
+               '<span class="nav-punto" aria-hidden="true"></span>' +
+               '<span>' + escapar(EN_OBRAS[i].titulo) + '</span>' +
+             '</button></li>';
+  }
+
+  return '<p class="nav-rotulo" id="nav-obras-rotulo">Próximamente</p>' +
+         '<p class="nav-nota" id="nav-obras-nota">Estas secciones se habilitarán pronto.</p>' +
+         '<ul class="nav-lista" aria-labelledby="nav-obras-rotulo nav-obras-nota">' +
+           lista +
+         '</ul>';
+}
+
 /* Se llama al pintar y cada vez que cambia el juego de secciones a la vista,
    así que empieza soltando lo que dejó la vez anterior. */
 function montarIndice() {
-  var presentes = [];
-  var lista = '';
+  ordenarSecciones();
+
+  var presentes = seccionesPuestas();
+  var pendientes = '';
+  var hechas = '';
 
   document.body.style.overflow = '';
   window.onscroll = null;
   window.onresize = null;
   document.onkeydown = null;
 
-  for (var i = 0; i < SECCIONES.length; i++) {
-    var seccion = document.getElementById(SECCIONES[i].id);
-    if (!seccion || seccion.hidden) continue;
-    presentes.push(SECCIONES[i].id);
-
-    var hecho = seccionHecha(SECCIONES[i].id);
-    lista += '<li><a class="nav-enlace" href="#' + escapar(SECCIONES[i].id) + '"'
-           + (hecho ? ' data-hecho="true"' : '') + '>'
-           + '<span class="nav-punto" aria-hidden="true"></span>'
-           + '<span>' + escapar(SECCIONES[i].titulo) + '</span>'
-           + (hecho ? '<span class="solo-voz"> (hecho)</span>' : '')
-           + '</a></li>';
+  for (var i = 0; i < presentes.length; i++) {
+    if (seccionHecha(presentes[i])) { hechas += entradaIndice(presentes[i]); }
+    else { pendientes += entradaIndice(presentes[i]); }
   }
 
   /* Con una sola sección el índice sobra. Lo vaciamos en vez de dejarlo estar:
@@ -42,6 +183,15 @@ function montarIndice() {
     return;
   }
 
+  /* El índice va en tres apartados, en el mismo orden que la página: lo que
+     queda por hacer, lo ya hecho y lo que está por venir. */
+  var listas = pendientes ? '<ol class="nav-lista">' + pendientes + '</ol>' : '';
+  if (hechas) {
+    listas += '<p class="nav-rotulo" id="nav-hechas-rotulo">Hecho</p>' +
+              '<ol class="nav-lista" aria-labelledby="nav-hechas-rotulo">' + hechas + '</ol>';
+  }
+  listas += listaEnObras();
+
   document.getElementById('navegacion').innerHTML =
     '<button type="button" class="nav-boton" id="nav-boton" aria-expanded="false"' +
       ' aria-controls="nav-indice" aria-label="Índice de la invitación">' +
@@ -49,7 +199,7 @@ function montarIndice() {
     '</button>' +
     '<div class="nav-velo" id="nav-velo"></div>' +
     '<nav class="nav" id="nav-indice" aria-label="Secciones de la invitación">' +
-      '<ol>' + lista + '</ol>' +
+      listas +
     '</nav>' +
     '<nav class="pasos" aria-label="Saltar de sección">' +
       '<button type="button" class="paso" id="paso-atras" aria-label="Sección anterior">' +
@@ -84,7 +234,8 @@ function montarIndice() {
      pantalla y no lleva `scroll-margin-top`, así que cae centrada. Deslizar es
      cosa de `scroll-behavior: smooth` (y no desliza para quien haya pedido
      menos movimiento). Saltar es de sección a sección, tenga la de abajo una
-     pantalla o tres. */
+     pantalla o tres, y en el orden en que están puestas hoy: lo hecho se va al
+     final, y las flechas van detrás. */
   function saltar(paso) {
     var destino = document.getElementById(presentes[enCurso + paso]);
     if (destino) { destino.scrollIntoView(); }
@@ -159,4 +310,3 @@ function montarIndice() {
   };
   repasar();
 }
-

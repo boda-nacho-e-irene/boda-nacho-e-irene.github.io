@@ -550,7 +550,7 @@
   var VARIANTES = {
     completo: {
       n: 'Completa',
-      pista: 'las diez secciones, con un nombre largo para ver cómo parte la línea',
+      pista: 'todo contestado: las secciones hechas se van al final, con un nombre largo para ver cómo parte la línea',
       d: {
         ok: true,
         nombre: 'Familia Fernández de Villaverde',
