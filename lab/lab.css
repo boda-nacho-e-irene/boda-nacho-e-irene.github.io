@@ -1,0 +1,338 @@
+/* Chrome del laboratorio de estilos.
+
+   Regla única y sin excepciones: aquí dentro no se usa ni una sola var(--…)
+   de la invitación. El panel existe para dejarte poner la tinta negra sobre
+   fondo negro si te apetece probarlo, y tiene que seguir legible mientras lo
+   haces. Todos los valores van escritos a mano.
+
+   La hoja de la invitación tiene reglas sueltas de elemento —`button`,
+   `input[type=text]`, `textarea`, `:focus-visible`— que se cuelan aquí por ser
+   selectores de etiqueta. Por eso cada control del panel se redeclara entero
+   en vez de fiarse de lo que herede. */
+
+#lab, #lab * { box-sizing: border-box; }
+
+#lab {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 60;                      /* el sobre está en 50 y el botón del índice en 40 */
+  width: 21rem;
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100svh - 2rem);
+  display: flex;
+  flex-direction: column;
+  font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #E8E6E1;
+  background: #21252B;
+  border: 1px solid #3A414B;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.45);
+  overflow: hidden;
+}
+
+#lab[hidden] { display: none; }
+
+/* En móvil no cabe una columna al lado: se convierte en cajón de abajo. */
+@media (max-width: 30rem) {
+  #lab {
+    right: 0; left: 0; bottom: 0;
+    width: auto;
+    max-height: 72svh;
+    border-radius: 10px 10px 0 0;
+    border-bottom: 0;
+  }
+}
+
+/* ---------- cabecera ---------- */
+
+.lab-cabecera {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem .75rem;
+  background: #171A1F;
+  border-bottom: 1px solid #3A414B;
+  flex: none;
+}
+
+.lab-cabecera h2 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #9AA4B2;
+  flex: 1;
+}
+
+/* ---------- pestañas ---------- */
+
+.lab-pestanas {
+  display: flex;
+  gap: 2px;
+  padding: .5rem .75rem 0;
+  background: #171A1F;
+  flex: none;
+}
+
+#lab .lab-pestana {
+  flex: 1;
+  appearance: none;
+  font: inherit;
+  font-size: 12px;
+  padding: .4rem .25rem;
+  color: #9AA4B2;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  cursor: pointer;
+  min-height: 0;
+}
+#lab .lab-pestana:hover { color: #E8E6E1; }
+#lab .lab-pestana[aria-selected="true"] {
+  color: #E8E6E1;
+  border-bottom-color: #E0A84C;
+}
+
+/* ---------- cuerpo ---------- */
+
+.lab-cuerpo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: .75rem;
+}
+
+.lab-hoja[hidden] { display: none; }
+
+.lab-grupo {
+  margin: 0 0 1rem;
+  border: 0;
+  padding: 0;
+}
+.lab-grupo > legend {
+  padding: 0 0 .35rem;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #9AA4B2;
+}
+
+.lab-nota {
+  margin: 0 0 .5rem;
+  font-size: 11.5px;
+  color: #8B94A1;
+}
+
+.lab-aviso {
+  margin: .3rem 0 0;
+  padding: .3rem .45rem;
+  font-size: 11.5px;
+  color: #F0C98A;
+  background: rgba(224,168,76,.1);
+  border-left: 2px solid #E0A84C;
+  border-radius: 0 3px 3px 0;
+}
+
+/* ---------- fila de control ---------- */
+
+.lab-fila {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .3rem 0;
+}
+.lab-fila + .lab-fila { border-top: 1px solid #2B3038; }
+
+.lab-etiqueta {
+  flex: 1;
+  min-width: 0;
+}
+.lab-etiqueta b {
+  display: block;
+  font-weight: 500;
+  font-size: 12.5px;
+  color: #E8E6E1;
+}
+.lab-etiqueta span {
+  display: block;
+  font-size: 11px;
+  color: #7F8896;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- controles ---------- */
+
+#lab input[type="color"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 2.4rem;
+  height: 1.8rem;
+  padding: 0;
+  border: 1px solid #4A515C;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  flex: none;
+}
+#lab input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
+#lab input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 2px; }
+
+#lab input[type="text"],
+#lab select,
+#lab textarea {
+  font: inherit;
+  font-size: 12px;
+  color: #E8E6E1;
+  background: #2B3038;
+  border: 1px solid #4A515C;
+  border-radius: 4px;
+  padding: .3rem .4rem;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+}
+
+#lab select { cursor: pointer; }
+#lab .lab-corto { width: 5.5rem; flex: none; }
+
+#lab input[type="range"] {
+  flex: none;
+  width: 6.5rem;
+  accent-color: #E0A84C;
+}
+
+#lab textarea {
+  width: 100%;
+  min-height: 11rem;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: pre;
+  resize: vertical;
+}
+
+#lab button {
+  appearance: none;
+  font: inherit;
+  font-size: 12px;
+  color: #E8E6E1;
+  background: #333A44;
+  border: 1px solid #4A515C;
+  border-radius: 4px;
+  padding: .35rem .6rem;
+  min-height: 0;
+  cursor: pointer;
+  letter-spacing: 0;
+  text-transform: none;
+}
+#lab button:hover { background: #3E4651; }
+#lab button[aria-pressed="true"] {
+  background: #E0A84C;
+  border-color: #E0A84C;
+  color: #1A1D22;
+}
+
+#lab .lab-icono {
+  flex: none;
+  width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  line-height: 1;
+  text-align: center;
+}
+
+#lab :focus-visible {
+  outline: 2px solid #E0A84C;
+  outline-offset: 1px;
+}
+
+/* ---------- botonera de presets ---------- */
+
+.lab-botonera {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+  margin-bottom: .5rem;
+}
+
+/* ---------- contraste ---------- */
+
+.lab-contraste {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .25rem 0;
+  font-size: 11.5px;
+  color: #9AA4B2;
+}
+.lab-contraste b { font-variant-numeric: tabular-nums; font-weight: 600; }
+.lab-bien  { color: #86C98B; }
+.lab-justo { color: #E0C04C; }
+.lab-mal   { color: #E08C7A; }
+
+/* ---------- muestra de fuente ---------- */
+
+.lab-muestra {
+  display: block;
+  margin: .2rem 0 .4rem;
+  padding: .35rem .5rem;
+  font-size: 20px;
+  line-height: 1.25;
+  color: #E8E6E1;
+  background: #171A1F;
+  border-radius: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- pie ---------- */
+
+.lab-pie {
+  display: flex;
+  gap: .4rem;
+  padding: .6rem .75rem;
+  background: #171A1F;
+  border-top: 1px solid #3A414B;
+  flex: none;
+}
+.lab-pie button { flex: 1; }
+
+/* ---------- el botón de abrirlo otra vez ---------- */
+
+#lab-abrir {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 60;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1;
+  color: #E8E6E1;
+  background: #21252B;
+  border: 1px solid #3A414B;
+  border-radius: 50%;
+  box-shadow: 0 6px 20px rgba(0,0,0,.4);
+  cursor: pointer;
+  letter-spacing: 0;
+  text-transform: none;
+}
+#lab-abrir[hidden] { display: none; }
+
+/* A propósito no se le toca ni un margen a la invitación para hacerle sitio al
+   panel: lo que se está mirando es justamente cómo cae la página, y estrecharla
+   falsearía el resultado. Para ver lo que el panel tapa, se pliega con el botón
+   de la cabecera o con la tecla L. */
