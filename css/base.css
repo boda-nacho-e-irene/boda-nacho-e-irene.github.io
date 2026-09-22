@@ -1,0 +1,252 @@
+:root {
+  /* ---------- color ---------- */
+  --tinta:   #26302B;   /* verde-negro de la sombra de la nave */
+  --piedra:  #E9E5D9;   /* caliza fría, fondo */
+  --hueco:   #D8D2C2;   /* juntas y bordes */
+  --ocre:    #9C6B24;   /* piedra románica a última hora de la tarde */
+  --musgo:   #5B6B57;   /* texto secundario */
+  --error:   #8A3324;
+
+  /* Derivados. Antes andaban sueltos por la hoja como rgba() escritos a mano;
+     juntos aquí se cambian de una vez y no se descuadran entre sí.
+
+     Por transparencia: cada uno es su color base rebajado a un tanto por
+     ciento. Escritos a mano aquí para el navegador viejo; el @supports de
+     debajo los recalcula solos donde haya `color-mix`. */
+  --velo:        rgba(38,48,43,.35);
+  --tinta-suave: rgba(38,48,43,.055);
+  --ocre-suave:  rgba(156,107,36,.10);
+  --pliegue:     rgba(38,48,43,.08);    /* dobleces del sobre y borde de la carta */
+  --capa-grano:  rgba(233,229,217,.96); /* la capa que apaga el grano del papel */
+  --campo:       rgba(255,255,255,.45); /* luz, no piedra: no sigue a la paleta */
+
+  /* Por tono. Estos no salen de una mezcla exacta de nada —se eligieron a
+     ojo— así que se quedan escritos. El laboratorio los recalcula al mover
+     el color base; aquí manda el literal. */
+  --tinta-honda: #1A221D;               /* tinta un punto más oscura: hover del botón */
+  --papel:       #F3F0E7;               /* medio tono por encima de la piedra */
+
+  /* Las sombras son color con una forma delante: viven aquí para que sigan a
+     la tinta y no se queden de otro color al cambiar la paleta. */
+  --sombra-indice: 8px 0 28px rgba(38,48,43,.12);
+  --sombra-sobre:  0 14px 30px rgba(38,48,43,.15);
+  --sombra-lacre:  0 1px 3px rgba(38,48,43,.35);
+
+  /* ---------- el sobre ---------- */
+  /* Cuatro papeles distintos del mismo juego: la carta que asoma, el bolsillo
+     de delante, las solapas de los lados y la de arriba con su degradado. */
+  --sobre-carta:  #FAF8F1;
+  --sobre-frente: #F1EDE2;
+  --sobre-lado:   #EDE8DB;
+  --solapa-alta:  #E1DBC8;
+  --solapa-baja:  #EDE9DC;
+  --lacre-trazo:  rgba(249,246,238,.9); /* el arco grabado en el lacre */
+
+  /* ---------- tipos ---------- */
+  /* Las dos familias son el material. */
+  --serif: "Cormorant Garamond", Georgia, serif;
+  --sans:  Karla, "Segoe UI", system-ui, sans-serif;
+
+  /* Y los papeles dicen quién lo usa. Cada voz de la página —el título, el
+     nombre del invitado, las citas, las versalitas, las cifras y el texto
+     corriente— lleva los suyos, así que se le puede cambiar la letra a una
+     sin tocar las demás.
+
+     Cursiva y peso van aparte de la familia a propósito: las caligráficas y
+     las de capitales no tienen ni cursiva ni peso 300, y sin poder apagarlos
+     el navegador se los inventa y la letra sale emborronada.
+
+     `--escala-*` multiplica el tamaño de ese papel. Vale 1 y no hace nada;
+     está para compensar las familias de altura de x pequeña, que al mismo
+     font-size se ven la mitad de grandes. */
+  --letra-titulo:   var(--serif);
+  --cursiva-titulo: italic;
+  --peso-titulo:    400;
+  --escala-titulo:  1;
+
+  --letra-nombre:   var(--serif);
+  --cursiva-nombre: italic;
+  --peso-nombre:    300;
+  --escala-nombre:  1;
+
+  --letra-cita:     var(--serif);
+  --cursiva-cita:   italic;
+  --escala-cita:    1;
+
+  --letra-rotulo:   var(--sans);
+  --peso-rotulo:    500;
+  --caja-rotulo:    uppercase;  /* una versalita de verdad no quiere mayúsculas encima */
+  --escala-rotulo:  1;
+
+  --letra-cifra:    var(--serif);
+  --peso-cifra:     300;
+  --escala-cifra:   1;
+
+  --letra-texto:    var(--sans);
+  --t-base:         17px;
+
+  /* Interletraje de las versalitas, con un mando único delante: subir
+     `--aire-escala` las abre todas a la vez y mantiene la proporción entre
+     ellas. El `em` de dentro se resuelve en cada elemento, no aquí, así que
+     el aire sigue siendo proporcional a su propio tamaño. */
+  --aire-escala: 1;
+  --aire-novios: calc(.22em * var(--aire-escala));
+  --aire-marco:  calc(.16em * var(--aire-escala));
+  --aire-rotulo: calc(.14em * var(--aire-escala));
+  --aire-indice: calc(.12em * var(--aire-escala));
+  --aire-dato:   calc(.10em * var(--aire-escala));
+  --aire-boton:  calc(.02em * var(--aire-escala));
+  --aire-titulo: -.01em;
+  --aire-nombre: -.015em;
+
+  --t-rotulo: .6875rem;   /* versalitas: rótulos, sellos, pistas */
+  --t-menor:  .8125rem;
+  --t-nota:   .875rem;
+  --t-ui:     .9375rem;   /* etiquetas, botones, texto de formulario */
+  --t-medio:  1.125rem;
+  --t-sub:    1.25rem;
+  --t-titulo: clamp(1.6rem, 5.5vw, 2.1rem);
+  --t-reloj:  clamp(2.2rem, 11vw, 3.2rem);
+  --t-nombre: clamp(2.4rem, 13vw, 4.4rem);
+
+  /* ---------- espacio ---------- */
+  /* Seis pasos para todo. El margen de página va aparte porque lo usan también
+     las sangrías: cambiarlo ahí mueve la galería con él, sin tocar nada más. */
+  --e1: .5rem;
+  --e2: .75rem;
+  --e3: 1.25rem;
+  --e4: 2rem;
+  --e5: 3.25rem;
+  --e6: 5rem;
+  --margen: 1.5rem;
+  /* Lo que el hilo se queda corto antes del emblema: baja hasta aquí y para,
+     no llega a tocarlo. */
+  --hilo-aire: .875rem;
+
+  /* ---------- forma ---------- */
+  --r:   3px;
+  --r-g: 6px;
+  --linea:  1px solid var(--hueco);
+  --sombra: 0 1px 2px rgba(38,48,43,.04), 0 6px 20px rgba(38,48,43,.06);
+}
+
+/* Los derivados por transparencia, otra vez, ahora atados a su color base.
+   Las cuentas dan exactamente los mismos valores que los literales de
+   arriba, así que aquí no se mueve nada: lo que cambia es que ahora tocar
+   `--tinta` arrastra con ella el velo, las sombras y los pliegues del sobre.
+   Va dentro de un @supports porque un navegador que no entienda `color-mix`
+   invalidaría la declaración entera y dejaría esas zonas sin color. */
+@supports (color: color-mix(in srgb, #000 50%, #fff)) {
+  :root {
+    --velo:        color-mix(in srgb, var(--tinta)  35%,  transparent);
+    --tinta-suave: color-mix(in srgb, var(--tinta)  5.5%, transparent);
+    --ocre-suave:  color-mix(in srgb, var(--ocre)   10%,  transparent);
+    --pliegue:     color-mix(in srgb, var(--tinta)  8%,   transparent);
+    --capa-grano:  color-mix(in srgb, var(--piedra) 96%,  transparent);
+
+    --sombra:        0 1px 2px  color-mix(in srgb, var(--tinta) 4%,  transparent),
+                     0 6px 20px color-mix(in srgb, var(--tinta) 6%,  transparent);
+    --sombra-indice: 8px 0 28px color-mix(in srgb, var(--tinta) 12%, transparent);
+    --sombra-sobre:  0 14px 30px color-mix(in srgb, var(--tinta) 15%, transparent);
+    --sombra-lacre:  0 1px 3px  color-mix(in srgb, var(--tinta) 35%, transparent);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  color: var(--tinta);
+  font-family: var(--letra-texto);
+  font-size: var(--t-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+
+  /* Grano de papel: un feTurbulence de unos 200 bytes en el propio CSS, sin
+     archivo ni petición de red. La capa de color de encima lo deja en un 4%,
+     que es lo justo para que la caliza no sea un plano liso. Sin `fixed`: el
+     grano baja con la página, como el papel, y de paso nos ahorramos el
+     repintado caro de los fondos fijos en móvil. */
+  background-color: var(--piedra);
+  background-image:
+    linear-gradient(var(--capa-grano), var(--capa-grano)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+main {
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: var(--e4) var(--margen) var(--e6);
+}
+
+/* ---------- secciones ---------- */
+
+/* El botón del índice ocupa la esquina superior en móvil: dejamos hueco
+   para que al saltar a una sección el título no quede debajo. */
+.seccion, .trayecto { scroll-margin-top: 4.5rem; }
+.seccion { position: relative; }
+.seccion + .seccion { margin-top: var(--e5); }
+/* Las secciones de después de «Confirmar» se esconden si alguien no viene. */
+.seccion[hidden] { display: none; }
+
+/* El hilo. Antes el hueco entre secciones estaba vacío y la página se leía
+   como una pila de bloques sueltos; ahora baja por él un filete que muere en
+   el arco del título siguiente, y las secciones quedan encadenadas.
+   Va colgado del margen y no del bloque: en «Confirmar», que es una caja con
+   fondo, el hilo llega hasta su borde de arriba en vez de dibujarse dentro. */
+.seccion + .seccion::before {
+  content: '';
+  position: absolute;
+  left: calc(50% - .5px);
+  bottom: calc(100% + var(--hilo-aire));
+  width: 1px;
+  height: calc(var(--e5) - var(--hilo-aire));
+  background: var(--hueco);
+}
+/* La portada se despide con más aire y el hilo lo cruza entero. */
+#inicio + .seccion::before { height: calc(var(--e6) - var(--hilo-aire)); }
+
+/* Emblema de sección: el arco por defecto, o el icono de `img/iconos/<id>.svg`
+   si lo hay. La altura va fija para que cambiar de uno a otro no mueva nada
+   de sitio, y el contenido va centrado en ella. */
+.emblema {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  margin: 0 0 var(--e2);
+}
+
+/* Arco románico en miniatura: el mismo motivo que el sobre y el índice. Es un
+   rectángulo con las esquinas de arriba redondeadas y sin borde abajo, así que
+   no hace falta ni SVG ni imagen para dibujarlo. */
+.arco-chico {
+  display: block;
+  width: 14px;
+  height: 17px;
+  border: 1px solid var(--ocre);
+  border-bottom: 0;
+  border-radius: 50% 50% 0 0;
+}
+
+/* El icono manda sobre su alto, no sobre su ancho: así uno cuadrado y uno
+   apaisado se plantan a la misma altura que el arco al que sustituyen. */
+.icono {
+  display: block;
+  width: auto;
+  height: 28px;
+  max-width: 44px;
+}
+
+.titulo {
+  font-family: var(--letra-titulo);
+  font-size: calc(var(--t-titulo) * var(--escala-titulo));
+  font-style: var(--cursiva-titulo);
+  font-weight: var(--peso-titulo);
+  letter-spacing: var(--aire-titulo);
+  text-align: center;
+  margin: 0 0 var(--e3);
+}
+

@@ -1,0 +1,61 @@
+/* ---------- formulario ---------- */
+
+/* Confirmar es lo único que necesitamos de verdad, así que es lo único que se
+   levanta del fondo. El margen negativo cancela el padding de `main`: la caja
+   se ensancha pero el contenido conserva la misma medida que antes. */
+#confirmar {
+  margin-inline: calc(var(--margen) * -1);
+  padding: var(--e4) var(--margen);
+  background: var(--papel);
+  border: var(--linea);
+  border-radius: var(--r-g);
+  box-shadow: var(--sombra);
+}
+
+.eleccion { display: grid; gap: var(--e1); margin-bottom: var(--e2); }
+
+/* Sale al elegir y se queda plegado mientras no haya respuesta. Plegado,
+   sus dos márgenes suman los 2rem que había bajo los botones, así que la
+   sección no da un salto la primera vez que alguien contesta. */
+.respuesta {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height .35s ease, opacity .3s ease;
+  text-align: center;
+  font-family: var(--letra-cita);
+  font-style: var(--cursiva-cita);
+  font-size: calc(var(--t-medio) * var(--escala-cita));
+  line-height: 1.4;
+  color: var(--ocre);
+  margin: 0 0 var(--e3);
+  text-wrap: pretty;
+}
+.respuesta.visible { max-height: 6rem; opacity: 1; }
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--r);
+}
+
+.opcion {
+  background: transparent;
+  border: var(--linea);
+  border-radius: var(--r);
+  padding: var(--e2) 1rem;
+  min-height: 3.25rem;
+  text-align: center;
+  transition: border-color .18s, background-color .18s, box-shadow .18s;
+}
+.opcion:hover { border-color: var(--musgo); }
+/* El acento va de sombra interior, no de borde: marcar la elección no mueve
+   el texto ni un píxel. */
+.opcion[aria-pressed="true"] {
+  border-color: var(--tinta);
+  background: var(--tinta-suave);
+  box-shadow: inset 3px 0 0 var(--ocre);
+  font-weight: 600;
+}
+

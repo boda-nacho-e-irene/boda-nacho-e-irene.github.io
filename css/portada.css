@@ -1,0 +1,143 @@
+/* ---------- portada ---------- */
+
+/* La única sección que se lleva la pantalla entera: el nombre del invitado es
+   lo primero y lo único que se ve al apartar el sobre. `svh` en vez de `vh`
+   para que no pegue el salto de la barra del navegador en móvil. */
+#inicio {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 74vh;
+  min-height: 74svh;
+  padding-bottom: var(--e4);
+}
+#inicio + .seccion { margin-top: var(--e6); }
+
+.emblema-grande { height: 84px; margin-bottom: var(--e3); }
+.emblema-grande .icono { height: 84px; max-width: 132px; }
+
+.arco { display: block; width: 76px; height: auto; }
+.arco path { fill: none; stroke: var(--ocre); stroke-width: 1.25; }
+
+/* Rótulo de invitación impresa: versalitas sobre una línea fina. */
+.novios {
+  text-align: center;
+  font-family: var(--letra-rotulo);
+  font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
+  font-weight: var(--peso-rotulo);
+  letter-spacing: var(--aire-novios);
+  text-transform: var(--caja-rotulo);
+  color: var(--ocre);
+  margin: 0 0 var(--e5);
+  padding-bottom: var(--e2);
+  border-bottom: var(--linea);
+}
+
+.nombre {
+  font-family: var(--letra-nombre);
+  font-style: var(--cursiva-nombre);
+  font-weight: var(--peso-nombre);
+  font-size: calc(var(--t-nombre) * var(--escala-nombre));
+  letter-spacing: var(--aire-nombre);
+  line-height: 1.02;
+  text-align: center;
+  margin: 0 0 var(--e3);
+  text-wrap: balance;
+}
+
+.cita {
+  text-align: center;
+  font-family: var(--letra-cita);
+  font-size: calc(var(--t-sub) * var(--escala-cita));
+  line-height: 1.5;
+  color: var(--musgo);
+  margin: 0;
+  text-wrap: pretty;
+}
+.cita strong { font-weight: 400; color: var(--tinta); }
+
+/* ---------- fotos ---------- */
+
+/* El margen inferior lo pone `.seccion + .seccion`, como en las demás.
+   Rejilla de dos columnas: una de cada tres fotos ocupa el ancho entero, así
+   el ojo baja con un ritmo desigual en vez de por una escalera de imágenes
+   iguales. `dense` rellena los huecos que deja el salto de anchura.
+   El margen negativo cancela el padding de `main`: las fotos llegan al borde
+   de la columna y el texto se queda con su medida. */
+.galeria {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-flow: dense;
+  gap: var(--e1);
+  margin: 0 calc(var(--margen) * -1);
+}
+
+/* Los hijos son `<figure>` o `<img>` pelado, según la foto lleve pie o no: las
+   reglas de rejilla van sobre `.galeria > *`, nunca sobre `figure`. */
+.galeria > * { margin: 0; min-width: 0; }
+.galeria > *:nth-child(3n+1) { grid-column: 1 / -1; }
+
+.foto {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--r);
+  /* el hueco queda del color de las juntas mientras la foto baja */
+  background: var(--hueco);
+}
+
+/* Solo se recortan las estrechas, y a un vertical suave: son pequeñas y así
+   las dos de una fila acaban a la misma altura. Las de ancho completo van con
+   su proporción real, que es donde se ve la gente y donde un recorte hace
+   daño. */
+.galeria > *:not(:nth-child(3n+1)) .foto,
+.galeria > .foto:not(:nth-child(3n+1)) {
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+.pie {
+  font-family: var(--letra-cita);
+  font-style: var(--cursiva-cita);
+  font-size: calc(var(--t-ui) * var(--escala-cita));
+  text-align: center;
+  color: var(--musgo);
+  margin: var(--e1) 0 0;
+}
+/* La foto ancha llega al borde de la columna; su pie no puede ir pegado a él. */
+.galeria > *:nth-child(3n+1) .pie {
+  text-align: left;
+  padding: 0 var(--margen);
+}
+
+/* ---------- el día ---------- */
+
+.datos { margin: 0; }
+.datos > div {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 0 1rem;
+  padding: var(--e2) 0;
+  border-top: var(--linea);
+}
+.datos > div:last-child { border-bottom: var(--linea); }
+.datos dt {
+  font-family: var(--letra-rotulo);
+  font-size: calc(var(--t-menor) * var(--escala-rotulo));
+  letter-spacing: var(--aire-dato);
+  text-transform: var(--caja-rotulo);
+  color: var(--musgo);
+  align-self: center;
+}
+.datos dd { margin: 0; }
+
+.mapa {
+  display: inline-block;
+  margin-top: var(--e3);
+  font-size: var(--t-ui);
+  color: var(--ocre);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+}
+

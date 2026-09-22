@@ -12,7 +12,7 @@
    reaplicar nada cuando la invitación se repinta.
 
    Con el resultado en la mano, el botón «Exportar» escupe las declaraciones
-   cambiadas para pegarlas en el :root de index.html y dejarlo fijo. */
+   cambiadas para pegarlas en el :root de css/base.css y dejarlo fijo. */
 
 (function () {
   'use strict';
@@ -1097,7 +1097,7 @@
       return 'No has cambiado nada todavía: la invitación está tal cual la ve un invitado.';
     }
 
-    lineas.push('/* ── pega esto dentro de :root, en index.html ── */');
+    lineas.push('/* ── pega esto dentro de :root, en css/base.css ── */');
     TOKENS.forEach(function (t) {
       if (!Object.prototype.hasOwnProperty.call(estado.tokens, t)) return;
       lineas.push('  ' + t + ': ' + valorCss(t, estado.tokens[t]) + ';');
@@ -1160,7 +1160,7 @@
     var hoja = el('div', 'lab-hoja');
     var area = document.createElement('textarea');
     area.readOnly = true;
-    area.setAttribute('aria-label', 'Lo que hay que pegar en index.html');
+    area.setAttribute('aria-label', 'Lo que hay que pegar en css/base.css');
 
     var caja = el('div', 'lab-botonera');
     caja.appendChild(boton('Copiar', function () {

@@ -1,0 +1,117 @@
+/* ---------- transporte ---------- */
+
+/* Base = pantalla estrecha: uno debajo del otro. */
+.trayectos { display: grid; gap: var(--e4); }
+
+/* En cuanto caben, van en paralelo —ida a un lado, vuelta al otro— separados
+   por la misma línea fina que las juntas del resto de la página. El grid se
+   estira, así que la línea llega abajo aunque un trayecto tenga más paradas
+   que el otro. `column` vale para dos o para los que haya. */
+@media (min-width: 23rem) {
+  .trayectos {
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 0;
+  }
+  .trayecto { padding-right: var(--e3); }
+  .trayecto + .trayecto {
+    padding-right: 0;
+    padding-left: var(--e3);
+    border-left: var(--linea);
+  }
+}
+
+/* Los recorridos son para leerlos y esto es para contestar: la línea fina
+   marca dónde acaba lo uno y empieza lo otro. */
+.campos-vuelta {
+  margin-top: var(--e4);
+  padding-top: var(--e4);
+  border-top: var(--linea);
+}
+
+.sub-titulo {
+  font-family: var(--letra-titulo);
+  font-size: calc(var(--t-sub) * var(--escala-titulo));
+  font-style: var(--cursiva-titulo);
+  font-weight: var(--peso-titulo);
+  text-align: center;
+  margin: 0 0 var(--e2);
+}
+
+/* La hora (o las dos horas) a las que sale ese autobús. */
+.salidas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .45rem;
+  margin: 0 0 var(--e3);
+}
+
+/* Con dos horas y la columna muy justa, la segunda baja de línea en vez de
+   desbordar. */
+.horas { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; }
+
+.salidas-rotulo {
+  font-family: var(--letra-rotulo);
+  font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
+  letter-spacing: var(--aire-rotulo);
+  text-transform: var(--caja-rotulo);
+  color: var(--musgo);
+}
+
+.hora {
+  padding: .15rem .55rem;
+  border: 1px solid var(--ocre);
+  border-radius: var(--r);
+  font-family: var(--letra-cifra);
+  font-size: calc(var(--t-medio) * var(--escala-cifra));
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Las paradas en orden, colgadas de una línea vertical. Punto lleno en el
+   origen y en el destino, hueco en las paradas de en medio. */
+.ruta { list-style: none; margin: 0; padding: 0; }
+
+.ruta li { position: relative; padding: 0 0 var(--e3) 1.5rem; }
+.ruta li:last-child { padding-bottom: 0; }
+
+/* La línea baja desde debajo de un punto hasta justo encima del siguiente. */
+.ruta li::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 1rem;
+  bottom: -.375rem;
+  border-left: var(--linea);
+}
+.ruta li:last-child::before { display: none; }
+
+.ruta li::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: .4rem;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--musgo);
+  border-radius: 50%;
+  background: var(--piedra);
+}
+.ruta li:first-child::after,
+.ruta li:last-child::after {
+  left: -1px;
+  width: 9px;
+  height: 9px;
+  background: var(--ocre);
+  border-color: var(--ocre);
+}
+
+.ruta-lugar { display: block; }
+
+.ruta-detalle {
+  display: block;
+  font-size: var(--t-nota);
+  color: var(--musgo);
+}
+

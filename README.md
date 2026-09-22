@@ -9,6 +9,64 @@ confirmación en una hoja de Google.
   (`token`, `nombre`, `asiste`, `fecha_respuesta`, `alergenos`, `nota`,
   `vuelta`) y pestaña `Canciones` con las sugerencias de música.
 
+## Estructura de archivos
+
+La página está partida en tres: el `index.html` es solo el `<head>`, el sobre y
+el hueco donde se pinta todo; los estilos viven en `css/` y la lógica en `js/`,
+un archivo por sección. Así dos cambios en secciones distintas no se pisan el
+mismo archivo.
+
+```
+index.html        <head>, el sobre, <main id="app"> y los enlaces a css/ y js/
+css/base.css      los tokens de :root (color, tipos, espacio, forma); reset;
+                  .seccion. Es el archivo que se toca para cambiar la pinta
+css/portada.css   portada, fotos y el día
+css/indice.css    índice lateral y secciones en obras
+css/transporte.css
+css/formulario.css
+css/bloques.css   los formularios plegables y sus resúmenes
+css/playlist.css
+css/cuenta.css    cuenta atrás y guardar la fecha
+css/sobre.css     el sobre, la entrada y el revelado
+js/datos.js       EDITA ESTO: API, BODA, SECCIONES, EN_OBRAS, TRANSPORTE,
+                  FOTOS, ALERGENOS, RESPUESTAS, MAX_CANCIONES, y el estado
+js/util.js        pedir(), jsonp(), escapar(), titulo(), iconos, pantalla()
+js/sobre.js       abrir el sobre y revelar las secciones
+js/fotos.js       js/cuenta.js       js/calendario.js
+js/transporte.js  js/playlist.js     js/formulario.js
+js/bloques.js     los formularios plegables, los resúmenes y los envíos
+js/indice.js      el índice lateral
+js/pintar.js      cargar(), pintar(), restaurar(), secciones en obras
+lab/lab.css       el laboratorio de ?lab, que no se enlaza: lo baja cargar()
+lab/lab.js
+```
+
+El orden de los `<link>` del `<head>` **es** la cascada, y el de los `<script>`
+el orden de ejecución: `datos.js` va primero porque los demás leen sus
+constantes, `calendario.js` después de `cuenta.js` (le hereda `objetivoMs`) y
+`pintar.js` el último, que acaba llamando a `cargar()`.
+
+Son `<script defer>` normales, no módulos: comparten las variables globales de
+siempre sin `import`/`export`, y la página sigue abriéndose con doble clic
+desde el disco. Al añadir un archivo nuevo hay que enlazarlo a mano; no hay
+paso de compilación ni nada que instalar.
+
+Al partir un archivo hay una trampa: lo que se ejecuta nada más bajar el
+archivo —un `var` de arriba del todo— solo ve las funciones **de su propio
+archivo**, porque es ahí y no más lejos donde suben. Por eso `BLOQUES` está en
+el mismo `js/bloques.js` que sus `resumen*`: los lee al construirse, y desde
+otro archivo llegarían sin definir. Dentro de una función no pasa: para cuando
+corre, ya están todos los archivos.
+
+`lab/` es la excepción: no cuelga del `<head>`, lo pide `abrirLaboratorio()`
+(en `js/pintar.js`) solo cuando la dirección lleva `?lab`, así que al invitado
+no le cuesta ni una petición.
+
+`404.html` se queda con su `<style>` dentro a propósito: GitHub Pages la sirve
+en rutas de cualquier profundidad y un `href` relativo a `css/` daría 404 en
+cuanto la URL fallida tuviera una carpeta de más. Es lo mismo que le pasa a su
+icono, incrustado como `data:`.
+
 ## Despliegue
 
 1. Push a `main`.
@@ -25,15 +83,16 @@ La barra antes del `?` es obligatoria en repos de proyecto.
 
 ## Configuración
 
-La constante `API` al principio del `<script>` de `index.html` apunta a la URL
+La constante `API` al principio de `js/datos.js` apunta a la URL
 `/exec` del Apps Script. Al cambiar el backend hay que **crear una nueva
 implementación** (o subir versión en la existente); guardar el `.gs` no basta.
 
 ## Colores y letras: el laboratorio
 
-Toda la paleta y toda la tipografía viven en el `:root` de `index.html`. No hay
-un solo color ni una sola fuente escritos a mano en el resto de la hoja: para
-cambiar cómo se ve la invitación se tocan los tokens de ahí arriba y baja solo.
+Toda la paleta y toda la tipografía viven en el `:root` de `css/base.css`, el
+primero de los que enlaza el `<head>`. No hay un solo color ni una sola fuente
+escritos a mano en el resto de los `css/`: para cambiar cómo se ve la
+invitación se tocan los tokens de ahí y baja solo.
 
 Los colores van en dos capas. Los seis de la paleta —`--tinta`, `--piedra`,
 `--hueco`, `--ocre`, `--musgo`, `--error`— son los que se eligen; el resto
@@ -70,11 +129,12 @@ diferencia es un `if` y nada más.
 - **Datos**: cuatro invitados de mentira (completo, sin contestar, no viene, y
   uno sin nada), volver a ver el sobre, apagar las animaciones y hacer que
   falle la red para mirar los estados de error.
-- **Sacar**: las declaraciones cambiadas, listas para pegar en el `:root`, el
-  `<link>` de Google Fonts que hace falta y los sitios donde la paleta está
-  repetida a mano (el `<meta name="theme-color">`, `favicon.svg` y el icono de
-  `404.html`). `apple-touch-icon.png` la lleva horneada dentro y hay que
-  rehacerlo aparte, convirtiendo el SVG nuevo a PNG de 180×180.
+- **Sacar**: las declaraciones cambiadas, listas para pegar en el `:root` de
+  `css/base.css`, el `<link>` de Google Fonts que hace falta (ese sí va en el
+  `<head>` de `index.html`) y los sitios donde la paleta está repetida a mano
+  (el `<meta name="theme-color">`, `favicon.svg` y el icono de `404.html`).
+  `apple-touch-icon.png` la lleva horneada dentro y hay que rehacerlo aparte,
+  convirtiendo el SVG nuevo a PNG de 180×180.
 
 Lo que toques se guarda en el navegador y sigue ahí al recargar; «Volver a
 piedra» lo deja como estaba. «Copiar enlace del tema» empaqueta la prueba en la
@@ -86,10 +146,12 @@ cómo cae un nombre largo o una nota concreta.
 ## Secciones e índice lateral
 
 La invitación es una sola página partida en `<section class="seccion" id="...">`.
-El índice se genera desde la constante `SECCIONES` del `<script>`: cada entrada
+El índice se genera desde la constante `SECCIONES` de `js/datos.js`: cada entrada
 es `{ id, titulo }` y se descarta sola si ese `id` no existe en la página.
 
-Para añadir una sección: crea el `<section>` dentro de `pintar()` y añade su
+Para añadir una sección: crea el `<section>` dentro de `pintar()`
+(`js/pintar.js`), sus estilos en un `css/` nuevo enlazado desde el `<head>`, y
+añade su
 entrada a `SECCIONES` en el mismo orden en que aparece.
 
 Orden actual: inicio, fotos, el día, confirmar, alergias, cuenta atrás (con el
@@ -148,12 +210,14 @@ se rompería en cuanto la URL fallida tuviera una carpeta de más.
 ### Secciones en obras
 
 Las que todavía no tienen contenido viven en la constante `EN_OBRAS`
+(`js/datos.js`)
 (`{ id, titulo, texto }`) y las pinta `seccionEnObras(id)`: título, el sello
 *En preparación* y el texto provisional. Siguen apareciendo en el índice como
 cualquier otra.
 
 Para rellenar una: borra su entrada de `EN_OBRAS` y escribe su `<section>` a
-mano en `pintar()`, en el mismo sitio donde estaba la llamada. Si se te olvida
+mano en `pintar()` (`js/pintar.js`), en el mismo sitio donde estaba la
+llamada. Si se te olvida
 lo segundo, la sección desaparece de la página y el índice descarta su entrada
 él solo; no se rompe nada.
 
@@ -176,7 +240,7 @@ línea de resumen —con su marca de hecho y el valor guardado— y un botón
 *Cerrar*. Se pliega en dos momentos: al guardar con éxito y al volver a entrar,
 si la hoja ya tenía esos datos. Mientras se rellena no se mueve nada.
 
-Las piezas, todas en `index.html`:
+Las piezas, todas en `js/bloques.js` (su hoja, en `css/bloques.css`):
 
 - `BLOQUES` — un `{ id, alto, resumen }` por formulario. `alto` es el tope de
   `max-height` del cuerpo plegable: con holgura sobre lo que mide abierto,
@@ -254,7 +318,8 @@ con más servicios de los que uno cree.
 
 ## Transporte
 
-La sección la pinta `seccionTransporte()` a partir de la constante
+La sección la pinta `seccionTransporte()` (`js/transporte.js`) a partir de la
+constante
 `TRANSPORTE`: una lista de `trayectos`, cada uno con su `id`, su `titulo`, sus
 horas de `salidas` y sus `paradas` en orden (`lugar` y un `detalle` opcional
 con el punto exacto de recogida). Con `trayectos` vacío no hay sección, igual
@@ -289,8 +354,8 @@ repasarlas a mano.
 
 ## Fotos
 
-La sección *Fotos* la pinta `seccionFotos()` a partir de la constante `FOTOS`
-del `<script>` de `index.html`. Con la lista vacía no hay sección y el índice
+La sección *Fotos* la pinta `seccionFotos()` (`js/fotos.js`) a partir de la
+constante `FOTOS` de `js/datos.js`. Con la lista vacía no hay sección y el índice
 descarta su entrada él solo, igual que con la cuenta atrás.
 
 Los archivos van en `img/`, en `.webp`:
@@ -338,8 +403,8 @@ ejecuta `crearHojaCanciones()` a mano desde el editor de Apps Script, igual que
 
 El tope son **tres canciones por invitado**, en `MAX_CANCIONES`. Al añadir una
 cuarta no se rechaza: sustituye a la más antigua, escribiendo encima de su fila
-para no mover el resto. La constante está en los dos archivos (`Code.gs` e
-`index.html`) y manda la del backend; si cambias una, cambia la otra.
+para no mover el resto. La constante está en los dos sitios (`Code.gs` y
+`js/datos.js`) y manda la del backend; si cambias una, cambia la otra.
 
 La búsqueda va por **JSONP** (`<script>` con `&callback=`), no por `fetch`:
 iTunes no promete cabeceras CORS y ese parámetro es la vía que documenta Apple.

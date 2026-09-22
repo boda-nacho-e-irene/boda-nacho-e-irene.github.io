@@ -1,0 +1,106 @@
+/* ---------- cuenta atrás ---------- */
+
+/* Columnas de ancho fijo: las cifras no mueven la maqueta al cambiar. Las
+   juntas verticales entre celdas son las mismas líneas finas del resto de la
+   página, aquí haciendo de sillería. */
+.digitos {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  text-align: center;
+}
+
+.digitos > div { padding: var(--e1) 0; }
+.digitos > div + div { border-left: var(--linea); }
+
+.digitos .valor {
+  display: block;
+  font-family: var(--letra-cifra);
+  font-weight: var(--peso-cifra);
+  font-size: calc(var(--t-reloj) * var(--escala-cifra));
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.digitos .rotulo {
+  display: block;
+  margin-top: var(--e1);
+  font-family: var(--letra-rotulo);
+  font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
+  letter-spacing: var(--aire-rotulo);
+  text-transform: var(--caja-rotulo);
+  color: var(--musgo);
+}
+
+.hoy {
+  font-family: var(--letra-titulo);
+  font-size: calc(var(--t-titulo) * var(--escala-titulo));
+  font-style: var(--cursiva-titulo);
+  font-weight: var(--peso-titulo);
+  text-align: center;
+  margin: 0;
+}
+
+/* ---------- guardar la fecha ---------- */
+
+/* Vive debajo de la cuenta atrás, dentro de la misma sección, separado por la
+   misma línea fina que las juntas del resto de la página. */
+.calendario {
+  margin-top: var(--e4);
+  padding-top: var(--e3);
+  border-top: var(--linea);
+  text-align: center;
+}
+
+.calendario-rotulo {
+  display: block;
+  margin-bottom: var(--e1);
+  font-family: var(--letra-rotulo);
+  font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
+  letter-spacing: var(--aire-marco);
+  text-transform: var(--caja-rotulo);
+  color: var(--musgo);
+}
+
+.calendario-texto {
+  margin: 0 0 var(--e3);
+  font-size: var(--t-ui);
+  color: var(--musgo);
+  text-wrap: pretty;
+}
+
+.guardar {
+  background: transparent;
+  color: var(--ocre);
+  border: 1px solid var(--ocre);
+  padding: var(--e2) var(--e3);
+  min-height: 3rem;
+  font-size: var(--t-ui);
+  letter-spacing: var(--aire-boton);
+  transition: background-color .18s, color .18s;
+}
+.guardar:hover { background: var(--ocre); color: var(--piedra); }
+
+.calendario-otro { margin: var(--e2) 0 0; font-size: var(--t-nota); }
+
+.calendario-otro a {
+  color: var(--musgo);
+  text-decoration: none;
+  border-bottom: var(--linea);
+  padding-bottom: 1px;
+}
+.calendario-otro a:hover { color: var(--tinta); border-bottom-color: currentColor; }
+
+/* Visible solo para lectores de pantalla. */
+.solo-voz {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
