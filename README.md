@@ -143,6 +143,32 @@ dirección para abrirla en otro aparato. La tecla `L` pliega y despliega el pane
 Con `?i=TOKEN&lab` el panel sale sobre los datos de verdad, por si hay que ver
 cómo cae un nombre largo o una nota concreta.
 
+## Verlo en el móvil
+
+Para mirar la invitación en el teléfono sin desplegar nada hay que servir la
+carpeta por la red de casa. Van dos servidores a la vez, porque el navegador de
+este ordenador y el móvil no entran por el mismo sitio:
+
+```
+python -m http.server 8000 --bind 127.0.0.1
+npx --yes http-server . -a 0.0.0.0 -p 8001 -c-1
+```
+
+El de Python se queda en loopback —`http://localhost:8000/?lab`— y por eso no
+se pelea con el cortafuegos. El de Node escucha en todas las tarjetas, así que
+el teléfono entra por `http://IP-LOCAL:8001/?lab`, con la IP que dé `ipconfig`
+y siempre que esté en la misma Wi-Fi; si el móvil está en la red de invitados
+no hay nada que hacer, esas suelen aislar los aparatos entre sí. El `-c-1`
+apaga la caché: recargar en el teléfono enseña siempre la última edición.
+
+Con `?lab` la invitación va con datos de mentira y sin backend. Con `?i=TOKEN`
+pega contra el Apps Script de verdad y escribe en la hoja, así que para mirar
+colores y letras mejor lo primero.
+
+Los dos de golpe los levanta `scripts/servir.ps1`, que además saca la IP sola e
+imprime los cuatro enlaces. Esa carpeta es un apaño de cada uno: está excluida
+en `.git/info/exclude` y no sube al repositorio ni a la página.
+
 ## Secciones e índice lateral
 
 La invitación es una sola página partida en `<section class="seccion" id="...">`.
