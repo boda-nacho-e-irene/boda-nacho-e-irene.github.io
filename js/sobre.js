@@ -6,6 +6,15 @@ var sobreAbriendo = false;
 var sinMovimiento = !!(window.matchMedia &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
+/* Al recargar, el navegador devuelve la página a donde estaba. Aquí eso no
+   vale: la invitación se pinta tarde —cuando contesta el backend—, así que ese
+   regreso llega con el sobre ya delante y tapándolo, y al apartarse el sobre
+   la invitación aparecía empezada por la mitad en vez de por la presentación.
+   Le quitamos el encargo; quien quiera volver a su sitio tiene el índice. */
+if (window.history && 'scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual';
+}
+
 /* El sobre va dirigido a alguien: en cuanto llega el nombre, lo escribimos. */
 function nombreEnSobre(nombre) {
   var e = document.getElementById('sobre-nombre');
@@ -60,6 +69,12 @@ function quitarCapa() {
 function abrirSobre() {
   if (sobreAbriendo || sobreAbierto) return;
   sobreAbriendo = true;
+
+  /* Y por si acaso: la invitación empieza por arriba, por la presentación.
+     Va aquí y no al quitar la capa porque ahora mismo el sobre tapa la
+     pantalla entera, así que el salto —o el deslizamiento, que el `html` va
+     con `scroll-behavior: smooth`— no se ve. */
+  window.scrollTo(0, 0);
 
   if (sinMovimiento || !capa) { quitarCapa(); return; }
 

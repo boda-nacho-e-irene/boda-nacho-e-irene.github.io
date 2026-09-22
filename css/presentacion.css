@@ -1,0 +1,157 @@
+/* ---------- presentación ---------- */
+
+/* La primera pantalla: lo que asoma en cuanto el sobre se aparta. Es la
+   invitación impresa de toda la vida —los dos nombres, la fecha y el sitio,
+   sobre la acuarela del convento— y nada más; lo personal («Hola, fulano»)
+   viene justo detrás, en la portada.
+
+   Se lleva el alto entero de la pantalla, y el ancho lo gana con márgenes
+   negativos que cancelan el `padding` de `main`, igual que la galería: en
+   móvil la acuarela llega a los bordes, y en escritorio manda la columna de
+   30rem y queda como una tarjeta vertical. `svh` en vez de `vh` para que no
+   pegue el salto de la barra del navegador en móvil.
+
+   El fondo va anclado abajo a propósito: el convento y el campo de flores se
+   quedan siempre pegados al borde inferior y lo que se recorta al cambiar de
+   pantalla es cielo, que es lo que sobra. El texto no va centrado por lo
+   mismo: arranca arriba, donde el cielo está limpio. */
+#presentacion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  min-height: 100svh;
+  margin: calc(var(--e4) * -1) calc(var(--margen) * -1) 0;
+  padding: 11vh var(--e4) var(--e6);
+  padding-top: 11svh;
+  /* El velo de arriba es el que sostiene la maqueta cuando la pantalla es
+     baja: al cubrir a lo ancho, la acuarela se agranda y el convento sube
+     hasta donde van los nombres. Con el velo, lo que sube llega ya aclarado y
+     el texto sigue encima de algo casi liso. En un móvil, que es alto, cae
+     sobre el cielo —que ya es casi papel— y no se nota. */
+  background:
+    linear-gradient(to bottom, var(--velo-papel), transparent 48%),
+    url("../img/presentacion.webp") center bottom / cover no-repeat,
+    var(--papel);
+  text-align: center;
+  /* Un halo del color del papel detrás de las letras: en el cielo no se ve, y
+     es lo que mantiene legible la línea que cae sobre los tejados o sobre las
+     flores sin tener que meter una caja de fondo por medio. */
+  text-shadow: 0 1px 14px var(--capa-grano);
+}
+
+/* La siguiente sección arranca con el mismo aire que da la portada, y el hilo
+   baja hasta ella cruzando el hueco entero. */
+#presentacion + .seccion { margin-top: var(--e6); }
+#presentacion + .seccion::before { height: calc(var(--e6) - var(--hilo-aire)); }
+
+/* Rótulo de arriba: versalitas muy abiertas, como el `.novios` de la portada.
+   Aquí va en tinta y no en ocre: sobre el cielo de la acuarela el ocre se
+   queda corto de contraste a este tamaño. */
+.presenta-rotulo {
+  font-family: var(--letra-rotulo);
+  font-size: calc(var(--t-menor) * var(--escala-rotulo));
+  font-weight: var(--peso-rotulo);
+  letter-spacing: var(--aire-novios);
+  text-transform: var(--caja-rotulo);
+  margin: 0 0 var(--e3);
+}
+
+/* Los dos nombres, uno debajo del otro con el «&» en medio. Es el titular de
+   la invitación entera, así que aquí vive el `<h1>`. */
+.presenta-nombres { margin: 0; }
+
+.presenta-nombre {
+  display: block;
+  font-family: var(--letra-nombre);
+  font-style: var(--cursiva-nombre);
+  font-weight: var(--peso-nombre);
+  font-size: calc(var(--t-nombre) * var(--escala-nombre));
+  letter-spacing: var(--aire-nombre);
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+.presenta-y {
+  display: block;
+  font-family: var(--letra-nombre);
+  font-style: var(--cursiva-nombre);
+  font-weight: var(--peso-nombre);
+  font-size: calc(var(--t-sub) * var(--escala-nombre));
+  line-height: 1;
+  color: var(--ocre);
+  margin: var(--e1) 0;
+}
+
+/* Sin filete encima, que es como va en la portada: sobre la acuarela una línea
+   del color de las juntas no se ve, y una que se viera parecería pegada. El
+   aire de arriba hace el mismo papel de separar el titular de los datos. */
+.presenta-fecha {
+  margin: var(--e5) 0 0;
+  font-family: var(--letra-rotulo);
+  font-size: calc(var(--t-ui) * var(--escala-rotulo));
+  font-weight: var(--peso-rotulo);
+  letter-spacing: var(--aire-marco);
+  text-transform: var(--caja-rotulo);
+}
+
+.presenta-lugar {
+  font-family: var(--letra-cita);
+  font-style: var(--cursiva-cita);
+  font-size: calc(var(--t-ui) * var(--escala-cita));
+  margin: var(--e2) 0 0;
+}
+
+/* El pie va anclado abajo y no al final de la pila: así el titular se queda
+   arriba, en el cielo, y esto se queda en el campo de flores pase lo que pase
+   con el alto. El `padding-bottom` de la sección es el hueco que tiene
+   reservado. */
+.presenta-pie {
+  position: absolute;
+  left: 0; right: 0; bottom: var(--e4);
+  margin: 0;
+  /* Arriba el texto cae sobre el cielo, que es liso; aquí cae sobre el campo
+     de flores, que es lo más movido del cuadro. El mismo halo de papel, pero
+     en tres capas: junta lo bastante para que la línea se despegue del fondo
+     sin tener que meterle una caja detrás. */
+  text-shadow: 0 0 6px var(--capa-grano), 0 0 14px var(--capa-grano),
+               0 0 26px var(--capa-grano);
+}
+
+.presenta-enlace {
+  font-family: var(--letra-rotulo);
+  font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
+  font-weight: var(--peso-rotulo);
+  letter-spacing: var(--aire-rotulo);
+  text-transform: var(--caja-rotulo);
+  color: var(--tinta);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 3px;
+}
+.presenta-enlace:hover { color: var(--ocre); }
+
+/* La flecha de bajar: dos lados de un cuadrado girados 45º. Late como la
+   pista del sobre para que se lea como una invitación a seguir. */
+.presenta-flecha {
+  display: block;
+  width: 9px;
+  height: 9px;
+  margin: var(--e3) auto 0;
+  border-right: 1px solid var(--tinta);
+  border-bottom: 1px solid var(--tinta);
+  transform: rotate(45deg);
+  animation: latido 2.8s ease-in-out infinite;
+}
+
+/* Pantalla apaisada o teléfono bajo: dejamos de forzar el alto y el pie vuelve
+   a la pila, que si no se cruza con la fecha. */
+@media (max-height: 34rem) {
+  #presentacion {
+    min-height: 0;
+    padding-top: var(--e4);
+    padding-bottom: var(--e4);
+  }
+  .presenta-pie { position: static; margin-top: var(--e4); }
+}

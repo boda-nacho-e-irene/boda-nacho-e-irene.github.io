@@ -20,6 +20,7 @@ mismo archivo.
 index.html        <head>, el sobre, <main id="app"> y los enlaces a css/ y js/
 css/base.css      los tokens de :root (color, tipos, espacio, forma); reset;
                   .seccion. Es el archivo que se toca para cambiar la pinta
+css/presentacion.css  la primera pantalla: nombres, fecha y sitio
 css/portada.css   portada, fotos y el día
 css/indice.css    índice lateral y secciones en obras
 css/transporte.css
@@ -180,9 +181,21 @@ Para añadir una sección: crea el `<section>` dentro de `pintar()`
 añade su
 entrada a `SECCIONES` en el mismo orden en que aparece.
 
-Orden actual: inicio, fotos, el día, confirmar, alergias, cuenta atrás (con el
-*save the date* dentro), dedicatoria, playlist, transporte, alojamiento, sitio
-web.
+Orden actual: presentación, inicio, fotos, el día, confirmar, alergias, cuenta
+atrás (con el *save the date* dentro), dedicatoria, playlist, transporte,
+alojamiento, sitio web.
+
+*Presentación* es la primera pantalla, la que asoma al apartarse el sobre: los
+dos nombres de pila (`BODA.nombres`), la fecha, el sitio y un enlace a
+*Confirmar*, sobre la acuarela de `img/presentacion.webp`. Se lleva el alto
+entero de la pantalla y, en móvil, también el ancho. Lo personal —«Hola,
+fulano»— es la sección siguiente, *inicio*, que sigue siendo la portada de toda
+la vida.
+
+El fondo va anclado abajo (`center bottom / cover`): el convento y el campo de
+flores se quedan pegados al borde inferior y lo que se recorta al cambiar de
+pantalla es cielo. Por eso el texto arranca arriba en vez de ir centrado, y por
+eso la imagen que se ponga ahí tiene que ser vertical y con el motivo abajo.
 
 *Confirmar* va arriba a propósito: es lo único que necesitamos de verdad, y así
 se responde sin bajar por toda la invitación.
@@ -205,14 +218,15 @@ img/iconos/inicio.svg       (sustituye al arco grande de la portada)
 No hay que tocar el código. `probarIcono()` lo busca al pintar y lo pone si está.
 El arco se dibuja primero y el icono solo lo sustituye si llega a cargarse, así
 que una sección sin icono se queda con el suyo sin enterarse: ni parpadea ni da
-un salto de maqueta. Los `id` son los de `SECCIONES`: `inicio`, `fotos`,
-`el-dia`, `confirmar`, `alergias`, `cuenta-atras`, `dedicatoria`, `playlist`,
-`transporte`, `alojamiento`, `sitio-web`.
+un salto de maqueta. Los `id` son los de `SECCIONES`: `presentacion`, `inicio`,
+`fotos`, `el-dia`, `confirmar`, `alergias`, `cuenta-atras`, `dedicatoria`,
+`playlist`, `transporte`, `alojamiento`, `sitio-web`.
 
 El icono entra como `<img>`, y a un `<img>` la hoja de estilos no puede cambiarle
 el color: dibújalo ya en el ocre de la casa, `#9C6B24`. Manda su altura y no su
-ancho —28 px en los títulos, 84 px en la portada—, así que uno cuadrado y uno
-apaisado se plantan a la misma altura que el arco al que sustituyen.
+ancho —28 px en los títulos, 84 px en la presentación y en la portada—, así que
+uno cuadrado y uno apaisado se plantan a la misma altura que el arco al que
+sustituyen.
 
 De cada sección sin icono sale una petición que acaba en 404. Son nueve como
 mucho, van en paralelo y GitHub Pages las contesta con poco más de medio
