@@ -27,6 +27,21 @@ function abrirLaboratorio() {
   document.head.appendChild(s);
 }
 
+/* --- presentación --- */
+
+/* Los nombres de pila de la primera pantalla, uno debajo de otro con el «&»
+   en medio. Sin BODA.nombres se cae al nombre completo de los novios: una
+   línea sola, sin ampersand, y la sección sigue en pie. */
+function nombresDePila() {
+  var lista = (BODA.nombres && BODA.nombres.length) ? BODA.nombres : [BODA.novios];
+  var html = '';
+  for (var i = 0; i < lista.length; i++) {
+    if (i) { html += '<span class="presenta-y">&amp;</span>'; }
+    html += '<span class="presenta-nombre">' + escapar(lista[i]) + '</span>';
+  }
+  return html;
+}
+
 /* --- secciones en obras --- */
 
 /* Devuelve la sección de EN_OBRAS con ese id, o cadena vacía si ya no está
@@ -48,6 +63,22 @@ function pintar(d) {
   pantalla(
     '<div id="contenido">' +
 
+      /* La primera pantalla, la que se ve al apartarse el sobre: la acuarela
+         del convento con los nombres, la fecha y el sitio encima, y el enlace
+         a lo único que les pedimos. Aquí va el <h1> de la página; lo personal
+         viene detrás. Sin emblema: la acuarela ya es el adorno, y el arco
+         grande se queda para la portada, que es la sección siguiente. */
+      '<section class="seccion" id="presentacion">' +
+        '<p class="presenta-rotulo">Nos casamos</p>' +
+        '<h1 class="presenta-nombres">' + nombresDePila() + '</h1>' +
+        '<p class="presenta-fecha">' + escapar(BODA.fecha) + '</p>' +
+        '<p class="presenta-lugar">' + escapar(BODA.lugar) + '</p>' +
+        '<p class="presenta-pie">' +
+          '<a class="presenta-enlace" href="#confirmar">Confirma tu asistencia</a>' +
+          '<span class="presenta-flecha" aria-hidden="true"></span>' +
+        '</p>' +
+      '</section>' +
+
       '<section class="seccion" id="inicio">' +
         '<p class="emblema emblema-grande" id="emblema-inicio" aria-hidden="true">' +
           '<svg class="arco" viewBox="0 0 120 132">' +
@@ -55,7 +86,7 @@ function pintar(d) {
           '</svg>' +
         '</p>' +
         '<p class="novios">' + escapar(BODA.novios) + '</p>' +
-        '<h1 class="nombre"> Hola, ' + escapar(d.nombre) + '</h1>' +
+        '<h2 class="nombre"> Hola, ' + escapar(d.nombre) + '</h2>' +
         '<p class="cita">Como ya sabes <strong> ¡Nos casamos! </strong> y nos encantaría que nos acompañases en este día tan especial. <br> Aquí te dejamos algunos detalles y toda la información que necesitas.</p>' +
       '</section>' +
 

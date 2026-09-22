@@ -15,6 +15,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Karla:wght@400;500;600&display=swap" rel="stylesheet">
 
+<!-- La acuarela de la presentación es lo primero que se ve al apartarse el
+     sobre, y como es un fondo de CSS el navegador no se entera de que existe
+     hasta que baja y lee la hoja. Precargada empieza a bajar con la página y
+     está puesta cuando el invitado abre el sobre. -->
+<link rel="preload" as="image" href="img/presentacion.webp">
+
 <!-- Descomentar con la ruta de la primera foto de FOTOS: empieza a bajarla
      sin esperar al backend. Solo la primera; precargarlas todas le quita
      ancho de banda al resto de la página. -->
@@ -24,6 +30,7 @@
      orden de estos enlaces es la cascada. Los tokens de color y de letra
      —lo único que se toca para cambiar cómo se ve— están en css/base.css. -->
 <link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/presentacion.css">
 <link rel="stylesheet" href="css/portada.css">
 <link rel="stylesheet" href="css/indice.css">
 <link rel="stylesheet" href="css/transporte.css">

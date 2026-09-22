@@ -18,6 +18,7 @@
   --ocre-suave:  rgba(156,107,36,.10);
   --pliegue:     rgba(38,48,43,.08);    /* dobleces del sobre y borde de la carta */
   --capa-grano:  rgba(233,229,217,.96); /* la capa que apaga el grano del papel */
+  --velo-papel:  rgba(233,229,217,.65); /* aclara la acuarela por donde va el texto */
   --campo:       rgba(255,255,255,.45); /* luz, no piedra: no sigue a la paleta */
   --relleno:     #C6C4BA;               /* lo que se ve a los lados del marco */
 
@@ -175,6 +176,7 @@
     --ocre-suave:  color-mix(in srgb, var(--ocre)   10%,  transparent);
     --pliegue:     color-mix(in srgb, var(--tinta)  8%,   transparent);
     --capa-grano:  color-mix(in srgb, var(--piedra) 96%,  transparent);
+    --velo-papel:  color-mix(in srgb, var(--piedra) 65%,  transparent);
     --relleno:     color-mix(in srgb, var(--piedra) 82%,  var(--tinta));
 
     --sombra:        0 1px 2px  color-mix(in srgb, var(--tinta) 4%,  transparent),
@@ -302,7 +304,6 @@ main { margin: 0 auto; }
   height: 28px;
   max-width: 44px;
 }
-
 .titulo {
   font-family: var(--letra-titulo);
   font-size: calc(var(--t-titulo) * var(--escala-titulo));

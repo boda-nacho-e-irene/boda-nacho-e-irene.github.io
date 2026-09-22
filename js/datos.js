@@ -3,6 +3,13 @@ const API = 'https://script.google.com/macros/s/AKfycbylVOv614p1kH3pHOuUPaca0xuO
 
 var BODA = {
   novios: 'Irene Alcalde Méndez e Ignacio Arenas Guerra',
+
+  // Los nombres de pila, para la primera pantalla: van uno debajo del otro con
+  // el «&» en medio, como en una invitación impresa. 'novios' sigue siendo el
+  // nombre completo que firma la portada. Si esta lista se queda vacía, la
+  // presentación tira de 'novios'.
+  nombres: ['Irene', 'Ignacio'],
+
   fecha:  '17 de Julio de 2027',
   lugar:  'Convento de Mave, Palencia',
   hora:   '12:30',
@@ -68,6 +75,7 @@ var TRANSPORTE = {
    sola. Para añadir una sección, crea el <section class="seccion" id="...">
    dentro de pintar() (o mete una entrada en EN_OBRAS) y añádela aquí. */
 var SECCIONES = [
+  { id: 'presentacion',  titulo: 'Presentación' },
   { id: 'inicio',        titulo: 'Inicio' },
   { id: 'fotos',         titulo: 'Fotos' },
   { id: 'el-dia',        titulo: 'El gran día' },
