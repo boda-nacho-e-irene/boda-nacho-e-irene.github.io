@@ -21,7 +21,8 @@
 <!-- <link rel="preload" as="image" href="img/PRIMERA.webp"> -->
 
 <!-- La hoja va partida por secciones, en el orden en que estaba escrita: el
-     orden de estos enlaces es la cascada. -->
+     orden de estos enlaces es la cascada. Los tokens de color y de letra
+     —lo único que se toca para cambiar cómo se ve— están en css/base.css. -->
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/portada.css">
 <link rel="stylesheet" href="css/indice.css">
@@ -47,9 +48,11 @@ window.onerror = function (msg, src, linea) {
 
 <!-- `defer` los baja mientras se lee la página y los ejecuta luego, en este
      orden y con el DOM ya montado. `datos.js` va primero porque los demás leen
-     sus constantes, y `pintar.js` el último porque acaba llamando a cargar().
+     sus constantes, `calendario.js` después de `cuenta.js` porque le hereda
+     `objetivoMs`, y `pintar.js` el último porque acaba llamando a cargar().
      Scripts normales, no módulos: comparten las variables de siempre sin
-     imports, y así la página sigue abriéndose con doble clic desde el disco. -->
+     imports, y así la página sigue abriéndose con doble clic desde el disco.
+     El laboratorio de ?lab no está aquí: lo baja cargar() y solo si hace falta. -->
 <script defer src="js/datos.js"></script>
 <script defer src="js/util.js"></script>
 <script defer src="js/sobre.js"></script>

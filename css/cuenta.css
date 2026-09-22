@@ -15,9 +15,9 @@
 
 .digitos .valor {
   display: block;
-  font-family: var(--serif);
-  font-weight: 300;
-  font-size: var(--t-reloj);
+  font-family: var(--letra-cifra);
+  font-weight: var(--peso-cifra);
+  font-size: calc(var(--t-reloj) * var(--escala-cifra));
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -25,16 +25,18 @@
 .digitos .rotulo {
   display: block;
   margin-top: var(--e1);
-  font-size: var(--t-rotulo);
-  letter-spacing: .14em;
-  text-transform: uppercase;
+  font-family: var(--letra-rotulo);
+  font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
+  letter-spacing: var(--aire-rotulo);
+  text-transform: var(--caja-rotulo);
   color: var(--musgo);
 }
 
 .hoy {
-  font-family: var(--serif);
-  font-size: var(--t-titulo);
-  font-style: italic;
+  font-family: var(--letra-titulo);
+  font-size: calc(var(--t-titulo) * var(--escala-titulo));
+  font-style: var(--cursiva-titulo);
+  font-weight: var(--peso-titulo);
   text-align: center;
   margin: 0;
 }
@@ -53,9 +55,10 @@
 .calendario-rotulo {
   display: block;
   margin-bottom: var(--e1);
-  font-size: var(--t-rotulo);
-  letter-spacing: .16em;
-  text-transform: uppercase;
+  font-family: var(--letra-rotulo);
+  font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
+  letter-spacing: var(--aire-marco);
+  text-transform: var(--caja-rotulo);
   color: var(--musgo);
 }
 
@@ -73,7 +76,7 @@
   padding: var(--e2) var(--e3);
   min-height: 3rem;
   font-size: var(--t-ui);
-  letter-spacing: .02em;
+  letter-spacing: var(--aire-boton);
   transition: background-color .18s, color .18s;
 }
 .guardar:hover { background: var(--ocre); color: var(--piedra); }

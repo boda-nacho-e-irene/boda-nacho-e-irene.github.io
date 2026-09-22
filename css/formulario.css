@@ -23,9 +23,9 @@
   opacity: 0;
   transition: max-height .35s ease, opacity .3s ease;
   text-align: center;
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: var(--t-medio);
+  font-family: var(--letra-cita);
+  font-style: var(--cursiva-cita);
+  font-size: calc(var(--t-medio) * var(--escala-cita));
   line-height: 1.4;
   color: var(--ocre);
   margin: 0 0 var(--e3);
@@ -119,7 +119,7 @@ textarea { resize: vertical; min-height: 4.5rem; }
   padding: 1rem;
   min-height: 3.25rem;
   font-weight: 600;
-  letter-spacing: .02em;
+  letter-spacing: var(--aire-boton);
   transition: background-color .18s, border-color .18s, opacity .18s;
 }
 /* Oscurecer, no desteñir: sobre fondo claro bajar la opacidad lo aclaraba. */

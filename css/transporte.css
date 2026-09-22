@@ -22,10 +22,10 @@
 }
 
 .sub-titulo {
-  font-family: var(--serif);
-  font-size: var(--t-sub);
-  font-style: italic;
-  font-weight: 400;
+  font-family: var(--letra-titulo);
+  font-size: calc(var(--t-sub) * var(--escala-titulo));
+  font-style: var(--cursiva-titulo);
+  font-weight: var(--peso-titulo);
   text-align: center;
   margin: 0 0 var(--e2);
 }
@@ -44,9 +44,10 @@
 .horas { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; }
 
 .salidas-rotulo {
-  font-size: var(--t-rotulo);
-  letter-spacing: .14em;
-  text-transform: uppercase;
+  font-family: var(--letra-rotulo);
+  font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
+  letter-spacing: var(--aire-rotulo);
+  text-transform: var(--caja-rotulo);
   color: var(--musgo);
 }
 
@@ -54,8 +55,8 @@
   padding: .15rem .55rem;
   border: 1px solid var(--ocre);
   border-radius: var(--r);
-  font-family: var(--serif);
-  font-size: var(--t-medio);
+  font-family: var(--letra-cifra);
+  font-size: calc(var(--t-medio) * var(--escala-cifra));
   line-height: 1.35;
   font-variant-numeric: tabular-nums;
 }

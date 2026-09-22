@@ -18,7 +18,8 @@ mismo archivo.
 
 ```
 index.html        <head>, el sobre, <main id="app"> y los enlaces a css/ y js/
-css/base.css      variables de color, tipos, espacio y forma; reset; .seccion
+css/base.css      los tokens de :root (color, tipos, espacio, forma); reset;
+                  .seccion. Es el archivo que se toca para cambiar la pinta
 css/portada.css   portada, fotos y el día
 css/indice.css    índice lateral y secciones en obras
 css/transporte.css
@@ -34,6 +35,8 @@ js/fotos.js       js/cuenta.js       js/calendario.js
 js/transporte.js  js/playlist.js     js/formulario.js
 js/indice.js      el índice lateral
 js/pintar.js      cargar(), pintar(), restaurar(), secciones en obras
+lab/lab.css       el laboratorio de ?lab, que no se enlaza: lo baja cargar()
+lab/lab.js
 ```
 
 El orden de los `<link>` del `<head>` **es** la cascada, y el de los `<script>`
@@ -45,6 +48,10 @@ Son `<script defer>` normales, no módulos: comparten las variables globales de
 siempre sin `import`/`export`, y la página sigue abriéndose con doble clic
 desde el disco. Al añadir un archivo nuevo hay que enlazarlo a mano; no hay
 paso de compilación ni nada que instalar.
+
+`lab/` es la excepción: no cuelga del `<head>`, lo pide `abrirLaboratorio()`
+(en `js/pintar.js`) solo cuando la dirección lleva `?lab`, así que al invitado
+no le cuesta ni una petición.
 
 `404.html` se queda con su `<style>` dentro a propósito: GitHub Pages la sirve
 en rutas de cualquier profundidad y un `href` relativo a `css/` daría 404 en
@@ -70,6 +77,62 @@ La barra antes del `?` es obligatoria en repos de proyecto.
 La constante `API` al principio de `js/datos.js` apunta a la URL
 `/exec` del Apps Script. Al cambiar el backend hay que **crear una nueva
 implementación** (o subir versión en la existente); guardar el `.gs` no basta.
+
+## Colores y letras: el laboratorio
+
+Toda la paleta y toda la tipografía viven en el `:root` de `css/base.css`, el
+primero de los que enlaza el `<head>`. No hay un solo color ni una sola fuente
+escritos a mano en el resto de los `css/`: para cambiar cómo se ve la
+invitación se tocan los tokens de ahí y baja solo.
+
+Los colores van en dos capas. Los seis de la paleta —`--tinta`, `--piedra`,
+`--hueco`, `--ocre`, `--musgo`, `--error`— son los que se eligen; el resto
+—velos, sombras, pliegues del sobre— cuelgan de ellos por `color-mix`, dentro
+de un `@supports` que deja los literales de siempre para el navegador que no
+sepa mezclar.
+
+Las letras van por **papeles**, no por familias: `--letra-titulo`,
+`--letra-nombre`, `--letra-cita`, `--letra-rotulo`, `--letra-cifra` y
+`--letra-texto`, cada uno con su cursiva, su peso y su multiplicador de tamaño.
+Así se le puede cambiar la letra a los títulos sin tocar el nombre del invitado.
+Cursiva y peso van aparte de la familia a propósito: las caligráficas y las de
+capitales no tienen ninguna de las dos, y sin poder apagarlas el navegador se
+las inventa y la letra sale emborronada.
+
+### Probarlo en vivo
+
+```
+index.html?lab
+```
+
+Abre un panel para mover colores y letras sobre la página de verdad, y pinta la
+invitación entera con datos de mentira: ni token ni backend. El panel vive en
+`lab/` y solo se descarga con `?lab` en la dirección — para un invitado la
+diferencia es un `if` y nada más.
+
+- **Color**: los seis de la paleta, los derivados y los papeles del sobre. Los
+  derivados siguen solos al color del que cuelgan; si eliges uno a mano se
+  queda fijo y el botón `⟲` lo devuelve al automático. Debajo, el contraste
+  WCAG de los cuatro pares que hay que mirar.
+- **Letra**: familia, cursiva, peso y tamaño para cada papel, con una veintena
+  de familias de Google Fonts que se bajan al elegirlas. Avisa cuando la
+  familia no tiene lo que le estás pidiendo.
+- **Datos**: cuatro invitados de mentira (completo, sin contestar, no viene, y
+  uno sin nada), volver a ver el sobre, apagar las animaciones y hacer que
+  falle la red para mirar los estados de error.
+- **Sacar**: las declaraciones cambiadas, listas para pegar en el `:root` de
+  `css/base.css`, el `<link>` de Google Fonts que hace falta (ese sí va en el
+  `<head>` de `index.html`) y los sitios donde la paleta está repetida a mano
+  (el `<meta name="theme-color">`, `favicon.svg` y el icono de `404.html`).
+  `apple-touch-icon.png` la lleva horneada dentro y hay que rehacerlo aparte,
+  convirtiendo el SVG nuevo a PNG de 180×180.
+
+Lo que toques se guarda en el navegador y sigue ahí al recargar; «Volver a
+piedra» lo deja como estaba. «Copiar enlace del tema» empaqueta la prueba en la
+dirección para abrirla en otro aparato. La tecla `L` pliega y despliega el panel.
+
+Con `?i=TOKEN&lab` el panel sale sobre los datos de verdad, por si hay que ver
+cómo cae un nombre largo o una nota concreta.
 
 ## Secciones e índice lateral
 

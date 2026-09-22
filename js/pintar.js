@@ -1,7 +1,12 @@
 /* --- carga --- */
 function cargar() {
+  var lab = /[?&]lab(?=[&=]|$)/.test(location.search);
+  if (lab) { abrirLaboratorio(); }
+
   if (!token) {
-    aviso('Este enlace está incompleto. Escríbenos y te mandamos el tuyo.');
+    /* Con ?lab y sin token no hay nada que pedirle al servidor: el laboratorio
+       se pinta a sí mismo con datos de mentira. */
+    if (!lab) { aviso('Este enlace está incompleto. Escríbenos y te mandamos el tuyo.'); }
     return;
   }
   pedir('GET', API + '?token=' + encodeURIComponent(token), null, function (d) {
@@ -10,6 +15,16 @@ function cargar() {
     nombreEnSobre(d.nombre);
     pintar(d);
   });
+}
+
+/* El laboratorio de estilos —el panel para probar colores y letras— vive en
+   lab/ y solo baja con ?lab en la dirección. Para un invitado esto es un
+   regex y nada más: ni una petición de más ni un byte de panel. */
+function abrirLaboratorio() {
+  var s = document.createElement('script');
+  s.src = 'lab/lab.js';
+  s.onerror = function () { aviso('No hemos podido abrir el laboratorio.'); };
+  document.head.appendChild(s);
 }
 
 /* --- secciones en obras --- */
@@ -41,7 +56,7 @@ function pintar(d) {
           '</svg>' +
         '</p>' +
         '<p class="novios">' + escapar(BODA.novios) + '</p>' +
-        '<h1 class="nombre"> ¡Hola, ' + escapar(d.nombre) + '!</h1>' +
+        '<h1 class="nombre"> Hola, ' + escapar(d.nombre) + '</h1>' +
         '<p class="cita">Como ya sabes <strong> ¡Nos casamos! </strong> y nos encantaría que nos acompañases en este día tan especial. <br> Aquí te dejamos algunos detalles y toda la información que necesitas.</p>' +
       '</section>' +
 

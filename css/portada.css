@@ -22,11 +22,11 @@
 /* Rótulo de invitación impresa: versalitas sobre una línea fina. */
 .novios {
   text-align: center;
-  font-family: var(--sans);
-  font-size: var(--t-rotulo);
-  font-weight: 500;
-  letter-spacing: .22em;
-  text-transform: uppercase;
+  font-family: var(--letra-rotulo);
+  font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
+  font-weight: var(--peso-rotulo);
+  letter-spacing: var(--aire-novios);
+  text-transform: var(--caja-rotulo);
   color: var(--ocre);
   margin: 0 0 var(--e5);
   padding-bottom: var(--e2);
@@ -34,11 +34,11 @@
 }
 
 .nombre {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 300;
-  font-size: var(--t-nombre);
-  letter-spacing: -.015em;
+  font-family: var(--letra-nombre);
+  font-style: var(--cursiva-nombre);
+  font-weight: var(--peso-nombre);
+  font-size: calc(var(--t-nombre) * var(--escala-nombre));
+  letter-spacing: var(--aire-nombre);
   line-height: 1.02;
   text-align: center;
   margin: 0 0 var(--e3);
@@ -47,8 +47,8 @@
 
 .cita {
   text-align: center;
-  font-family: var(--serif);
-  font-size: var(--t-sub);
+  font-family: var(--letra-cita);
+  font-size: calc(var(--t-sub) * var(--escala-cita));
   line-height: 1.5;
   color: var(--musgo);
   margin: 0;
@@ -97,9 +97,9 @@
 }
 
 .pie {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: var(--t-ui);
+  font-family: var(--letra-cita);
+  font-style: var(--cursiva-cita);
+  font-size: calc(var(--t-ui) * var(--escala-cita));
   text-align: center;
   color: var(--musgo);
   margin: var(--e1) 0 0;
@@ -122,9 +122,10 @@
 }
 .datos > div:last-child { border-bottom: var(--linea); }
 .datos dt {
-  font-size: var(--t-menor);
-  letter-spacing: .1em;
-  text-transform: uppercase;
+  font-family: var(--letra-rotulo);
+  font-size: calc(var(--t-menor) * var(--escala-rotulo));
+  letter-spacing: var(--aire-dato);
+  text-transform: var(--caja-rotulo);
   color: var(--musgo);
   align-self: center;
 }

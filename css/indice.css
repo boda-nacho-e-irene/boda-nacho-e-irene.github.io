@@ -50,7 +50,7 @@
   background: var(--piedra);
   border-right: var(--linea);
   /* El panel se despega del velo en vez de quedarse plano contra él. */
-  box-shadow: 8px 0 28px rgba(38,48,43,.12);
+  box-shadow: var(--sombra-indice);
   overflow-y: auto;
   /* visibility apagada: con el panel cerrado los enlaces salen del orden
      de tabulación en vez de quedarse fuera de pantalla y enfocables. */
@@ -81,9 +81,10 @@
   padding: .55rem 0;
   color: var(--musgo);
   text-decoration: none;
-  font-size: var(--t-menor);
-  letter-spacing: .12em;
-  text-transform: uppercase;
+  font-family: var(--letra-rotulo);
+  font-size: calc(var(--t-menor) * var(--escala-rotulo));
+  letter-spacing: var(--aire-indice);
+  text-transform: var(--caja-rotulo);
   transition: color .18s;
 }
 .nav-enlace:hover { color: var(--tinta); }
@@ -145,18 +146,19 @@
   padding: var(--e1) var(--e2);
   border-top: var(--linea);
   border-bottom: var(--linea);
-  font-size: var(--t-rotulo);
-  letter-spacing: .16em;
-  text-transform: uppercase;
+  font-family: var(--letra-rotulo);
+  font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
+  letter-spacing: var(--aire-marco);
+  text-transform: var(--caja-rotulo);
   color: var(--ocre);
 }
 
 /* lo que irá aquí cuando la sección deje de estar en obras */
 .promesa {
   text-align: center;
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: var(--t-medio);
+  font-family: var(--letra-cita);
+  font-style: var(--cursiva-cita);
+  font-size: calc(var(--t-medio) * var(--escala-cita));
   line-height: 1.45;
   color: var(--musgo);
   margin: 0;
