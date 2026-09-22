@@ -1,0 +1,136 @@
+/* ---------- formulario ---------- */
+
+/* Confirmar es lo único que necesitamos de verdad, así que es lo único que se
+   levanta del fondo. El margen negativo cancela el padding de `main`: la caja
+   se ensancha pero el contenido conserva la misma medida que antes. */
+#confirmar {
+  margin-inline: calc(var(--margen) * -1);
+  padding: var(--e4) var(--margen);
+  background: var(--papel);
+  border: var(--linea);
+  border-radius: var(--r-g);
+  box-shadow: var(--sombra);
+}
+
+.eleccion { display: grid; gap: var(--e1); margin-bottom: var(--e2); }
+
+/* Sale al elegir y se queda plegado mientras no haya respuesta. Plegado,
+   sus dos márgenes suman los 2rem que había bajo los botones, así que la
+   sección no da un salto la primera vez que alguien contesta. */
+.respuesta {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height .35s ease, opacity .3s ease;
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: var(--t-medio);
+  line-height: 1.4;
+  color: var(--ocre);
+  margin: 0 0 var(--e3);
+  text-wrap: pretty;
+}
+.respuesta.visible { max-height: 6rem; opacity: 1; }
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--r);
+}
+
+.opcion {
+  background: transparent;
+  border: var(--linea);
+  border-radius: var(--r);
+  padding: var(--e2) 1rem;
+  min-height: 3.25rem;
+  text-align: center;
+  transition: border-color .18s, background-color .18s, box-shadow .18s;
+}
+.opcion:hover { border-color: var(--musgo); }
+/* El acento va de sombra interior, no de borde: marcar la elección no mueve
+   el texto ni un píxel. */
+.opcion[aria-pressed="true"] {
+  border-color: var(--tinta);
+  background: var(--tinta-suave);
+  box-shadow: inset 3px 0 0 var(--ocre);
+  font-weight: 600;
+}
+
+.detalle {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height .45s ease, opacity .3s ease;
+}
+.detalle.abierto { max-height: 70rem; opacity: 1; }
+
+fieldset { border: 0; padding: 0; margin: 0 0 var(--e4); }
+
+legend {
+  padding: 0;
+  font-size: var(--t-ui);
+  font-weight: 600;
+  margin-bottom: .25rem;
+}
+
+.ayuda { font-size: var(--t-nota); color: var(--musgo); margin: 0 0 var(--e2); }
+
+.chips { display: flex; flex-wrap: wrap; gap: var(--e1); }
+
+.chip {
+  background: transparent;
+  border: var(--linea);
+  padding: var(--e1) .875rem;
+  font-size: var(--t-ui);
+  transition: border-color .18s, background-color .18s;
+}
+.chip:hover { border-color: var(--musgo); }
+.chip[aria-pressed="true"] {
+  border-color: var(--ocre);
+  background: var(--ocre-suave);
+  font-weight: 500;
+}
+
+label.campo { display: block; font-size: var(--t-ui); font-weight: 600; margin-bottom: .375rem; }
+
+input[type="text"], input[type="search"], textarea {
+  font: inherit;
+  width: 100%;
+  background: var(--campo);
+  border: var(--linea);
+  border-radius: var(--r);
+  padding: var(--e2);
+  color: inherit;
+  transition: border-color .18s;
+}
+input[type="text"]:hover, input[type="search"]:hover, textarea:hover { border-color: var(--musgo); }
+textarea { resize: vertical; min-height: 4.5rem; }
+
+.enviar {
+  display: block;
+  width: 100%;
+  background: var(--tinta);
+  color: var(--piedra);
+  border: 1px solid var(--tinta);
+  border-radius: var(--r);
+  padding: 1rem;
+  min-height: 3.25rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  transition: background-color .18s, border-color .18s, opacity .18s;
+}
+/* Oscurecer, no desteñir: sobre fondo claro bajar la opacidad lo aclaraba. */
+.enviar:hover { background: var(--tinta-honda); border-color: var(--tinta-honda); }
+.enviar[disabled] { opacity: .45; cursor: default; }
+.enviar[disabled]:hover { background: var(--tinta); border-color: var(--tinta); }
+
+:focus-visible { outline: 2px solid var(--ocre); outline-offset: 2px; }
+
+.estado { text-align: center; font-size: var(--t-ui); margin: 1rem 0 0; min-height: 1.5rem; }
+.estado.mal { color: var(--error); }
+
+.centrado { text-align: center; padding: var(--e6) 0; color: var(--musgo); }
+

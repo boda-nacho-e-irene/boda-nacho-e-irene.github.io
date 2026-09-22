@@ -1,0 +1,165 @@
+/* ---------- índice lateral ---------- */
+
+/* Base = móvil: panel que entra desde la izquierda.
+   A partir de 62rem se convierte en un raíl fijo al lado del texto. */
+
+.nav-boton {
+  position: fixed;
+  top: var(--e2);
+  left: var(--e2);
+  z-index: 40;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--piedra);
+  border: var(--linea);
+  border-radius: var(--r);
+}
+.nav-boton span {
+  display: block;
+  width: 18px;
+  height: 1px;
+  background: var(--tinta);
+  transition: transform .25s ease, opacity .2s ease;
+}
+.nav-boton span + span { margin-top: 5px; }
+.nav-boton[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav-boton[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-boton[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+.nav-velo {
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  z-index: 30;
+  background: var(--velo);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .3s ease, visibility .3s ease;
+}
+.nav-velo.visible { opacity: 1; visibility: visible; }
+
+.nav {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 35;
+  width: min(76vw, 16rem);
+  padding: 4.75rem var(--margen) var(--e4);
+  background: var(--piedra);
+  border-right: var(--linea);
+  /* El panel se despega del velo en vez de quedarse plano contra él. */
+  box-shadow: 8px 0 28px rgba(38,48,43,.12);
+  overflow-y: auto;
+  /* visibility apagada: con el panel cerrado los enlaces salen del orden
+     de tabulación en vez de quedarse fuera de pantalla y enfocables. */
+  visibility: hidden;
+  transform: translateX(-100%);
+  transition: transform .32s ease, visibility .32s ease;
+}
+.nav.abierto { visibility: visible; transform: none; }
+
+/* El mismo hilo que encadena las secciones, aquí colgando las entradas del
+   índice. Va de centro a centro de arco, no de punta a punta de la lista. */
+.nav ol { list-style: none; margin: 0; padding: 0; position: relative; }
+.nav ol::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: calc(.55rem + 5px);
+  bottom: calc(.55rem + 5px);
+  width: 1px;
+  background: var(--hueco);
+}
+.nav li + li { margin-top: .125rem; }
+
+.nav-enlace {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  padding: .55rem 0;
+  color: var(--musgo);
+  text-decoration: none;
+  font-size: var(--t-menor);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  transition: color .18s;
+}
+.nav-enlace:hover { color: var(--tinta); }
+
+/* El mismo arco de los títulos, a tamaño de viñeta. */
+.nav-punto {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 9px;
+  height: 11px;
+  background: var(--piedra);
+  border: 1px solid var(--musgo);
+  border-radius: 50% 50% 1px 1px;
+  transition: background-color .22s, border-color .22s, transform .22s;
+}
+
+.nav-enlace[aria-current="true"] { color: var(--tinta); }
+.nav-enlace[aria-current="true"] .nav-punto {
+  background: var(--ocre);
+  border-color: var(--ocre);
+  transform: scale(1.2);
+}
+
+@media (min-width: 62rem) {
+  .nav-boton, .nav-velo { display: none; }
+  .nav, .nav.abierto {
+    top: 50%;
+    bottom: auto;
+    left: 2rem;
+    left: max(1.5rem, calc(50vw - 29rem));
+    width: auto;
+    padding: var(--e1) 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    overflow: visible;
+    visibility: visible;
+    transform: translateY(-50%);
+  }
+  .seccion, .trayecto { scroll-margin-top: 2.5rem; }
+  /* La columna respira: con 30rem al lado del raíl la página se veía como un
+     móvil estirado. El margen de página sube con ella y las sangrías van solas. */
+  :root { --margen: 2rem; }
+  main { max-width: 34rem; }
+}
+
+/* ---------- secciones en obras ---------- */
+
+.wip-linea {
+  text-align: center;
+  margin: calc(var(--e1) * -1) 0 var(--e3);
+}
+
+/* Rótulo entre dos líneas finas, no una caja gris: se lee como pendiente sin
+   parecer que algo ha fallado. */
+.wip {
+  display: inline-block;
+  padding: var(--e1) var(--e2);
+  border-top: var(--linea);
+  border-bottom: var(--linea);
+  font-size: var(--t-rotulo);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ocre);
+}
+
+/* lo que irá aquí cuando la sección deje de estar en obras */
+.promesa {
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: var(--t-medio);
+  line-height: 1.45;
+  color: var(--musgo);
+  margin: 0;
+  text-wrap: pretty;
+}
+

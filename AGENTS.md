@@ -3,3 +3,4 @@
 - use color #4BB9EC, #FFA600, #8FC243 for details
 - USe color #F0DAB6 for background
 - every new section must be added as a link to the lateral navigation menú
+- Styles live in `css/`, logic in `js/`, markup in `index.html`: one file per section. A new file must be linked from the `<head>` by hand — there is no build step

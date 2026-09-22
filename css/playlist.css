@@ -1,0 +1,64 @@
+/* ---------- sugerencias de música ---------- */
+
+.resultados { margin: 0 0 var(--e4); }
+
+.resultado {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  align-items: center;
+  gap: var(--e2);
+  padding: var(--e2) 0;
+  border-top: var(--linea);
+}
+.resultado:first-child { border-top: 0; }
+
+.caratula {
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--r);
+  background: var(--hueco);
+}
+
+/* Hay títulos y artistas larguísimos y la columna mide lo que mide: se
+   recortan en una línea en vez de romper la fila. El min-width deja que la
+   columna 1fr encoja; sin él la rejilla se pasa de ancho. */
+.pista { min-width: 0; }
+.pista b, .pista span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pista b { font-size: var(--t-ui); font-weight: 600; }
+.pista span { font-size: var(--t-menor); color: var(--musgo); }
+
+.anadir, .quitar {
+  background: transparent;
+  border: var(--linea);
+  padding: .45rem .8rem;
+  font-size: var(--t-nota);
+  white-space: nowrap;
+  transition: border-color .18s, background-color .18s, color .18s;
+}
+.anadir:hover { border-color: var(--ocre); background: var(--ocre-suave); }
+.quitar { color: var(--musgo); }
+.quitar:hover { border-color: var(--error); color: var(--error); }
+
+.subtitulo { font-size: var(--t-ui); font-weight: 600; margin: 0 0 var(--e1); }
+
+/* Va encima del buscador, así que necesita el mismo aire que un fieldset. */
+.mis-canciones { list-style: none; margin: 0 0 var(--e4); padding: 0; }
+.mis-canciones li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--e2);
+  padding: var(--e2) 0;
+  border-top: var(--linea);
+}
+.mis-canciones li:first-child { border-top: 0; }
+.mis-canciones li.vacio { display: block; }
+
+.vacio { color: var(--musgo); font-size: var(--t-ui); margin: 0; }
+

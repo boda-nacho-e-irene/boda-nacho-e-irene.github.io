@@ -9,6 +9,48 @@ confirmación en una hoja de Google.
   (`token`, `nombre`, `asiste`, `fecha_respuesta`, `alergenos`, `nota`,
   `vuelta`) y pestaña `Canciones` con las sugerencias de música.
 
+## Estructura de archivos
+
+La página está partida en tres: el `index.html` es solo el `<head>`, el sobre y
+el hueco donde se pinta todo; los estilos viven en `css/` y la lógica en `js/`,
+un archivo por sección. Así dos cambios en secciones distintas no se pisan el
+mismo archivo.
+
+```
+index.html        <head>, el sobre, <main id="app"> y los enlaces a css/ y js/
+css/base.css      variables de color, tipos, espacio y forma; reset; .seccion
+css/portada.css   portada, fotos y el día
+css/indice.css    índice lateral y secciones en obras
+css/transporte.css
+css/formulario.css
+css/playlist.css
+css/cuenta.css    cuenta atrás y guardar la fecha
+css/sobre.css     el sobre, la entrada y el revelado
+js/datos.js       EDITA ESTO: API, BODA, SECCIONES, EN_OBRAS, TRANSPORTE,
+                  FOTOS, ALERGENOS, RESPUESTAS, MAX_CANCIONES, y el estado
+js/util.js        pedir(), jsonp(), escapar(), titulo(), iconos, pantalla()
+js/sobre.js       abrir el sobre y revelar las secciones
+js/fotos.js       js/cuenta.js       js/calendario.js
+js/transporte.js  js/playlist.js     js/formulario.js
+js/indice.js      el índice lateral
+js/pintar.js      cargar(), pintar(), restaurar(), secciones en obras
+```
+
+El orden de los `<link>` del `<head>` **es** la cascada, y el de los `<script>`
+el orden de ejecución: `datos.js` va primero porque los demás leen sus
+constantes, `calendario.js` después de `cuenta.js` (le hereda `objetivoMs`) y
+`pintar.js` el último, que acaba llamando a `cargar()`.
+
+Son `<script defer>` normales, no módulos: comparten las variables globales de
+siempre sin `import`/`export`, y la página sigue abriéndose con doble clic
+desde el disco. Al añadir un archivo nuevo hay que enlazarlo a mano; no hay
+paso de compilación ni nada que instalar.
+
+`404.html` se queda con su `<style>` dentro a propósito: GitHub Pages la sirve
+en rutas de cualquier profundidad y un `href` relativo a `css/` daría 404 en
+cuanto la URL fallida tuviera una carpeta de más. Es lo mismo que le pasa a su
+icono, incrustado como `data:`.
+
 ## Despliegue
 
 1. Push a `main`.
@@ -25,17 +67,19 @@ La barra antes del `?` es obligatoria en repos de proyecto.
 
 ## Configuración
 
-La constante `API` al principio del `<script>` de `index.html` apunta a la URL
+La constante `API` al principio de `js/datos.js` apunta a la URL
 `/exec` del Apps Script. Al cambiar el backend hay que **crear una nueva
 implementación** (o subir versión en la existente); guardar el `.gs` no basta.
 
 ## Secciones e índice lateral
 
 La invitación es una sola página partida en `<section class="seccion" id="...">`.
-El índice se genera desde la constante `SECCIONES` del `<script>`: cada entrada
+El índice se genera desde la constante `SECCIONES` de `js/datos.js`: cada entrada
 es `{ id, titulo }` y se descarta sola si ese `id` no existe en la página.
 
-Para añadir una sección: crea el `<section>` dentro de `pintar()` y añade su
+Para añadir una sección: crea el `<section>` dentro de `pintar()`
+(`js/pintar.js`), sus estilos en un `css/` nuevo enlazado desde el `<head>`, y
+añade su
 entrada a `SECCIONES` en el mismo orden en que aparece.
 
 Orden actual: inicio, fotos, el día, confirmar, cuenta atrás (con el *save the
@@ -93,12 +137,14 @@ se rompería en cuanto la URL fallida tuviera una carpeta de más.
 ### Secciones en obras
 
 Las que todavía no tienen contenido viven en la constante `EN_OBRAS`
+(`js/datos.js`)
 (`{ id, titulo, texto }`) y las pinta `seccionEnObras(id)`: título, el sello
 *En preparación* y el texto provisional. Siguen apareciendo en el índice como
 cualquier otra.
 
 Para rellenar una: borra su entrada de `EN_OBRAS` y escribe su `<section>` a
-mano en `pintar()`, en el mismo sitio donde estaba la llamada. Si se te olvida
+mano en `pintar()` (`js/pintar.js`), en el mismo sitio donde estaba la
+llamada. Si se te olvida
 lo segundo, la sección desaparece de la página y el índice descarta su entrada
 él solo; no se rompe nada.
 
@@ -159,7 +205,8 @@ con más servicios de los que uno cree.
 
 ## Transporte
 
-La sección la pinta `seccionTransporte()` a partir de la constante
+La sección la pinta `seccionTransporte()` (`js/transporte.js`) a partir de la
+constante
 `TRANSPORTE`: una lista de `trayectos`, cada uno con su `id`, su `titulo`, sus
 horas de `salidas` y sus `paradas` en orden (`lugar` y un `detalle` opcional
 con el punto exacto de recogida). Con `trayectos` vacío no hay sección, igual
@@ -192,8 +239,8 @@ repasarlas a mano.
 
 ## Fotos
 
-La sección *Fotos* la pinta `seccionFotos()` a partir de la constante `FOTOS`
-del `<script>` de `index.html`. Con la lista vacía no hay sección y el índice
+La sección *Fotos* la pinta `seccionFotos()` (`js/fotos.js`) a partir de la
+constante `FOTOS` de `js/datos.js`. Con la lista vacía no hay sección y el índice
 descarta su entrada él solo, igual que con la cuenta atrás.
 
 Los archivos van en `img/`, en `.webp`:
@@ -241,8 +288,8 @@ ejecuta `crearHojaCanciones()` a mano desde el editor de Apps Script, igual que
 
 El tope son **tres canciones por invitado**, en `MAX_CANCIONES`. Al añadir una
 cuarta no se rechaza: sustituye a la más antigua, escribiendo encima de su fila
-para no mover el resto. La constante está en los dos archivos (`Code.gs` e
-`index.html`) y manda la del backend; si cambias una, cambia la otra.
+para no mover el resto. La constante está en los dos sitios (`Code.gs` y
+`js/datos.js`) y manda la del backend; si cambias una, cambia la otra.
 
 La búsqueda va por **JSONP** (`<script>` con `&callback=`), no por `fetch`:
 iTunes no promete cabeceras CORS y ese parámetro es la vía que documenta Apple.
