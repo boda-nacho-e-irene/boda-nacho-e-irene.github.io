@@ -42,22 +42,6 @@ function nombresDePila() {
   return html;
 }
 
-/* --- secciones en obras --- */
-
-/* Devuelve la sección de EN_OBRAS con ese id, o cadena vacía si ya no está
-   (que es como se apaga: se borra su entrada y se escribe la de verdad). */
-function seccionEnObras(id) {
-  for (var i = 0; i < EN_OBRAS.length; i++) {
-    if (EN_OBRAS[i].id !== id) continue;
-    return '<section class="seccion" id="' + escapar(id) + '">' +
-             titulo(id, EN_OBRAS[i].titulo) +
-             '<p class="wip-linea"><span class="wip">En preparación</span></p>' +
-             '<p class="promesa">' + escapar(EN_OBRAS[i].texto) + '</p>' +
-           '</section>';
-  }
-  return '';
-}
-
 function pintar(d) {
 
   pantalla(
@@ -128,11 +112,11 @@ function pintar(d) {
 
       seccionAlergias() +
       seccionCuenta() +
-      seccionEnObras('dedicatoria') +
       seccionPlaylist() +
       seccionTransporte() +
-      seccionEnObras('alojamiento') +
-      seccionEnObras('sitio-web') +
+
+      /* Las de EN_OBRAS no se pintan: hasta que tengan contenido viven solo en
+         el índice, como botones apagados. */
 
     '</div>'
   );

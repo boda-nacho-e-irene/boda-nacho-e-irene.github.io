@@ -22,8 +22,7 @@ css/base.css      los tokens de :root (color, tipos, espacio, forma); reset;
                   .seccion. Es el archivo que se toca para cambiar la pinta
 css/presentacion.css  la primera pantalla: nombres, fecha y sitio
 css/portada.css   portada, fotos y el día
-css/indice.css    índice lateral, flechas de saltar sección y secciones en
-                  obras
+css/indice.css    índice lateral y flechas de saltar sección
 css/transporte.css
 css/formulario.css
 css/bloques.css   los formularios plegables y sus resúmenes
@@ -37,8 +36,9 @@ js/sobre.js       abrir el sobre y revelar las secciones
 js/fotos.js       js/cuenta.js       js/calendario.js
 js/transporte.js  js/playlist.js     js/formulario.js
 js/bloques.js     los formularios plegables, los resúmenes y los envíos
-js/indice.js      el índice lateral y las flechas de saltar sección
-js/pintar.js      cargar(), pintar(), restaurar(), secciones en obras
+js/indice.js      el índice lateral, las flechas de saltar sección y el orden
+                  de la página (lo hecho, al final)
+js/pintar.js      cargar(), pintar(), restaurar()
 lab/lab.css       el laboratorio de ?lab, que no se enlaza: lo baja cargar()
 lab/lab.js
 ```
@@ -182,9 +182,15 @@ Para añadir una sección: crea el `<section>` dentro de `pintar()`
 añade su
 entrada a `SECCIONES` en el mismo orden en que aparece.
 
-Orden actual: presentación, inicio, fotos, el día, confirmar, alergias, cuenta
-atrás (con el *save the date* dentro), dedicatoria, playlist, transporte,
-alojamiento, sitio web.
+Orden de partida: presentación, inicio, fotos, el día, confirmar, alergias,
+cuenta atrás (con el *save the date* dentro), playlist, transporte. Dedicatoria,
+alojamiento y sitio web están en obras y todavía no se pintan (ver *Secciones en
+obras*).
+
+De partida y no para siempre: **lo que el invitado ya ha contestado se va al
+final de la página** (ver *Lo hecho, al final*). `SECCIONES` sigue mandando
+dentro de cada montón —lo que queda y lo hecho—, así que mover una línea ahí
+sigue moviendo la sección.
 
 *Presentación* es la primera pantalla, la que asoma al apartarse el sobre: los
 dos nombres de pila (`BODA.nombres`), la fecha, el sitio y un enlace a
@@ -296,9 +302,9 @@ img/iconos/inicio.svg       (sustituye al arco grande de la portada)
 No hay que tocar el código. `probarIcono()` lo busca al pintar y lo pone si está.
 El arco se dibuja primero y el icono solo lo sustituye si llega a cargarse, así
 que una sección sin icono se queda con el suyo sin enterarse: ni parpadea ni da
-un salto de maqueta. Los `id` son los de `SECCIONES`: `presentacion`, `inicio`,
-`fotos`, `el-dia`, `confirmar`, `alergias`, `cuenta-atras`, `dedicatoria`,
-`playlist`, `transporte`, `alojamiento`, `sitio-web`.
+un salto de maqueta. Los `id` son los de `SECCIONES`: `inicio`, `fotos`,
+`el-dia`, `confirmar`, `alergias`, `cuenta-atras`, `playlist`, `transporte`
+(`presentacion` no lleva emblema, y las que están en obras no se pintan).
 
 El icono entra como `<img>`, y a un `<img>` la hoja de estilos no puede cambiarle
 el color: dibújalo ya en el ocre de la casa, `#9C6B24`. Manda su altura y no su
@@ -306,7 +312,7 @@ ancho —28 px en los títulos, 84 px en la presentación y en la portada—, as
 uno cuadrado y uno apaisado se plantan a la misma altura que el arco al que
 sustituyen.
 
-De cada sección sin icono sale una petición que acaba en 404. Son nueve como
+De cada sección sin icono sale una petición que acaba en 404. Son ocho como
 mucho, van en paralelo y GitHub Pages las contesta con poco más de medio
 kilobyte: es lo que cuesta que añadir un icono no sea más que dejar el archivo
 en su sitio. Si algún día molestan, la alternativa es declarar a mano qué
@@ -328,16 +334,26 @@ se rompería en cuanto la URL fallida tuviera una carpeta de más.
 ### Secciones en obras
 
 Las que todavía no tienen contenido viven en la constante `EN_OBRAS`
-(`js/datos.js`)
-(`{ id, titulo, texto }`) y las pinta `seccionEnObras(id)`: título, el sello
-*En preparación* y el texto provisional. Siguen apareciendo en el índice como
-cualquier otra.
+(`js/datos.js`, `{ id, titulo }`) y **no se pintan**: en la página no ocupan
+nada. Salen solo al final del índice, como botones apagados debajo de
+*Próximamente* y de la línea que dice que se habilitarán pronto
+(`listaEnObras()`, en `js/indice.js`).
 
-Para rellenar una: borra su entrada de `EN_OBRAS` y escribe su `<section>` a
-mano en `pintar()` (`js/pintar.js`), en el mismo sitio donde estaba la
-llamada. Si se te olvida
-lo segundo, la sección desaparece de la página y el índice descarta su entrada
-él solo; no se rompe nada.
+Antes cada una se llevaba su pantalla con un sello *En preparación* y una
+promesa dentro. Una pantalla que no dice nada es una pantalla de más entre
+medias: el invitado la cruza tres veces para llegar a lo siguiente. Apagadas en
+el menú se sigue viendo que hay más invitación en camino, y la página se queda
+solo con lo que ya tiene algo que enseñar.
+
+El `id` tiene que coincidir con el de `SECCIONES`: ahí es donde está apuntado el
+sitio que le toca a la sección cuando se estrene —y de qué lado del corte de
+*Confirmar* queda—. El orden de `EN_OBRAS` es el que llevan entre ellas en el
+menú.
+
+Para estrenar una: borra su entrada de `EN_OBRAS` y escribe su `<section>` a
+mano en `pintar()` (`js/pintar.js`), en el sitio que dice `SECCIONES`. Si se te
+olvida lo segundo, la sección desaparece también del menú y el índice descarta
+su entrada él solo; no se rompe nada.
 
 ### Formularios independientes y plegado
 
@@ -374,8 +390,9 @@ Las piezas, todas en `js/bloques.js` (su hoja, en `css/bloques.css`):
   hecho: un chip marcado sin enviar no cuenta.
 
 Las secciones con formulario ya guardado se marcan además en el índice lateral
-(`data-hecho`, arco relleno en musgo): ahí es donde el índice se lee como una
-lista de recados.
+(`data-hecho`, arco relleno en musgo) y se bajan al final de la página: ahí es
+donde la invitación se lee como una lista de recados (ver *Lo hecho, al
+final*).
 
 Los alérgenos sí son una sección aparte —antes vivían dentro de *Confirmar*
 porque compartían su botón de enviar—, y la elección de autobús de vuelta ha
@@ -393,7 +410,9 @@ idea y pulsa *Sí, allí estaré*, vuelve todo.
 
 La lista de lo que se esconde no está escrita a mano: `seccionesTrasConfirmar()`
 la saca de `SECCIONES`, así que mover una sección en esa constante basta para
-cambiar de qué lado del corte queda.
+cambiar de qué lado del corte queda. Va por ahí y no por dónde esté puesta la
+sección ahora mismo: que *Confirmar* se haya bajado al final por estar hecha no
+cambia lo que le toca esconder a quien no viene.
 
 Cada opción enciende además un subtítulo bajo los botones, con los textos de la
 constante `RESPUESTAS`.
@@ -406,15 +425,48 @@ pantalla. La sección activa se marca con `aria-current`, midiendo las secciones
 en cada `scroll`: manda la última cuyo borde superior haya pasado el 42% de la
 pantalla.
 
+Va en tres apartados, en el mismo orden que la página: primero lo que queda por
+hacer, debajo *Hecho* y al final *Próximamente*, con las secciones en obras
+apagadas. Los dos de abajo solo salen si hay algo que poner en ellos.
+
 En la esquina de abajo hay dos flechas que saltan a la sección anterior y a la
-siguiente, en el orden de `SECCIONES`. Con cada sección ocupando una pantalla o
-más, bajar a rueda o a dedo se hace largo; el salto es de sección a sección,
-tenga la de abajo una pantalla o tres. En la primera y en la última se apaga la
-flecha que no lleva a ninguna parte, apagada y no escondida para que la otra no
-cambie de sitio. Salen de la misma cuenta que marca el índice —la sección que
-él señala es de donde saltan— y viven con él en `js/indice.js` y
+siguiente, **en el orden en que están puestas hoy** —lo hecho al final
+incluido—, que es el mismo que enseña el índice. Con cada sección ocupando una
+pantalla o más, bajar a rueda o a dedo se hace largo; el salto es de sección a
+sección, tenga la de abajo una pantalla o tres. En la primera y en la última se
+apaga la flecha que no lleva a ninguna parte, apagada y no escondida para que la
+otra no cambie de sitio. Salen de la misma cuenta que marca el índice —la
+sección que él señala es de donde saltan— y viven con él en `js/indice.js` y
 `css/indice.css`. El hueco que se reservan abajo para no pisar el contenido es
 `--paso-hueco`, que va en el padding de `.seccion`.
+
+### Lo hecho, al final
+
+En cuanto un formulario se guarda, su sección se va al final de la página y al
+apartado *Hecho* del índice. La invitación funciona así como una lista de
+recados: arriba lo que todavía nos tiene que decir, abajo lo que ya está
+contestado, y nada que volver a cruzar para llegar a lo siguiente.
+
+Lo hace `ordenarSecciones()` (`js/indice.js`), y lo llama `montarIndice()`, que
+es lo que corre cada vez que algo se guarda o se esconde: la página y el índice
+se reordenan a la vez y nunca dicen cosas distintas. Qué está hecho lo dice
+`seccionHecha(id)`, o sea el resumen del bloque, igual que el plegado; las
+secciones que no piden nada no cuentan y se quedan donde están.
+
+Dentro de cada montón manda `SECCIONES`, así que dos secciones nunca se cruzan
+entre sí. El índice y las flechas leen el orden **del DOM**
+(`seccionesPuestas()`) y no la constante, que es el orden de partida.
+
+Reordenar con la página a media altura le cambiaría al invitado lo que tiene
+delante, así que `ordenarSecciones()` apunta antes qué sección está al frente y
+a qué altura, y la deja donde estaba: la sigue hasta su nuevo sitio en vez de
+dejar que se le cuele otra por debajo. Lo que acaba de bajar es casi siempre la
+suya —se reordena justo al guardar su formulario, o al apuntar una canción con
+*Playlist* abierta—, y sacarle la pantalla de debajo en ese momento sería
+quitarle de delante lo que estaba mirando. El reajuste va sin deslizar
+(`desplazar()` apaga un momento el `scroll-behavior: smooth`), y el foco vuelve
+a donde estaba, porque reinsertar un nodo se lleva por delante el que hubiera
+dentro.
 
 ## Cuenta atrás y save the date
 

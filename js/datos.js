@@ -73,7 +73,12 @@ var TRANSPORTE = {
 /* Índice lateral: el orden manda, y es también el orden en que se pintan las
    secciones. Cada `id` tiene que existir en la página o la entrada se descarta
    sola. Para añadir una sección, crea el <section class="seccion" id="...">
-   dentro de pintar() (o mete una entrada en EN_OBRAS) y añádela aquí. */
+   dentro de pintar() (o mete una entrada en EN_OBRAS) y añádela aquí.
+
+   Es el orden de partida, no el de siempre: en cuanto el invitado guarda un
+   formulario, su sección se va al final de la página y al apartado «Hecho» del
+   índice (ordenarSecciones(), en js/indice.js). Dentro de cada montón —lo que
+   queda y lo hecho— siguen mandando estas líneas. */
 var SECCIONES = [
   { id: 'presentacion',  titulo: 'Presentación' },
   { id: 'inicio',        titulo: 'Inicio' },
@@ -89,19 +94,19 @@ var SECCIONES = [
   { id: 'sitio-web',     titulo: 'Sitio web' }
 ];
 
-/* Secciones todavía en obras: de momento solo enseñan el sello y una promesa.
-   El `id` tiene que coincidir con el de SECCIONES y el orden de arriba es el
-   que manda; estas se pintan solas donde toque. Para rellenar una, bórrala de
-   aquí y escribe su <section> a mano en pintar(). */
+/* Secciones todavía en obras: **no se pintan**. Aparecen al final del índice,
+   como botones apagados bajo el aviso de que se habilitarán pronto, y en la
+   página no ocupan nada: hasta que tengan algo que enseñar, una pantalla con
+   una promesa dentro es una pantalla de más entre medias.
+
+   El `id` tiene que coincidir con el de SECCIONES —ahí es donde está apuntado
+   el sitio que le toca cuando se estrene— y el orden de aquí es el que llevan
+   en el menú. Para estrenar una: bórrala de esta lista y escribe su <section>
+   a mano en pintar(), en el sitio que dice SECCIONES. */
 var EN_OBRAS = [
-  { id: 'dedicatoria', titulo: 'Dedicatoria',
-    texto: 'Aquí irán unas palabras nuestras. Todavía las estamos escribiendo.' },
-
-  { id: 'alojamiento', titulo: 'Alojamiento',
-    texto: 'Estamos apalabrando habitaciones cerca del convento. Aquí verás los sitios y los precios.' },
-
-  { id: 'sitio-web', titulo: 'Sitio web',
-    texto: 'Habrá una página con todos los detalles de la boda. Sigue en obras.' }
+  { id: 'dedicatoria', titulo: 'Dedicatoria' },
+  { id: 'alojamiento', titulo: 'Alojamiento' },
+  { id: 'sitio-web',   titulo: 'Sitio web' }
 ];
 
 /* El subtítulo que aparece bajo los botones nada más elegir. */

@@ -120,3 +120,17 @@
   color: var(--musgo);
 }
 
+/* La línea de debajo de los dos recorridos (`TRANSPORTE.nota`): una frase en
+   cursiva, centrada, con la voz de las citas. Vivía en `css/indice.css`, con
+   las secciones en obras que ya no se pintan; se queda aquí, con el único que
+   la usa. */
+.promesa {
+  text-align: center;
+  font-family: var(--letra-cita);
+  font-style: var(--cursiva-cita);
+  font-size: calc(var(--t-medio) * var(--escala-cita));
+  line-height: 1.45;
+  color: var(--musgo);
+  margin: 0;
+  text-wrap: pretty;
+}
