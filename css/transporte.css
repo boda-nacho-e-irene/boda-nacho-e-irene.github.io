@@ -21,6 +21,14 @@
   }
 }
 
+/* Los recorridos son para leerlos y esto es para contestar: la línea fina
+   marca dónde acaba lo uno y empieza lo otro. */
+.campos-vuelta {
+  margin-top: var(--e4);
+  padding-top: var(--e4);
+  border-top: var(--linea);
+}
+
 .sub-titulo {
   font-family: var(--letra-titulo);
   font-size: calc(var(--t-sub) * var(--escala-titulo));

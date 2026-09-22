@@ -44,8 +44,8 @@ function salidasElegibles() {
   return [];
 }
 
-/* Van dentro de *Confirmar*, no en *Transporte*: la sección de transporte
-   queda por debajo del botón de enviar, y de allí no se envía nada. */
+/* Van con los recorridos, en *Transporte*, y llevan su propio botón: la
+   elección se guarda sola, sin pasar por la confirmación. */
 function camposVuelta() {
   var horas = salidasElegibles();
   if (!horas.length) return '';
@@ -58,11 +58,12 @@ function camposVuelta() {
   botones += '<button type="button" class="chip" data-v="' + SIN_VUELTA + '" aria-pressed="false">'
            + 'No lo necesito</button>';
 
-  return '<fieldset>' +
+  return '<fieldset class="campos-vuelta">' +
            '<legend>Autobús de vuelta</legend>' +
            '<p class="ayuda">Sale del convento hacia Palencia y Venta de Baños. Dinos con cuál contamos.</p>' +
            '<div class="chips" id="vuelta">' + botones + '</div>' +
-         '</fieldset>';
+         '</fieldset>' +
+         '<button type="button" class="enviar" id="enviar-transporte" disabled>Guardar mi autobús</button>';
 }
 
 /* Exclusiva: solo se vuelve en un autobús. */
@@ -74,6 +75,7 @@ function elegirVuelta(hora) {
   for (var i = 0; i < b.length; i++) {
     b[i].setAttribute('aria-pressed', b[i].getAttribute('data-v') === hora ? 'true' : 'false');
   }
+  document.getElementById('enviar-transporte').disabled = false;
 }
 
 function seccionTransporte() {
@@ -92,10 +94,13 @@ function seccionTransporte() {
 
   return '<section class="seccion" id="transporte">' +
            titulo('transporte', 'Transporte') +
-           '<div class="trayectos">' + html + '</div>' +
-           (TRANSPORTE.nota
-             ? '<p class="promesa" style="margin-top:2rem">' + escapar(TRANSPORTE.nota) + '</p>'
-             : '') +
+           bloque('transporte',
+             '<div class="trayectos">' + html + '</div>' +
+             (TRANSPORTE.nota
+               ? '<p class="promesa" style="margin-top:2rem">' + escapar(TRANSPORTE.nota) + '</p>'
+               : '') +
+             camposVuelta()
+           ) +
          '</section>';
 }
 

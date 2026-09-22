@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="css/indice.css">
 <link rel="stylesheet" href="css/transporte.css">
 <link rel="stylesheet" href="css/formulario.css">
+<link rel="stylesheet" href="css/bloques.css">
 <link rel="stylesheet" href="css/playlist.css">
 <link rel="stylesheet" href="css/cuenta.css">
 <link rel="stylesheet" href="css/sobre.css">
@@ -52,6 +53,9 @@ window.onerror = function (msg, src, linea) {
      `objetivoMs`, y `pintar.js` el último porque acaba llamando a cargar().
      Scripts normales, no módulos: comparten las variables de siempre sin
      imports, y así la página sigue abriéndose con doble clic desde el disco.
+     Ojo al partir uno: lo que se ejecuta en cuanto baja el archivo (un `var`
+     de arriba del todo) solo ve las funciones de su propio archivo, que son
+     las únicas que suben. Por eso `BLOQUES` vive con sus `resumen*`.
      El laboratorio de ?lab no está aquí: lo baja cargar() y solo si hace falta. -->
 <script defer src="js/datos.js"></script>
 <script defer src="js/util.js"></script>
@@ -62,6 +66,7 @@ window.onerror = function (msg, src, linea) {
 <script defer src="js/transporte.js"></script>
 <script defer src="js/playlist.js"></script>
 <script defer src="js/formulario.js"></script>
+<script defer src="js/bloques.js"></script>
 <script defer src="js/indice.js"></script>
 <script defer src="js/pintar.js"></script>
 

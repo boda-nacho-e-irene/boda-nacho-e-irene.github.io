@@ -4,27 +4,38 @@
    en cuanto alguien dice que no puede venir, como al resto de las de después.
    Las canciones que hubiese mandado antes siguen en la hoja: solo desaparece
    la sección. */
+/* El único formulario sin botón de enviar: cada canción se guarda al añadirla,
+   así que no hay nada que reenviar. Se pliega igual al volver a entrar, y su
+   botón de resumen solo abre y cierra. */
 function seccionPlaylist() {
   return '<section class="seccion" id="playlist">' +
            titulo('playlist', 'Pon tú la música') +
-           '<p class="ayuda">Busca hasta ' + MAX_CANCIONES + ' canciones y te las apuntamos. ' +
-             'Si añades una más, sustituye a la más antigua.</p>' +
-           '<h3 class="subtitulo">Tus canciones</h3>' +
-           '<ul class="mis-canciones" id="mis-canciones"></ul>' +
-           '<fieldset>' +
-             '<label class="campo" for="buscar">Busca una canción</label>' +
-             '<input type="search" id="buscar" placeholder="Título o artista" autocomplete="off">' +
-           '</fieldset>' +
-           '<div class="resultados" id="resultados" aria-live="polite"></div>' +
-           '<p class="estado" id="estado-musica" role="status" aria-live="polite"></p>' +
+           bloque('playlist',
+             '<p class="ayuda">Busca hasta ' + MAX_CANCIONES + ' canciones y te las apuntamos. ' +
+               'Si añades una más, sustituye a la más antigua.</p>' +
+             '<h3 class="subtitulo">Tus canciones</h3>' +
+             '<ul class="mis-canciones" id="mis-canciones"></ul>' +
+             '<fieldset>' +
+               '<label class="campo" for="buscar">Busca una canción</label>' +
+               '<input type="search" id="buscar" placeholder="Título o artista" autocomplete="off">' +
+             '</fieldset>' +
+             '<div class="resultados" id="resultados" aria-live="polite"></div>'
+           ) +
          '</section>';
 }
 
+/* Escribe en el `.estado` del bloque, que está fuera del pliegue: lo que se
+   cuenta de una canción se sigue leyendo aunque la sección se plegase. */
 function estadoMusica(texto, mal) {
-  var e = document.getElementById('estado-musica');
-  if (!e) return;
-  e.className = mal ? 'estado mal' : 'estado';
-  e.textContent = texto;
+  estadoBloque('playlist', texto, mal);
+}
+
+/* La lista ha cambiado: repintarla, poner al día el resumen de la sección —sin
+   plegarla, que el invitado está en ello— y el índice, que lleva la cuenta. */
+function repasarCanciones() {
+  pintarMisCanciones();
+  repasarBloques('playlist');
+  montarIndice();
 }
 
 /* Las que ya ha mandado, cada una con su botón de quitar. */
@@ -156,7 +167,7 @@ function anadirCancion(c) {
       return;
     }
     canciones = d.canciones || [];
-    pintarMisCanciones();
+    repasarCanciones();
 
     if (d.repetida) {
       // No se ha apuntado nada: le dejamos los resultados por si quiere otra.
@@ -182,7 +193,7 @@ function quitarCancion(id) {
       return;
     }
     canciones = d.canciones || [];
-    pintarMisCanciones();
+    repasarCanciones();
     estadoMusica('Quitada.');
   });
 }

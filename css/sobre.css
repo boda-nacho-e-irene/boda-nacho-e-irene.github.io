@@ -199,7 +199,7 @@ body.sobre-visible { overflow: hidden; }
   html { scroll-behavior: auto; }
   * { animation: none !important; transition: none !important; }
   .arco path { stroke-dashoffset: 0; }
-  .detalle, .respuesta { transition: none; }
+  .cuerpo, .respuesta { transition: none; }
   .con-revelado .seccion { opacity: 1; transform: none; }
   .con-revelado .seccion::before { transform: scaleY(1); }
 }

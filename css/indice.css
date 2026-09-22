@@ -109,6 +109,18 @@
   transform: scale(1.2);
 }
 
+/* Las secciones cuyo formulario ya está guardado llevan el arco relleno: el
+   índice hace de lista de recados. En musgo y no en ocre, que es el color de
+   «aquí estás»; siendo las dos cosas a la vez manda el ocre. */
+.nav-enlace[data-hecho="true"] .nav-punto {
+  background: var(--musgo);
+  border-color: var(--musgo);
+}
+.nav-enlace[data-hecho="true"][aria-current="true"] .nav-punto {
+  background: var(--ocre);
+  border-color: var(--ocre);
+}
+
 @media (min-width: 62rem) {
   .nav-boton, .nav-velo { display: none; }
   .nav, .nav.abierto {

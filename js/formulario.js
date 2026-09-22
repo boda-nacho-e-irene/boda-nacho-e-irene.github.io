@@ -61,6 +61,7 @@ function alternarAlergeno(boton) {
   if (activo) {
     boton.setAttribute('aria-pressed', 'false');
     delete marcados[nombre];
+    repasarEnvioAlergias();
     return;
   }
 
@@ -76,6 +77,49 @@ function alternarAlergeno(boton) {
 
   boton.setAttribute('aria-pressed', 'true');
   marcados[nombre] = true;
+  repasarEnvioAlergias();
+}
+
+/* La lista tal como va a la hoja: los chips marcados y, al final, lo que haya
+   escrito en «otra cosa». La usan el envío y el resumen, que tienen que decir
+   lo mismo. */
+function alergenosTexto() {
+  var campo = document.getElementById('otros');
+  var otros = campo ? campo.value.replace(/^\s+|\s+$/g, '') : '';
+  var lista = [];
+
+  for (var k in marcados) {
+    if (!marcados.hasOwnProperty(k)) continue;
+    /* Si nos cuenta algo por escrito, «Ninguna» ya no vale como respuesta:
+       la quitamos para que la hoja no diga las dos cosas a la vez. */
+    if (k === SIN_ALERGIAS && otros) continue;
+    lista.push(k);
+  }
+  if (otros) lista.push(otros);
+  return lista.join(', ');
+}
+
+/* Su propia sección, con su formulario y su botón: los alérgenos se guardan sin
+   esperar a nada más. Antes vivían plegados dentro de *Confirmar* porque
+   compartían con ella el botón de enviar. El grupo de chips lleva su etiqueta a
+   mano: el <legend> que la daba es ahora el título de la sección. */
+function seccionAlergias() {
+  return '<section class="seccion" id="alergias">' +
+           titulo('alergias', 'Alergias e intolerancias') +
+           bloque('alergias',
+             '<fieldset>' +
+               '<p class="ayuda">Marca lo que necesites. Se lo pasamos tal cual a la cocina.</p>' +
+               '<div class="chips" id="chips" role="group" aria-label="Alergias e intolerancias">' +
+                 chipsAlergenos() +
+               '</div>' +
+             '</fieldset>' +
+             '<fieldset>' +
+               '<label class="campo" for="otros">Otra cosa que debamos saber</label>' +
+               '<input type="text" id="otros" placeholder="Otra alergia, medicación, lo que sea">' +
+             '</fieldset>' +
+             '<button type="button" class="enviar" id="enviar-alergias" disabled>Guardar alergias</button>'
+           ) +
+         '</section>';
 }
 
 function elegir(asiste) {
@@ -87,54 +131,7 @@ function elegir(asiste) {
   respuesta.textContent = asiste ? RESPUESTAS.si : RESPUESTAS.no;
   respuesta.className = 'respuesta visible';
 
-  var detalle = document.getElementById('detalle');
-  if (asiste) { detalle.className = 'detalle abierto'; }
-  else { detalle.className = 'detalle'; }
-
   ajustarAlcance(asiste);
 
-  document.getElementById('enviar').disabled = false;
-}
-
-function enviar() {
-  if (elegido === null) return;
-
-  var boton = document.getElementById('enviar');
-  var estado = document.getElementById('estado');
-  boton.disabled = true;
-  estado.className = 'estado';
-  estado.textContent = 'Guardando…';
-
-  var otros = document.getElementById('otros').value.replace(/^\s+|\s+$/g, '');
-  var lista = [];
-  for (var k in marcados) {
-    if (!marcados.hasOwnProperty(k)) continue;
-    /* Si nos cuenta algo por escrito, «Ninguna» ya no vale como respuesta:
-       la quitamos para que la hoja no diga las dos cosas a la vez. */
-    if (k === SIN_ALERGIAS && otros) continue;
-    lista.push(k);
-  }
-  if (otros) lista.push(otros);
-
-  var cuerpo = JSON.stringify({
-    token: token,
-    asiste: elegido,
-    alergenos: elegido ? lista.join(', ') : '',
-    /* Quien no viene no necesita autobús, y si no ha tocado los botones
-       mandamos la celda vacía en vez de inventarle una hora. */
-    vuelta: elegido && vuelta ? vuelta : '',
-    nota: document.getElementById('nota').value
-  });
-
-  pedir('POST', API, cuerpo, function (d) {
-    boton.disabled = false;
-    if (d && d.ok) {
-      estado.textContent = elegido
-        ? 'Guardado. Nos vemos allí.'
-        : 'Guardado. Te echaremos de menos.';
-    } else {
-      estado.className = 'estado mal';
-      estado.textContent = 'No se ha podido guardar. Inténtalo otra vez.';
-    }
-  });
+  document.getElementById('enviar-confirmar').disabled = false;
 }

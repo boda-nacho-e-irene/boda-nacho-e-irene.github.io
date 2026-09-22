@@ -1,4 +1,14 @@
 /* --- índice lateral --- */
+
+/* Una sección está hecha cuando su formulario ya está guardado, o sea cuando
+   tiene resumen. Las que no piden nada no cuentan. */
+function seccionHecha(id) {
+  for (var i = 0; i < BLOQUES.length; i++) {
+    if (BLOQUES[i].id === id) return !!BLOQUES[i].resumen();
+  }
+  return false;
+}
+
 /* Se llama al pintar y cada vez que cambia el juego de secciones a la vista,
    así que empieza soltando lo que dejó la vez anterior. */
 function montarIndice() {
@@ -14,9 +24,14 @@ function montarIndice() {
     var seccion = document.getElementById(SECCIONES[i].id);
     if (!seccion || seccion.hidden) continue;
     presentes.push(SECCIONES[i].id);
-    lista += '<li><a class="nav-enlace" href="#' + escapar(SECCIONES[i].id) + '">'
+
+    var hecho = seccionHecha(SECCIONES[i].id);
+    lista += '<li><a class="nav-enlace" href="#' + escapar(SECCIONES[i].id) + '"'
+           + (hecho ? ' data-hecho="true"' : '') + '>'
            + '<span class="nav-punto" aria-hidden="true"></span>'
-           + '<span>' + escapar(SECCIONES[i].titulo) + '</span></a></li>';
+           + '<span>' + escapar(SECCIONES[i].titulo) + '</span>'
+           + (hecho ? '<span class="solo-voz"> (hecho)</span>' : '')
+           + '</a></li>';
   }
 
   /* Con una sola sección el índice sobra. Lo vaciamos en vez de dejarlo estar:

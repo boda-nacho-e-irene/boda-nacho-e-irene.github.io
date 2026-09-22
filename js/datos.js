@@ -1,5 +1,5 @@
 /* ====== EDITA ESTO ====== */
-const API = 'https://script.google.com/macros/s/AKfycbxgaJDj8g97VHfoSDT7qPiOqBnx92-OVjUKvFIwARfpjo_lmUcrLF1jYteHPtzHHrhGtA/exec';
+const API = 'https://script.google.com/macros/s/AKfycbylVOv614p1kH3pHOuUPaca0xuOKaK7o1miE0DUJaWQ3oLV4mHdkAEZVwf2fTtDPLPKpA/exec';
 
 var BODA = {
   novios: 'Irene Alcalde Méndez e Ignacio Arenas Guerra',
@@ -72,6 +72,7 @@ var SECCIONES = [
   { id: 'fotos',         titulo: 'Fotos' },
   { id: 'el-dia',        titulo: 'El gran día' },
   { id: 'confirmar',     titulo: 'Confirmar' },
+  { id: 'alergias',      titulo: 'Alergias' },
   { id: 'cuenta-atras',  titulo: 'Cuenta atrás' },
   { id: 'dedicatoria',   titulo: 'Dedicatoria' },
   { id: 'playlist',      titulo: 'Playlist' },
@@ -146,6 +147,12 @@ var token = (function () {
 var elegido = null;          // true | false | null
 var marcados = {};           // alérgenos seleccionados
 var vuelta = null;           // hora del autobús de vuelta, SIN_VUELTA, o null
+
+/* Lo que ya está en la hoja, campo a campo. Es lo que da un formulario por
+   hecho —y por tanto lo que se pliega—, y no lo que haya en los campos: un chip
+   marcado sin enviar no cuenta. Se llena al cargar con lo que devuelve el
+   backend y en cada envío que sale bien. */
+var guardado = { asiste: false, alergenos: false, vuelta: false };
 
 var canciones = [];          // las que ya ha mandado este invitado
 var hallazgos = [];          // lo último que devolvió iTunes

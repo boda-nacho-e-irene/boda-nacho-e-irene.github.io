@@ -44,7 +44,6 @@ function seccionEnObras(id) {
 }
 
 function pintar(d) {
-  var chips = chipsAlergenos();
 
   pantalla(
     '<div id="contenido">' +
@@ -76,35 +75,27 @@ function pintar(d) {
 
       '<section class="seccion" id="confirmar">' +
         titulo('confirmar', '¿Nos acompañas?') +
-        '<div class="eleccion">' +
-          '<button type="button" class="opcion" id="si" aria-pressed="false">Sí, allí estaré</button>' +
-          '<button type="button" class="opcion" id="no" aria-pressed="false">No podré ir</button>' +
-        '</div>' +
+        bloque('confirmar',
+          '<div class="eleccion">' +
+            '<button type="button" class="opcion" id="si" aria-pressed="false">Sí, allí estaré</button>' +
+            '<button type="button" class="opcion" id="no" aria-pressed="false">No podré ir</button>' +
+          '</div>' +
 
-        '<p class="respuesta" id="respuesta" aria-live="polite"></p>' +
+          '<p class="respuesta" id="respuesta" aria-live="polite"></p>' +
 
-        '<div class="detalle" id="detalle">' +
+          /* El mensaje se queda aquí y no en una sección propia: a quien no
+             puede venir se le esconde todo lo que va detrás de esta sección, y
+             es justo lo que sí tiene sentido que nos deje escrito. */
           '<fieldset>' +
-            '<legend>Alergias e intolerancias</legend>' +
-            '<p class="ayuda">Marca lo que necesites. Se lo pasamos tal cual a la cocina.</p>' +
-            '<div class="chips" id="chips">' + chips + '</div>' +
+            '<label class="campo" for="nota">Un mensaje para nosotros</label>' +
+            '<textarea id="nota" placeholder="Opcional"></textarea>' +
           '</fieldset>' +
-          '<fieldset>' +
-            '<label class="campo" for="otros">Otra cosa que debamos saber</label>' +
-            '<input type="text" id="otros" placeholder="Otra alergia, medicación, lo que sea">' +
-          '</fieldset>' +
-          camposVuelta() +
-        '</div>' +
 
-        '<fieldset>' +
-          '<label class="campo" for="nota">Un mensaje para nosotros</label>' +
-          '<textarea id="nota" placeholder="Opcional"></textarea>' +
-        '</fieldset>' +
-
-        '<button type="button" class="enviar" id="enviar" disabled>Enviar confirmación</button>' +
-        '<p class="estado" id="estado"></p>' +
+          '<button type="button" class="enviar" id="enviar-confirmar" disabled>Enviar confirmación</button>'
+        ) +
       '</section>' +
 
+      seccionAlergias() +
       seccionCuenta() +
       seccionEnObras('dedicatoria') +
       seccionPlaylist() +
@@ -117,7 +108,11 @@ function pintar(d) {
 
   document.getElementById('si').onclick = function () { elegir(true); };
   document.getElementById('no').onclick = function () { elegir(false); };
-  document.getElementById('enviar').onclick = enviar;
+  document.getElementById('enviar-confirmar').onclick = enviarConfirmacion;
+  document.getElementById('enviar-alergias').onclick = enviarAlergias;
+
+  /* Los botones de las líneas de resumen, uno por bloque. */
+  for (var p = 0; p < BLOQUES.length; p++) { cablearCambiar(BLOQUES[p].id); }
 
   /* La cuenta atrás —y con ella el botón de guardar la fecha— no se pinta
      pasado el día de la boda. */
@@ -128,6 +123,8 @@ function pintar(d) {
   for (var j = 0; j < botonesChip.length; j++) {
     botonesChip[j].onclick = function () { alternarAlergeno(this); };
   }
+
+  document.getElementById('otros').oninput = repasarEnvioAlergias;
 
   var buscar = document.getElementById('buscar');
   buscar.oninput = function () { programarBusqueda(this.value); };
@@ -168,12 +165,15 @@ function pintar(d) {
     if (id) { quitarCancion(id); }
   };
 
+  /* Sin trayecto elegible no hay botones que elegir ni nada que enviar desde
+     *Transporte*: la sección se queda en los recorridos y ya está. */
   var cajaVuelta = document.getElementById('vuelta');
   if (cajaVuelta) {
     var botonesVuelta = cajaVuelta.getElementsByTagName('button');
     for (var v = 0; v < botonesVuelta.length; v++) {
       botonesVuelta[v].onclick = function () { elegirVuelta(this.getAttribute('data-v')); };
     }
+    document.getElementById('enviar-transporte').onclick = enviarVuelta;
   }
 
   ponerIconos();
@@ -188,27 +188,45 @@ function restaurar(d) {
   canciones = d.canciones || [];
   pintarMisCanciones();
 
+  /* Los alérgenos vuelven en una sola línea de texto: lo que coincide con un
+     chip lo marca, y lo que no —lo que escribió en «otra cosa»— vuelve a su
+     campo. Sin esa segunda mitad, abrir el bloque y reenviarlo lo borraría de
+     la hoja, y el resumen diría menos de lo que hay guardado. */
   if (d.alergenos) {
     var previos = String(d.alergenos).split(',');
     var botones = document.getElementById('chips').getElementsByTagName('button');
+    var sueltos = [];
+
     for (var i = 0; i < previos.length; i++) {
       var v = previos[i].replace(/^\s+|\s+$/g, '');
+      if (!v) continue;
+
+      var suyo = false;
       for (var j = 0; j < botones.length; j++) {
         if (botones[j].getAttribute('data-a') === v) {
           botones[j].setAttribute('aria-pressed', 'true');
           marcados[v] = true;
+          suyo = true;
         }
       }
+      if (!suyo) { sueltos.push(v); }
     }
+    if (sueltos.length) { document.getElementById('otros').value = sueltos.join(', '); }
   }
   if (d.vuelta) { elegirVuelta(String(d.vuelta)); }
   if (d.nota) { document.getElementById('nota').value = d.nota; }
   if (d.asiste === 'SI') { elegir(true); }
   else if (d.asiste === 'NO') { elegir(false); }
-  if (d.asiste) {
-    document.getElementById('estado').textContent =
-      'Ya tenemos tu respuesta. Puedes cambiarla cuando quieras.';
-  }
+
+  /* Lo que ya está en la hoja es lo que da cada formulario por hecho, y es lo
+     que decide qué llega plegado y qué llega abierto. */
+  guardado.asiste = !!d.asiste;
+  guardado.alergenos = !!d.alergenos;
+  guardado.vuelta = !!d.vuelta;
+
+  repasarEnvioAlergias();
+  repasarBloques();
+  montarIndice();
 }
 
 
