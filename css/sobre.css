@@ -183,14 +183,13 @@ body.sobre-visible { overflow: hidden; }
 }
 .con-revelado .seccion.dentro { opacity: 1; transform: none; }
 
-/* El retardo de arriba es para esto: primero baja el hilo, y la sección que
-   cuelga de él aparece después. */
+/* El retardo de arriba es para esto: primero se traza la costura, abriéndose
+   desde el centro, y la sección que empieza en ella aparece después. */
 .con-revelado .seccion::before {
-  transform: scaleY(0);
-  transform-origin: top;
+  transform: scaleX(0);
   transition: transform .45s ease;
 }
-.con-revelado .seccion.dentro::before { transform: scaleY(1); }
+.con-revelado .seccion.dentro::before { transform: scaleX(1); }
 
 @keyframes subir { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes trazo { to { stroke-dashoffset: 0; } }
@@ -201,5 +200,5 @@ body.sobre-visible { overflow: hidden; }
   .arco path { stroke-dashoffset: 0; }
   .cuerpo, .respuesta { transition: none; }
   .con-revelado .seccion { opacity: 1; transform: none; }
-  .con-revelado .seccion::before { transform: scaleY(1); }
+  .con-revelado .seccion::before { transform: scaleX(1); }
 }

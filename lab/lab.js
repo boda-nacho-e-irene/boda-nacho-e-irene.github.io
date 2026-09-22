@@ -126,8 +126,12 @@
      ================================================================ */
 
   /* Fuera de la lista a propósito:
-       --margen  se redeclara dentro de un @media; un valor en <html> le ganaría
-                 a cualquier anchura y rompería el diseño ancho.
+       --margen  es el margen de página de todas las secciones: tocarlo desde
+                 aquí descuadra las sangrías (fotos, Confirmar) que lo cancelan
+                 con un margen negativo.
+       --marco   es maqueta y no paleta, como el `--pantallas` que lleva cada
+                 sección: el ancho del marco y el alto de cada pantalla se
+                 deciden en la hoja, no a ojo desde aquí.
        --linea, --sombra  son valores compuestos, no colores: exportarlos
                  hornearía el literal y cortaría el vínculo con --hueco.
        --campo   es luz blanca sobre los campos, no piedra: no sigue a la

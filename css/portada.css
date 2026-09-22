@@ -1,17 +1,10 @@
 /* ---------- portada ---------- */
 
-/* La única sección que se lleva la pantalla entera: el nombre del invitado es
-   lo primero y lo único que se ve al apartar el sobre. `svh` en vez de `vh`
-   para que no pegue el salto de la barra del navegador en móvil. */
-#inicio {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 74vh;
-  min-height: 74svh;
-  padding-bottom: var(--e4);
-}
-#inicio + .seccion { margin-top: var(--e6); }
+/* Una pantalla justa: el nombre del invitado es lo primero y lo único que se
+   ve al apartar el sobre, y lo que hay debajo se busca bajando. El alto y el
+   centrado se los da `.seccion` como a todas; aquí solo se dice cuántas
+   pantallas pide. */
+#inicio { --pantallas: 1; }
 
 .emblema-grande { height: 84px; margin-bottom: var(--e3); }
 .emblema-grande .icono { height: 84px; max-width: 132px; }
@@ -58,12 +51,17 @@
 
 /* ---------- fotos ---------- */
 
-/* El margen inferior lo pone `.seccion + .seccion`, como en las demás.
-   Rejilla de dos columnas: una de cada tres fotos ocupa el ancho entero, así
+/* Una pantalla. Con dos fotos no hay con qué llenar dos: pedirlas dejaba
+   media vacía y las fotos a caballo entre pantalla y pantalla. Cuando la
+   galería crezca no hace falta tocar nada —crece sola—; si algún día se
+   quiere el hueco de sobra a propósito, se sube aquí. */
+#fotos { --pantallas: 1; }
+
+/* Rejilla de dos columnas: una de cada tres fotos ocupa el ancho entero, así
    el ojo baja con un ritmo desigual en vez de por una escalera de imágenes
    iguales. `dense` rellena los huecos que deja el salto de anchura.
-   El margen negativo cancela el padding de `main`: las fotos llegan al borde
-   de la columna y el texto se queda con su medida. */
+   El margen negativo cancela el margen de página de la sección: las fotos
+   llegan al borde de la columna y el texto se queda con su medida. */
 .galeria {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -111,6 +109,9 @@
 }
 
 /* ---------- el día ---------- */
+
+/* Tres líneas y un enlace: una pantalla le sobra. */
+#el-dia { --pantallas: 1; }
 
 .datos { margin: 0; }
 .datos > div {

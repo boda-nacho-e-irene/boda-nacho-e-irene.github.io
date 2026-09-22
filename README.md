@@ -18,10 +18,12 @@ mismo archivo.
 
 ```
 index.html        <head>, el sobre, <main id="app"> y los enlaces a css/ y js/
-css/base.css      los tokens de :root (color, tipos, espacio, forma); reset;
-                  .seccion. Es el archivo que se toca para cambiar la pinta
+css/base.css      los tokens de :root (color, tipos, espacio, forma, marco);
+                  reset; .seccion y el modo marco. Es el archivo que se toca
+                  para cambiar la pinta
 css/portada.css   portada, fotos y el día
-css/indice.css    índice lateral y secciones en obras
+css/indice.css    índice lateral, flechas de saltar sección y secciones en
+                  obras
 css/transporte.css
 css/formulario.css
 css/bloques.css   los formularios plegables y sus resúmenes
@@ -35,7 +37,7 @@ js/sobre.js       abrir el sobre y revelar las secciones
 js/fotos.js       js/cuenta.js       js/calendario.js
 js/transporte.js  js/playlist.js     js/formulario.js
 js/bloques.js     los formularios plegables, los resúmenes y los envíos
-js/indice.js      el índice lateral
+js/indice.js      el índice lateral y las flechas de saltar sección
 js/pintar.js      cargar(), pintar(), restaurar(), secciones en obras
 lab/lab.css       el laboratorio de ?lab, que no se enlaza: lo baja cargar()
 lab/lab.js
@@ -187,6 +189,83 @@ web.
 *Confirmar* va arriba a propósito: es lo único que necesitamos de verdad, y así
 se responde sin bajar por toda la invitación.
 
+### Una pantalla por sección
+
+Cada sección ocupa la pantalla entera, de lado a lado y de arriba abajo, y las
+que necesitan más piden más. El mando es `--pantallas`, una propiedad que se
+le pone a la sección desde su propia hoja:
+
+```css
+#playlist { --pantallas: 2; }     /* dos pantallas */
+#confirmar { --pantallas: 1.5; }  /* admite decimales */
+```
+
+Vale 1 si no se dice otra cosa. `css/base.css` lo convierte en
+`min-height: calc(var(--pantallas) * 100svh)`, que es un suelo y no un tope: una
+sección con más contenido del que le cabe crece sola y no se recorta nunca. El
+centrado vertical solo se nota mientras sobra sitio.
+
+Ojo al subirlo, porque el contenido se centra en la sección **entera**: pedir
+dos pantallas para algo que ocupa media deja el contenido a caballo entre las
+dos y, al saltar a la sección, lo primero que se ve es un vacío. Solo pide más
+de una la sección cuyo contenido llene de verdad lo que pide.
+
+Reparto de hoy: **todas a una**. Ninguna tiene hoy contenido para más, y las
+que crecen —playlist con los resultados del buscador, transporte con sus dos
+recorridos— crecen solas cuando toca. Cada número vive en la hoja de su
+sección (`css/portada.css`, `css/playlist.css`…), que es donde se toca para
+moverlo.
+
+Una sección **no lleva `scroll-margin-top`**, y es a propósito: mide una
+pantalla, así que al saltar a ella —desde el índice o desde las flechas— tiene
+que quedar clavada en la pantalla, y cualquier margen la baja y la descentra.
+Lo lleva `.trayecto`, que es un ancla de dentro de una sección y no una
+pantalla.
+
+El margen de página (`--margen`) lo pone ahora la sección y no `main`. Quien lo
+cancela con un margen negativo para llegar al borde —la galería de fotos— sigue
+funcionando igual, porque la referencia sigue siendo la misma.
+
+La junta entre dos secciones la marca un filete corto y centrado arriba del
+todo (`--costura`), que se traza abriéndose desde el centro cuando la sección
+entra. Va horizontal porque ahora las secciones se tocan: antes, cuando entre
+una y otra había un hueco, era un hilo vertical que lo cruzaba.
+
+#### El marco
+
+De 34rem (544 px) para arriba ya no es un teléfono, y la invitación **no se
+estira**: se planta en medio dentro de un marco (`--marco`), se lleva consigo
+el papel, el grano y una sombra, y lo que sobra a los lados se rellena con una
+foto. En el portátil se ve exactamente la misma maqueta que en el teléfono: no
+hay una segunda que mantener.
+
+El ancho del marco **sale del alto de la pantalla**, no de un número fijo. Un
+móvil es alto y estrecho; un monitor es bajo y panorámico, y con un ancho de
+teléfono clavado la invitación se quedaba en una tira. Los dos tokens están en
+el `:root` de `css/base.css`:
+
+```css
+--marco: min(38rem, calc(100vw - var(--e5) * 2), max(28rem, calc(100svh / 1.5)));
+--fondo-escritorio: url("../img/fondo.webp");
+```
+
+El `1.5` es la proporción —la de un móvil ancho— y es el número que se toca
+para que la columna sea más ancha o más estrecha. Lo demás son topes: nunca
+más de 38rem, que es donde el renglón empieza a hacerse largo de leer; nunca
+tanto que se coma el relleno de los lados en una ventana estrecha y alta; y
+nunca menos de 28rem. La línea de `vh` que hay encima en la hoja es la misma
+cuenta para el navegador que no entienda `svh`.
+
+El `../` es obligatorio: un `url()` de una hoja se resuelve contra la hoja y no
+contra la página. Mientras el archivo no exista se ve `--relleno` —piedra
+tirando a tinta, que sale sola de la paleta— y no se rompe nada: al dejar la
+foto en `img/` aparece sin tocar código. Como fondo a pantalla completa,
+cuanto más grande mejor, pero el archivo pesa para todos: 1600 px de ancho y
+menos de 300 KB es un buen sitio donde parar.
+
+Las 34rem del corte están en dos sitios y tienen que ir a la par: el modo marco
+en `css/base.css` y la colocación del índice en `css/indice.css`.
+
 ### Emblema de sección
 
 Cada sección se presenta con un emblema encima del título. Por defecto es un
@@ -306,10 +385,23 @@ cambiar de qué lado del corte queda.
 Cada opción enciende además un subtítulo bajo los botones, con los textos de la
 constante `RESPUESTAS`.
 
-En pantallas de 62rem o más el índice es un raíl fijo a la izquierda del texto;
-por debajo es un panel que se abre con el botón de la esquina superior. La
-sección activa se marca con `aria-current`, midiendo las secciones en cada
-`scroll`: manda la última cuyo borde superior haya pasado el 42% de la pantalla.
+El índice es el mismo a todos los anchos: un panel que se abre con el botón de
+la esquina superior y se cierra al elegir, con `Esc` o tocando fuera. Con marco
+(ver *Una pantalla por sección*) el botón y el panel se meten dentro de él, así
+que en el portátil se abre encima de la invitación y no en la esquina de la
+pantalla. La sección activa se marca con `aria-current`, midiendo las secciones
+en cada `scroll`: manda la última cuyo borde superior haya pasado el 42% de la
+pantalla.
+
+En la esquina de abajo hay dos flechas que saltan a la sección anterior y a la
+siguiente, en el orden de `SECCIONES`. Con cada sección ocupando una pantalla o
+más, bajar a rueda o a dedo se hace largo; el salto es de sección a sección,
+tenga la de abajo una pantalla o tres. En la primera y en la última se apaga la
+flecha que no lleva a ninguna parte, apagada y no escondida para que la otra no
+cambie de sitio. Salen de la misma cuenta que marca el índice —la sección que
+él señala es de donde saltan— y viven con él en `js/indice.js` y
+`css/indice.css`. El hueco que se reservan abajo para no pisar el contenido es
+`--paso-hueco`, que va en el padding de `.seccion`.
 
 ## Cuenta atrás y save the date
 
