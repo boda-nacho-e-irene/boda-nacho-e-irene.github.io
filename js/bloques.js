@@ -140,11 +140,34 @@ function enviarBloque(id, cuerpo, campo, bien) {
       estadoBloque(id, 'No se ha podido guardar. Inténtalo otra vez.', true);
       return;
     }
+
+    /* Que conteste `ok` no basta: hay que saber que al otro lado está el
+       backend que escribe solo los campos que le mandamos. El de antes
+       escribía las cinco celdas de una vez, así que con un cuerpo de un solo
+       formulario vaciaba los demás y dejaba `asiste` en NO. Solo el nuevo dice
+       qué ha escrito, y si no lo dice más vale avisar que dar por guardado algo
+       que se ha llevado por delante lo de al lado. */
+    if (!campoEscrito(d, campo)) {
+      estadoBloque(id, 'No se ha podido guardar: el servidor necesita una ' +
+                       'actualización. Escríbenos y lo arreglamos.', true);
+      return;
+    }
+
     guardado[campo] = true;
     estadoBloque(id, bien);
     repasarBloques();
     montarIndice();
   });
+}
+
+/* El backend devuelve en `guardado` la lista de campos que ha escrito. */
+function campoEscrito(d, campo) {
+  var lista = d.guardado;
+  if (!lista || !lista.length) return false;
+  for (var i = 0; i < lista.length; i++) {
+    if (lista[i] === campo) return true;
+  }
+  return false;
 }
 
 function enviarConfirmacion() {
