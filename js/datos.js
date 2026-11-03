@@ -1,7 +1,7 @@
 /* ====== EDITA ESTO ======
    Son los valores de respaldo. Lo que está en la pestaña «Configuracion» de la
    hoja tiene prioridad (ver js/configuracion.js y leerConfiguracion_() en
-   Code.gs): cambiar algo ahí no necesita redesplegar nada. Si la hoja no
+   clasp/Código.js): cambiar algo ahí no necesita redesplegar nada. Si la hoja no
    responde, se ve esto. */
 const API = 'https://script.google.com/macros/s/AKfycbylVOv614p1kH3pHOuUPaca0xuOKaK7o1miE0DUJaWQ3oLV4mHdkAEZVwf2fTtDPLPKpA/exec';
 
@@ -121,7 +121,7 @@ var ALERGENOS = [
 ];
 
 /* Canciones que puede proponer cada invitado. El backend (MAX_CANCIONES en
-   Code.gs) manda: al añadir una de más, sustituye a la más antigua en vez de
+   clasp/Código.js) manda: al añadir una de más, sustituye a la más antigua en vez de
    rechazarla. ITUNES_PAIS es el catálogo de iTunes en el que se busca. */
 var MAX_CANCIONES = 3;
 var ITUNES_PAIS = 'ES';

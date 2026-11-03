@@ -397,7 +397,7 @@ al añadirla. Ninguna espera a las demás, así que la invitación se contesta a
 trozos, en el orden que quiera el invitado.
 
 Lo que hace posible eso es que el backend **escribe solo los campos que vengan
-en el cuerpo del POST**: la tabla `CAMPOS` de `Code.gs` dice a qué columna va
+en el cuerpo del POST**: la tabla `CAMPOS` de `clasp/Código.js` dice a qué columna va
 cada uno, y `guardarRespuesta_()` deja intacto lo que no llegue. Antes escribía
 la fila entera de una vez, así que guardar una cosa borraba las demás.
 
@@ -620,7 +620,7 @@ ejecuta `crearHojaCanciones()` a mano desde el editor de Apps Script, igual que
 El tope son **tres canciones por invitado**: `max_canciones` en el bloque
 `[AJUSTES]` de la hoja `Configuracion`. Al añadir una cuarta no se rechaza:
 sustituye a la más antigua, escribiendo encima de su fila para no mover el
-resto. Si la hoja no lo dice, manda `MAX_CANCIONES` de `Code.gs` (y el de
+resto. Si la hoja no lo dice, manda `MAX_CANCIONES` de `clasp/Código.js` (y el de
 `js/datos.js` para pintarlo).
 
 La búsqueda va por **JSONP** (`<script>` con `&callback=`), no por `fetch`:
@@ -645,5 +645,5 @@ queda en la hoja; solo desaparece la sección, y vuelve si cambia de idea.
   dispara el preflight CORS, que Apps Script no responde.
 - Los formularios independientes necesitan la escritura parcial de
   `guardarRespuesta_()`, así que con un backend viejo implementado se pisarían
-  unos a otros: al tocar `Code.gs` hay que **crear una implementación nueva**
+  unos a otros: al tocar `clasp/Código.js` hay que **crear una implementación nueva**
   (ver *Configuración*), no solo guardar el archivo.
