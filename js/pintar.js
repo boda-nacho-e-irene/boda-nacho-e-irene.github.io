@@ -6,12 +6,15 @@ function cargar() {
   if (!token) {
     /* Con ?lab y sin token no hay nada que pedirle al servidor: el laboratorio
        se pinta a sí mismo con datos de mentira. */
-    if (!lab) { aviso('Este enlace está incompleto. Escríbenos y te mandamos el tuyo.'); }
+    if (!lab) { aviso(t('aviso_incompleto')); }
     return;
   }
   pedir('GET', API + '?token=' + encodeURIComponent(token), null, function (d) {
-    if (!d) { aviso('No hemos podido conectar. Prueba otra vez en un momento.'); return; }
-    if (!d.ok) { aviso('No encontramos este enlace. Escríbenos y lo revisamos.'); return; }
+    if (!d) { aviso(t('aviso_sin_conexion')); return; }
+    if (!d.ok) { aviso(t('aviso_no_encontrado')); return; }
+    /* Antes de pintar nada: lo que dice la hoja pisa a lo de datos.js. Un
+       backend viejo no trae `config` y entonces se queda todo como estaba. */
+    aplicarConfiguracion(d.config);
     nombreEnSobre(d.nombre);
     pintar(d);
   });
@@ -43,6 +46,10 @@ function nombresDePila() {
 }
 
 function pintar(d) {
+  /* Las fechas de la cuenta y del calendario salen de BODA: se recalculan aquí
+     para que pinten lo que haya en ese momento, también en ?lab, que no pasa
+     por cargar(). */
+  recalcularFechas();
 
   pantalla(
     '<div id="contenido">' +
@@ -53,12 +60,12 @@ function pintar(d) {
          viene detrás. Sin emblema: la acuarela ya es el adorno, y el arco
          grande se queda para la portada, que es la sección siguiente. */
       '<section class="seccion" id="presentacion">' +
-        '<p class="presenta-rotulo">Nos casamos</p>' +
+        '<p class="presenta-rotulo">' + escapar(t('presenta_rotulo')) + '</p>' +
         '<h1 class="presenta-nombres">' + nombresDePila() + '</h1>' +
         '<p class="presenta-fecha">' + escapar(BODA.fecha) + '</p>' +
         '<p class="presenta-lugar">' + escapar(BODA.lugar) + '</p>' +
         '<p class="presenta-pie">' +
-          '<a class="presenta-enlace" href="#confirmar">Confirma tu asistencia</a>' +
+          '<a class="presenta-enlace" href="#confirmar">' + escapar(t('presenta_enlace')) + '</a>' +
           '<span class="presenta-flecha" aria-hidden="true"></span>' +
         '</p>' +
       '</section>' +
@@ -70,30 +77,34 @@ function pintar(d) {
           '</svg>' +
         '</p>' +
         '<p class="novios">' + escapar(BODA.novios) + '</p>' +
-        '<h2 class="nombre"> Hola, ' + escapar(d.nombre) + '</h2>' +
-        '<p class="cita">Como ya sabes <strong> ¡Nos casamos! </strong> y nos encantaría que nos acompañases en este día tan especial. <br> Aquí te dejamos algunos detalles y toda la información que necesitas.</p>' +
+        '<h2 class="nombre"> ' + escapar(t('inicio_saludo')) + ', ' + escapar(d.nombre) + '</h2>' +
+        '<p class="cita">' + escapar(t('inicio_cita_1')) +
+          ' <strong> ' + escapar(t('inicio_cita_destacado')) + ' </strong> ' +
+          escapar(t('inicio_cita_2')) +
+          ' <br> ' + escapar(t('inicio_cita_3')) + '</p>' +
       '</section>' +
 
       seccionFotos() +
 
       '<section class="seccion" id="el-dia">' +
-        titulo('el-dia', 'El gran día') +
+        titulo('el-dia', t('titulo_dia')) +
         '<dl class="datos">' +
-          '<div><dt>Fecha</dt><dd>' + escapar(BODA.fecha) + '</dd></div>' +
-          '<div><dt>Hora</dt><dd>' + escapar(BODA.hora) + '</dd></div>' +
-          '<div><dt>Lugar</dt><dd>' + escapar(BODA.lugar) + '</dd></div>' +
+          '<div><dt>' + escapar(t('dia_fecha')) + '</dt><dd>' + escapar(BODA.fecha) + '</dd></div>' +
+          '<div><dt>' + escapar(t('dia_hora')) + '</dt><dd>' + escapar(BODA.hora) + '</dd></div>' +
+          '<div><dt>' + escapar(t('dia_lugar')) + '</dt><dd>' + escapar(BODA.lugar) + '</dd></div>' +
         '</dl>' +
         (BODA.mapa
-          ? '<p style="margin:0"><a class="mapa" href="' + escapar(BODA.mapa) + '" target="_blank" rel="noopener">Ver cómo llegar</a></p>'
+          ? '<p style="margin:0"><a class="mapa" href="' + escapar(BODA.mapa) + '" target="_blank" rel="noopener">' +
+              escapar(t('dia_mapa')) + '</a></p>'
           : '') +
       '</section>' +
 
       '<section class="seccion" id="confirmar">' +
-        titulo('confirmar', '¿Nos acompañas?') +
+        titulo('confirmar', t('titulo_confirmar')) +
         bloque('confirmar',
           '<div class="eleccion">' +
-            '<button type="button" class="opcion" id="si" aria-pressed="false">Sí, allí estaré</button>' +
-            '<button type="button" class="opcion" id="no" aria-pressed="false">No podré ir</button>' +
+            '<button type="button" class="opcion" id="si" aria-pressed="false">' + escapar(t('confirmar_si')) + '</button>' +
+            '<button type="button" class="opcion" id="no" aria-pressed="false">' + escapar(t('confirmar_no')) + '</button>' +
           '</div>' +
 
           '<p class="respuesta" id="respuesta" aria-live="polite"></p>' +
@@ -102,11 +113,12 @@ function pintar(d) {
              puede venir se le esconde todo lo que va detrás de esta sección, y
              es justo lo que sí tiene sentido que nos deje escrito. */
           '<fieldset>' +
-            '<label class="campo" for="nota">Un mensaje para nosotros</label>' +
-            '<textarea id="nota" placeholder="Opcional"></textarea>' +
+            '<label class="campo" for="nota">' + escapar(t('confirmar_mensaje')) + '</label>' +
+            '<textarea id="nota" placeholder="' + escapar(t('confirmar_mensaje_pista')) + '"></textarea>' +
           '</fieldset>' +
 
-          '<button type="button" class="enviar" id="enviar-confirmar" disabled>Enviar confirmación</button>'
+          '<button type="button" class="enviar" id="enviar-confirmar" disabled>' +
+            escapar(t('confirmar_enviar')) + '</button>'
         ) +
       '</section>' +
 

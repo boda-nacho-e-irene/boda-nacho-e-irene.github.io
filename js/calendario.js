@@ -6,10 +6,8 @@
 
 /* Hasta cuándo llega el evento en el calendario: desde la hora de la ceremonia,
    las horas de BODA.duracion. Nadie sabe cuándo acaba una boda, pero el
-   calendario pide un final. */
-var finEventoMs = objetivoMs === null
-  ? null
-  : objetivoMs + Math.max(1, +BODA.duracion || 1) * 3600000;
+   calendario pide un final. Lo fija recalcularFechas() (js/configuracion.js). */
+var finEventoMs = null;
 
 /* 20270717T103000Z: el sello de tiempo en UTC que piden por igual el .ics y
    Google Calendar. En UTC no hay que arrastrar la zona de la boda a ninguno de
@@ -24,7 +22,7 @@ function selloUtc(ms) {
    propósito: lleva su token, y los eventos se comparten y se sincronizan con
    más servicios de los que uno cree. */
 function descripcionEvento() {
-  return 'Nos casamos en ' + BODA.lugar + '. La ceremonia es a las ' + BODA.hora + '.';
+  return t('evento_descripcion', { lugar: BODA.lugar, hora: BODA.hora });
 }
 
 /* Los valores de texto del .ics escapan la barra, la coma y el punto y coma, y
@@ -126,7 +124,7 @@ function guardarEnCalendario() {
   } catch (e) {
     if (aviso) {
       aviso.className = 'estado mal';
-      aviso.textContent = 'Este navegador no nos deja preparar el archivo. Abre el enlace de Google Calendar.';
+      aviso.textContent = t('calendario_error');
     }
     return;
   }
@@ -145,7 +143,7 @@ function guardarEnCalendario() {
 
   if (aviso) {
     aviso.className = 'estado';
-    aviso.textContent = 'Listo: abre el archivo y tu calendario hace el resto.';
+    aviso.textContent = t('calendario_listo');
   }
 }
 
@@ -153,15 +151,13 @@ function guardarEnCalendario() {
 function bloqueCalendario() {
   if (objetivoMs === null) return '';
   return '<div class="calendario">' +
-           '<span class="calendario-rotulo">Save the date</span>' +
-           '<p class="calendario-texto">Guarda el ' + escapar(BODA.fecha) +
-             ' en tu calendario y deja que te avise él.</p>' +
-           '<button type="button" class="guardar" id="guardar">Añadir a mi calendario</button>' +
+           '<span class="calendario-rotulo">' + escapar(t('calendario_rotulo')) + '</span>' +
+           '<p class="calendario-texto">' + escapar(t('calendario_texto', { fecha: BODA.fecha })) + '</p>' +
+           '<button type="button" class="guardar" id="guardar">' + escapar(t('calendario_boton')) + '</button>' +
            '<p class="calendario-otro">' +
              '<a href="' + escapar(enlaceGoogle()) + '" target="_blank" rel="noopener">' +
-               'Abrir en Google Calendar</a>' +
+               escapar(t('calendario_google')) + '</a>' +
            '</p>' +
            '<p class="estado" id="calendario-aviso" aria-live="polite"></p>' +
          '</div>';
 }
-

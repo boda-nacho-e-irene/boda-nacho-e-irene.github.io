@@ -9,7 +9,7 @@ function horasSalida(salidas) {
   }
   return '<p class="salidas">' +
            '<span class="salidas-rotulo">' +
-             (salidas.length === 1 ? 'Salida' : 'Salidas') +
+             escapar(salidas.length === 1 ? t('transporte_salida') : t('transporte_salidas')) +
            '</span>' +
            '<span class="horas">' + html + '</span>' +
          '</p>';
@@ -56,14 +56,15 @@ function camposVuelta() {
              + escapar(horas[i]) + '</button>';
   }
   botones += '<button type="button" class="chip" data-v="' + SIN_VUELTA + '" aria-pressed="false">'
-           + 'No lo necesito</button>';
+           + escapar(t('transporte_sin_vuelta')) + '</button>';
 
   return '<fieldset class="campos-vuelta">' +
-           '<legend>Autobús de vuelta</legend>' +
-           '<p class="ayuda">Sale del convento hacia Palencia y Venta de Baños. Dinos con cuál contamos.</p>' +
+           '<legend>' + escapar(t('transporte_vuelta')) + '</legend>' +
+           '<p class="ayuda">' + escapar(t('transporte_vuelta_ayuda')) + '</p>' +
            '<div class="chips" id="vuelta">' + botones + '</div>' +
          '</fieldset>' +
-         '<button type="button" class="enviar" id="enviar-transporte" disabled>Guardar mi autobús</button>';
+         '<button type="button" class="enviar" id="enviar-transporte" disabled>' +
+           escapar(t('transporte_guardar')) + '</button>';
 }
 
 /* Exclusiva: solo se vuelve en un autobús. */
@@ -84,23 +85,23 @@ function seccionTransporte() {
 
   var html = '';
   for (var i = 0; i < trayectos.length; i++) {
-    var t = trayectos[i];
-    html += '<div class="trayecto" id="' + escapar(t.id) + '">' +
-              '<h3 class="sub-titulo">' + escapar(t.titulo) + '</h3>' +
-              horasSalida(t.salidas) +
-              ruta(t.paradas) +
+    var tr = trayectos[i];
+    html += '<div class="trayecto" id="' + escapar(tr.id) + '">' +
+              '<h3 class="sub-titulo">' + escapar(tr.titulo) + '</h3>' +
+              horasSalida(tr.salidas) +
+              ruta(tr.paradas) +
             '</div>';
   }
 
+  var nota = t('transporte_nota');
   return '<section class="seccion" id="transporte">' +
-           titulo('transporte', 'Transporte') +
+           titulo('transporte', t('titulo_transporte')) +
            bloque('transporte',
              '<div class="trayectos">' + html + '</div>' +
-             (TRANSPORTE.nota
-               ? '<p class="promesa" style="margin-top:2rem">' + escapar(TRANSPORTE.nota) + '</p>'
+             (nota
+               ? '<p class="promesa" style="margin-top:2rem">' + escapar(nota) + '</p>'
                : '') +
              camposVuelta()
            ) +
          '</section>';
 }
-

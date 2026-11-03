@@ -120,7 +120,7 @@
   color: var(--musgo);
 }
 
-/* La línea de debajo de los dos recorridos (`TRANSPORTE.nota`): una frase en
+/* La línea de debajo de los dos recorridos (`TEXTOS.transporte_nota`): una frase en
    cursiva, centrada, con la voz de las citas. Vivía en `css/indice.css`, con
    las secciones en obras que ya no se pintan; se queda aquí, con el único que
    la usa. */

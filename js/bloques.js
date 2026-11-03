@@ -34,7 +34,8 @@ function bloque(id, cuerpo) {
            '<p class="resumen" id="resumen-' + id + '" hidden>' +
              '<span class="resumen-texto" id="resumen-texto-' + id + '"></span>' +
              '<button type="button" class="cambiar" id="cambiar-' + id + '"' +
-               ' aria-expanded="false" aria-controls="cuerpo-' + id + '">Cambiar</button>' +
+               ' aria-expanded="false" aria-controls="cuerpo-' + id + '">' +
+               escapar(t('bloque_cambiar')) + '</button>' +
            '</p>' +
            '<div class="cuerpo" id="cuerpo-' + id + '" style="--alto:' + altoDe(id) + '">' +
              cuerpo +
@@ -51,7 +52,7 @@ function plegarBloque(id, si) {
 
   caja.className = si ? 'bloque plegado' : 'bloque';
   boton.setAttribute('aria-expanded', si ? 'false' : 'true');
-  boton.textContent = si ? 'Cambiar' : 'Cerrar';
+  boton.textContent = si ? t('bloque_cambiar') : t('bloque_cerrar');
 }
 
 /* El único sitio que decide qué se pliega: si un bloque tiene resumen es que
@@ -70,7 +71,7 @@ function repasarBloques(abrir) {
 
     if (texto) {
       document.getElementById('resumen-texto-' + b.id).innerHTML =
-        '<span class="solo-voz">Hecho: </span>' +
+        '<span class="solo-voz">' + escapar(t('resumen_marca_voz')) + ': </span>' +
         '<span class="resumen-marca" aria-hidden="true">✓ </span>' + escapar(texto);
     }
     plegarBloque(b.id, !!texto && b.id !== abrir);
@@ -95,8 +96,8 @@ function cablearCambiar(id) {
 function resumenConfirmar() {
   if (!guardado.asiste) return '';
   var nota = document.getElementById('nota');
-  return (elegido ? 'Sí, allí estarás' : 'No podrás venir') +
-         (nota && nota.value.replace(/^\s+|\s+$/g, '') ? ' · con mensaje' : '');
+  return (elegido ? t('resumen_si') : t('resumen_no')) +
+         (nota && nota.value.replace(/^\s+|\s+$/g, '') ? ' · ' + t('resumen_con_mensaje') : '');
 }
 
 function resumenAlergias() {
@@ -105,7 +106,9 @@ function resumenAlergias() {
 
 function resumenTransporte() {
   if (!guardado.vuelta) return '';
-  return vuelta === SIN_VUELTA ? 'Sin autobús de vuelta' : 'Vuelta a las ' + vuelta;
+  return vuelta === SIN_VUELTA
+    ? t('resumen_sin_vuelta')
+    : t('resumen_vuelta', { hora: vuelta });
 }
 
 /* Este no mira `guardado`: cada canción se guarda al añadirla, así que tenerlas
@@ -113,8 +116,8 @@ function resumenTransporte() {
 function resumenPlaylist() {
   if (!canciones.length) return '';
   return canciones.length === 1
-    ? '1 canción propuesta'
-    : canciones.length + ' canciones propuestas';
+    ? t('resumen_playlist_uno')
+    : t('resumen_playlist', { n: canciones.length });
 }
 
 /* --- envíos --- */
@@ -132,12 +135,12 @@ function estadoBloque(id, texto, mal) {
 function enviarBloque(id, cuerpo, campo, bien) {
   var boton = document.getElementById('enviar-' + id);
   boton.disabled = true;
-  estadoBloque(id, 'Guardando…');
+  estadoBloque(id, t('guardando'));
 
   pedir('POST', API, JSON.stringify(cuerpo), function (d) {
     boton.disabled = false;
     if (!d || !d.ok) {
-      estadoBloque(id, 'No se ha podido guardar. Inténtalo otra vez.', true);
+      estadoBloque(id, t('error_guardar'), true);
       return;
     }
 
@@ -148,8 +151,7 @@ function enviarBloque(id, cuerpo, campo, bien) {
        qué ha escrito, y si no lo dice más vale avisar que dar por guardado algo
        que se ha llevado por delante lo de al lado. */
     if (!campoEscrito(d, campo)) {
-      estadoBloque(id, 'No se ha podido guardar: el servidor necesita una ' +
-                       'actualización. Escríbenos y lo arreglamos.', true);
+      estadoBloque(id, t('error_servidor'), true);
       return;
     }
 
@@ -176,20 +178,20 @@ function enviarConfirmacion() {
     token: token,
     asiste: elegido,
     nota: document.getElementById('nota').value
-  }, 'asiste', elegido ? 'Guardado. Nos vemos allí.' : 'Guardado. Te echaremos de menos.');
+  }, 'asiste', elegido ? t('confirmar_guardado_si') : t('confirmar_guardado_no'));
 }
 
 function enviarAlergias() {
   var texto = alergenosTexto();
   if (!texto) return;
   enviarBloque('alergias', { token: token, alergenos: texto },
-               'alergenos', 'Guardado. Se lo pasamos a la cocina.');
+               'alergenos', t('alergias_guardado'));
 }
 
 function enviarVuelta() {
   if (!vuelta) return;
   enviarBloque('transporte', { token: token, vuelta: vuelta },
-               'vuelta', 'Guardado. Te guardamos sitio.');
+               'vuelta', t('transporte_guardado'));
 }
 
 /* El botón de alergias no se enciende hasta que haya algo que mandar: la celda
@@ -199,4 +201,3 @@ function repasarEnvioAlergias() {
   var boton = document.getElementById('enviar-alergias');
   if (boton) { boton.disabled = !alergenosTexto(); }
 }
-

@@ -105,19 +105,20 @@ function alergenosTexto() {
    mano: el <legend> que la daba es ahora el título de la sección. */
 function seccionAlergias() {
   return '<section class="seccion" id="alergias">' +
-           titulo('alergias', 'Alergias e intolerancias') +
+           titulo('alergias', t('titulo_alergias')) +
            bloque('alergias',
              '<fieldset>' +
-               '<p class="ayuda">Marca lo que necesites. Se lo pasamos tal cual a la cocina.</p>' +
-               '<div class="chips" id="chips" role="group" aria-label="Alergias e intolerancias">' +
+               '<p class="ayuda">' + escapar(t('alergias_ayuda')) + '</p>' +
+               '<div class="chips" id="chips" role="group" aria-label="' + escapar(t('titulo_alergias')) + '">' +
                  chipsAlergenos() +
                '</div>' +
              '</fieldset>' +
              '<fieldset>' +
-               '<label class="campo" for="otros">Otra cosa que debamos saber</label>' +
-               '<input type="text" id="otros" placeholder="Otra alergia, medicación, lo que sea">' +
+               '<label class="campo" for="otros">' + escapar(t('alergias_otros')) + '</label>' +
+               '<input type="text" id="otros" placeholder="' + escapar(t('alergias_otros_pista')) + '">' +
              '</fieldset>' +
-             '<button type="button" class="enviar" id="enviar-alergias" disabled>Guardar alergias</button>'
+             '<button type="button" class="enviar" id="enviar-alergias" disabled>' +
+               escapar(t('alergias_enviar')) + '</button>'
            ) +
          '</section>';
 }

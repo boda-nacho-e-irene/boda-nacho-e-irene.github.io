@@ -9,15 +9,14 @@
    botón de resumen solo abre y cierra. */
 function seccionPlaylist() {
   return '<section class="seccion" id="playlist">' +
-           titulo('playlist', 'Pon tú la música') +
+           titulo('playlist', t('titulo_playlist')) +
            bloque('playlist',
-             '<p class="ayuda">Busca hasta ' + MAX_CANCIONES + ' canciones y te las apuntamos. ' +
-               'Si añades una más, sustituye a la más antigua.</p>' +
-             '<h3 class="subtitulo">Tus canciones</h3>' +
+             '<p class="ayuda">' + escapar(t('playlist_ayuda', { max: MAX_CANCIONES })) + '</p>' +
+             '<h3 class="subtitulo">' + escapar(t('playlist_tus_canciones')) + '</h3>' +
              '<ul class="mis-canciones" id="mis-canciones"></ul>' +
              '<fieldset>' +
-               '<label class="campo" for="buscar">Busca una canción</label>' +
-               '<input type="search" id="buscar" placeholder="Título o artista" autocomplete="off">' +
+               '<label class="campo" for="buscar">' + escapar(t('playlist_buscar')) + '</label>' +
+               '<input type="search" id="buscar" placeholder="' + escapar(t('playlist_buscar_pista')) + '" autocomplete="off">' +
              '</fieldset>' +
              '<div class="resultados" id="resultados" aria-live="polite"></div>'
            ) +
@@ -44,7 +43,7 @@ function pintarMisCanciones() {
   if (!caja) return;
 
   if (!canciones.length) {
-    caja.innerHTML = '<li class="vacio">Todavía no has propuesto ninguna.</li>';
+    caja.innerHTML = '<li class="vacio">' + escapar(t('playlist_vacia')) + '</li>';
     return;
   }
 
@@ -53,8 +52,9 @@ function pintarMisCanciones() {
     var c = canciones[i];
     html += '<li>' +
               '<span class="pista"><b>' + escapar(c.cancion) + '</b>' +
-                '<span>' + escapar(c.artista || 'Sin artista') + '</span></span>' +
-              '<button type="button" class="quitar" data-id="' + escapar(c.id) + '">Quitar</button>' +
+                '<span>' + escapar(c.artista || t('playlist_sin_artista')) + '</span></span>' +
+              '<button type="button" class="quitar" data-id="' + escapar(c.id) + '">' +
+                escapar(t('playlist_quitar')) + '</button>' +
             '</li>';
   }
   caja.innerHTML = html;
@@ -79,7 +79,8 @@ function pintarHallazgos(lista) {
                 : '<span class="caratula"></span>') +
               '<span class="pista"><b>' + escapar(r.trackName) + '</b>' +
                 '<span>' + escapar(r.artistName + album) + '</span></span>' +
-              '<button type="button" class="anadir" data-i="' + i + '">Añadir</button>' +
+              '<button type="button" class="anadir" data-i="' + i + '">' +
+                escapar(t('playlist_anadir')) + '</button>' +
             '</div>';
   }
   caja.innerHTML = html;
@@ -115,7 +116,7 @@ function buscarEnItunes(texto) {
     if (!d) {
       hallazgos = [];
       caja.innerHTML = '';
-      estadoMusica('No hemos podido buscar. Prueba otra vez en un momento.', true);
+      estadoMusica(t('playlist_error_buscar'), true);
       return;
     }
 
@@ -123,8 +124,9 @@ function buscarEnItunes(texto) {
     if (!lista.length) {
       // No está en iTunes (o se escribe de otra manera): que la mande a mano.
       hallazgos = [];
-      caja.innerHTML = '<p class="vacio">No encontramos nada con eso. ' +
-        '<button type="button" class="anadir" data-manual="1">Añadirla tal cual</button></p>';
+      caja.innerHTML = '<p class="vacio">' + escapar(t('playlist_sin_resultados')) + ' ' +
+        '<button type="button" class="anadir" data-manual="1">' +
+          escapar(t('playlist_manual')) + '</button></p>';
       return;
     }
 
@@ -151,7 +153,7 @@ function buscarYa() {
 /* El backend devuelve siempre la lista entera ya resuelta, así que aquí no hay
    que saber nada de límites ni de sustituciones: se repinta lo que llega. */
 function anadirCancion(c) {
-  estadoMusica('Guardando…');
+  estadoMusica(t('guardando'));
 
   pedir('POST', API, JSON.stringify({
     token: token,
@@ -163,7 +165,7 @@ function anadirCancion(c) {
     enlace: c.enlace
   }), function (d) {
     if (!d || !d.ok) {
-      estadoMusica('No se ha podido guardar. Inténtalo otra vez.', true);
+      estadoMusica(t('error_guardar'), true);
       return;
     }
     canciones = d.canciones || [];
@@ -171,30 +173,29 @@ function anadirCancion(c) {
 
     if (d.repetida) {
       // No se ha apuntado nada: le dejamos los resultados por si quiere otra.
-      estadoMusica('Esa ya la tenías apuntada.');
+      estadoMusica(t('playlist_repetida'));
       return;
     }
 
     limpiarBusqueda();
     estadoMusica(d.quitada
-      ? 'Apuntada. Hemos quitado «' + d.quitada.cancion + '» para hacerle sitio.'
-      : 'Apuntada.');
+      ? t('playlist_apuntada_quitada', { cancion: d.quitada.cancion })
+      : t('playlist_apuntada'));
   });
 }
 
 function quitarCancion(id) {
-  estadoMusica('Quitando…');
+  estadoMusica(t('playlist_quitando'));
 
   pedir('POST', API, JSON.stringify({
     token: token, accion: 'quitar_cancion', id: id
   }), function (d) {
     if (!d || !d.ok) {
-      estadoMusica('No se ha podido quitar. Inténtalo otra vez.', true);
+      estadoMusica(t('playlist_error_quitar'), true);
       return;
     }
     canciones = d.canciones || [];
     repasarCanciones();
-    estadoMusica('Quitada.');
+    estadoMusica(t('playlist_quitada'));
   });
 }
-

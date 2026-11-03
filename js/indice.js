@@ -129,7 +129,7 @@ function entradaIndice(id) {
        + (hecho ? ' data-hecho="true"' : '') + '>'
        + '<span class="nav-punto" aria-hidden="true"></span>'
        + '<span>' + escapar(tituloDe(id)) + '</span>'
-       + (hecho ? '<span class="solo-voz"> (hecho)</span>' : '')
+       + (hecho ? '<span class="solo-voz"> ' + escapar(t('indice_hecho_voz')) + '</span>' : '')
        + '</a></li>';
 }
 
@@ -149,8 +149,8 @@ function listaEnObras() {
              '</button></li>';
   }
 
-  return '<p class="nav-rotulo" id="nav-obras-rotulo">Próximamente</p>' +
-         '<p class="nav-nota" id="nav-obras-nota">Estas secciones se habilitarán pronto.</p>' +
+  return '<p class="nav-rotulo" id="nav-obras-rotulo">' + escapar(t('indice_proximamente')) + '</p>' +
+         '<p class="nav-nota" id="nav-obras-nota">' + escapar(t('indice_obras_nota')) + '</p>' +
          '<ul class="nav-lista" aria-labelledby="nav-obras-rotulo nav-obras-nota">' +
            lista +
          '</ul>';
@@ -187,7 +187,7 @@ function montarIndice() {
      queda por hacer, lo ya hecho y lo que está por venir. */
   var listas = pendientes ? '<ol class="nav-lista">' + pendientes + '</ol>' : '';
   if (hechas) {
-    listas += '<p class="nav-rotulo" id="nav-hechas-rotulo">Hecho</p>' +
+    listas += '<p class="nav-rotulo" id="nav-hechas-rotulo">' + escapar(t('indice_hecho')) + '</p>' +
               '<ol class="nav-lista" aria-labelledby="nav-hechas-rotulo">' + hechas + '</ol>';
   }
   listas += listaEnObras();
