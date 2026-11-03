@@ -10,12 +10,10 @@ function momento(iso) {
   return utc - desfase;
 }
 
-var objetivoMs = momento(BODA.iso);
-
-/* Final del día de la boda, en la zona de la boda: hasta ahí decimos "hoy". */
-var finBodaMs = objetivoMs === null
-  ? null
-  : momento(BODA.iso.slice(0, 10) + 'T00:00:00' + BODA.iso.slice(19)) + 86400000;
+/* Las tres las fija recalcularFechas() (js/configuracion.js), al pintar: así la
+   hoja puede cambiar la fecha y la cuenta la sigue. */
+var objetivoMs = null;
+var finBodaMs = null;        // final del día de la boda, en la zona de la boda
 
 var reloj = null;
 
@@ -23,7 +21,7 @@ function dos(n) { return (n < 10 ? '0' : '') + n; }
 
 function celda(valor, rotulo) {
   return '<div><span class="valor">' + valor + '</span>' +
-         '<span class="rotulo">' + rotulo + '</span></div>';
+         '<span class="rotulo">' + escapar(rotulo) + '</span></div>';
 }
 
 /* Pasado el día de la boda no hay nada que contar. Como la sección entonces no
@@ -35,7 +33,7 @@ function hayCuenta() {
 function seccionCuenta() {
   if (!hayCuenta()) return '';
   return '<section class="seccion" id="cuenta-atras">' +
-           titulo('cuenta-atras', 'Cuenta atrás') +
+           titulo('cuenta-atras', t('titulo_cuenta')) +
            '<div id="cuenta"></div>' +
            bloqueCalendario() +
          '</section>';
@@ -55,7 +53,7 @@ function pintarCuenta() {
 
   if (restante <= 0) {
     pararCuenta();
-    caja.innerHTML = '<p class="hoy">Hoy nos casamos</p>';
+    caja.innerHTML = '<p class="hoy">' + escapar(t('cuenta_hoy')) + '</p>';
     return;
   }
 
@@ -67,16 +65,17 @@ function pintarCuenta() {
 
   caja.innerHTML =
     '<div class="digitos" aria-hidden="true">' +
-      celda(dias,       dias  === 1 ? 'día'  : 'días') +
-      celda(dos(horas), horas === 1 ? 'hora' : 'horas') +
-      celda(dos(mins),  'min') +
-      celda(dos(segs),  'seg') +
+      celda(dias,       dias  === 1 ? t('cuenta_dia')  : t('cuenta_dias')) +
+      celda(dos(horas), horas === 1 ? t('cuenta_hora') : t('cuenta_horas')) +
+      celda(dos(mins),  t('cuenta_min')) +
+      celda(dos(segs),  t('cuenta_seg')) +
     '</div>' +
     /* Las cifras van ocultas al lector de pantalla: cambian cada segundo y no
        aportarían nada leídas. Esta frase, que solo cambia de día en día, sí. */
-    '<p class="solo-voz">' + (dias === 0
-      ? 'Falta menos de un día para la boda.'
-      : 'Faltan ' + dias + (dias === 1 ? ' día' : ' días') + ' para la boda.') + '</p>';
+    '<p class="solo-voz">' + escapar(dias === 0
+      ? t('cuenta_menos_de_un_dia')
+      : t('cuenta_faltan', { n: dias, dias: dias === 1 ? t('cuenta_dia') : t('cuenta_dias') })) +
+    '</p>';
 }
 
 function arrancarCuenta() {
@@ -85,4 +84,3 @@ function arrancarCuenta() {
   pintarCuenta();
   if (Date.now() < objetivoMs) { reloj = setInterval(pintarCuenta, 1000); }
 }
-

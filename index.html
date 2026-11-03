@@ -56,8 +56,8 @@ window.onerror = function (msg, src, linea) {
 
 <!-- `defer` los baja mientras se lee la página y los ejecuta luego, en este
      orden y con el DOM ya montado. `datos.js` va primero porque los demás leen
-     sus constantes, `calendario.js` después de `cuenta.js` porque le hereda
-     `objetivoMs`, y `pintar.js` el último porque acaba llamando a cargar().
+     sus constantes, `configuracion.js` antes de `pintar.js` porque es el que
+     mezcla lo de la hoja, y `pintar.js` el último porque acaba llamando a cargar().
      Scripts normales, no módulos: comparten las variables de siempre sin
      imports, y así la página sigue abriéndose con doble clic desde el disco.
      Ojo al partir uno: lo que se ejecuta en cuanto baja el archivo (un `var`
@@ -75,6 +75,7 @@ window.onerror = function (msg, src, linea) {
 <script defer src="js/formulario.js"></script>
 <script defer src="js/bloques.js"></script>
 <script defer src="js/indice.js"></script>
+<script defer src="js/configuracion.js"></script>
 <script defer src="js/pintar.js"></script>
 
 </head>

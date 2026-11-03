@@ -7,7 +7,8 @@ confirmación en una hoja de Google.
 - Backend: proyecto de Google Apps Script publicado como aplicación web.
 - Datos: hoja de cálculo de Google, pestaña `Invitados`
   (`token`, `nombre`, `asiste`, `fecha_respuesta`, `alergenos`, `nota`,
-  `vuelta`) y pestaña `Canciones` con las sugerencias de música.
+  `vuelta`), pestaña `Canciones` con las sugerencias de música y pestaña
+  `Configuracion` con todo lo que se ve en la invitación (ver *Configuración*).
 
 ## Estructura de archivos
 
@@ -29,8 +30,10 @@ css/bloques.css   los formularios plegables y sus resúmenes
 css/playlist.css
 css/cuenta.css    cuenta atrás y guardar la fecha
 css/sobre.css     el sobre, la entrada y el revelado
-js/datos.js       EDITA ESTO: API, BODA, SECCIONES, EN_OBRAS, TRANSPORTE,
-                  FOTOS, ALERGENOS, RESPUESTAS, MAX_CANCIONES, y el estado
+js/datos.js       valores de respaldo: API, BODA, SECCIONES, EN_OBRAS, TRANSPORTE,
+                  FOTOS, ALERGENOS, RESPUESTAS, MAX_CANCIONES, TEXTOS, y el estado
+js/configuracion.js  lo de la hoja por encima de datos.js: aplicarConfiguracion(),
+                  t() para los textos, recalcularFechas()
 js/util.js        pedir(), jsonp(), escapar(), titulo(), iconos, pantalla()
 js/sobre.js       abrir el sobre y revelar las secciones
 js/fotos.js       js/cuenta.js       js/calendario.js
@@ -45,7 +48,7 @@ lab/lab.js
 
 El orden de los `<link>` del `<head>` **es** la cascada, y el de los `<script>`
 el orden de ejecución: `datos.js` va primero porque los demás leen sus
-constantes, `calendario.js` después de `cuenta.js` (le hereda `objetivoMs`) y
+constantes, `configuracion.js` antes de `pintar.js` (mezcla lo de la hoja) y
 `pintar.js` el último, que acaba llamando a `cargar()`.
 
 Son `<script defer>` normales, no módulos: comparten las variables globales de
@@ -85,9 +88,39 @@ La barra antes del `?` es obligatoria en repos de proyecto.
 
 ## Configuración
 
+### Lo que se cambia desde la hoja (sin redesplegar)
+
+La pestaña `Configuracion` de la hoja manda sobre `js/datos.js`: fechas, lugar,
+transporte, fotos, orden de las secciones, alérgenos y los textos de la página.
+Cada cambio aparece al recargar la invitación. No hace falta push ni deploy.
+
+La pestaña tiene bloques separados por una fila vacía. Cada uno empieza con su
+nombre entre corchetes en la columna A:
+
+- `[BODA]`, `[TEXTOS]`, `[RESPUESTAS]`, `[AJUSTES]`: columnas `clave | valor`.
+- `[ALERGENOS]`: columna `alergeno`.
+- `[SECCIONES]`, `[EN_OBRAS]`: columnas `id | titulo`.
+- `[FOTOS]`: columnas `src | ancho | alto | alt | pie`. `src` es una ruta del
+  repo (`img/foto.webp`) o una URL `https://`.
+- `[TRANSPORTE]`: columnas `id | titulo | salidas | elegible`. `salidas` son las
+  horas separadas por comas; `elegible` es `SI` o `NO`.
+- `[PARADAS]`: columnas `trayecto | orden | lugar | detalle`, con el `id` del
+  trayecto de `[TRANSPORTE]`.
+
+Un valor vacío, o un bloque que no está, significa «usa el de `js/datos.js`».
+Las fechas van en la celda como texto (`2027-07-17T12:30:00+02:00`); la hoja se
+crea ya en formato texto para que no las convierta.
+
+Primera vez: ejecutar `crearHojaConfiguracion()` en el editor de Apps Script.
+Crea la pestaña con los valores actuales. Si ya existe, no toca nada.
+
+### El backend
+
 La constante `API` al principio de `js/datos.js` apunta a la URL
 `/exec` del Apps Script. Al cambiar el backend hay que **crear una nueva
 implementación** (o subir versión en la existente); guardar el `.gs` no basta.
+Lo mismo al estrenar `leerConfiguracion_()`: sin la implementación nueva la
+página sigue funcionando, pero la hoja no se aplica.
 
 ## Colores y letras: el laboratorio
 
@@ -364,7 +397,7 @@ al añadirla. Ninguna espera a las demás, así que la invitación se contesta a
 trozos, en el orden que quiera el invitado.
 
 Lo que hace posible eso es que el backend **escribe solo los campos que vengan
-en el cuerpo del POST**: la tabla `CAMPOS` de `Code.gs` dice a qué columna va
+en el cuerpo del POST**: la tabla `CAMPOS` de `clasp/Código.js` dice a qué columna va
 cada uno, y `guardarRespuesta_()` deja intacto lo que no llegue. Antes escribía
 la fila entera de una vez, así que guardar una cosa borraba las demás.
 
@@ -486,7 +519,7 @@ veces lo actualiza en vez de duplicarlo. Debajo va el enlace a Google Calendar
 (`enlaceGoogle()`), que abre la misma cita ya en su pantalla de guardar.
 
 Las horas viajan en UTC a los dos sitios, calculadas desde `BODA.iso`, para no
-arrastrar la zona de la boda. Lo que se puede tocar en `BODA`:
+arrastrar la zona de la boda. Lo que se puede tocar en `BODA` (en la hoja, bloque `[BODA]`):
 
 - `evento` — el nombre que el invitado verá en su agenda. Corto: en la vista de
   mes se lee a medias.
@@ -584,10 +617,11 @@ La pestaña se crea sola con la primera sugerencia. Para verla montada antes,
 ejecuta `crearHojaCanciones()` a mano desde el editor de Apps Script, igual que
 `generarTokens()`.
 
-El tope son **tres canciones por invitado**, en `MAX_CANCIONES`. Al añadir una
-cuarta no se rechaza: sustituye a la más antigua, escribiendo encima de su fila
-para no mover el resto. La constante está en los dos sitios (`Code.gs` y
-`js/datos.js`) y manda la del backend; si cambias una, cambia la otra.
+El tope son **tres canciones por invitado**: `max_canciones` en el bloque
+`[AJUSTES]` de la hoja `Configuracion`. Al añadir una cuarta no se rechaza:
+sustituye a la más antigua, escribiendo encima de su fila para no mover el
+resto. Si la hoja no lo dice, manda `MAX_CANCIONES` de `clasp/Código.js` (y el de
+`js/datos.js` para pintarlo).
 
 La búsqueda va por **JSONP** (`<script>` con `&callback=`), no por `fetch`:
 iTunes no promete cabeceras CORS y ese parámetro es la vía que documenta Apple.
@@ -611,5 +645,5 @@ queda en la hoja; solo desaparece la sección, y vuelve si cambia de idea.
   dispara el preflight CORS, que Apps Script no responde.
 - Los formularios independientes necesitan la escritura parcial de
   `guardarRespuesta_()`, así que con un backend viejo implementado se pisarían
-  unos a otros: al tocar `Code.gs` hay que **crear una implementación nueva**
+  unos a otros: al tocar `clasp/Código.js` hay que **crear una implementación nueva**
   (ver *Configuración*), no solo guardar el archivo.

@@ -26,7 +26,7 @@ function seccionFotos() {
   var g = galeria(FOTOS);
   if (!g) return '';
   return '<section class="seccion" id="fotos">' +
-           titulo('fotos', 'Fotos') + g +
+           titulo('fotos', t('titulo_fotos')) + g +
          '</section>';
 }
 
