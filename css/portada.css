@@ -4,7 +4,40 @@
    ve al apartar el sobre, y lo que hay debajo se busca bajando. El alto y el
    centrado se los da `.seccion` como a todas; aquí solo se dice cuántas
    pantallas pide. */
-#inicio { --pantallas: 1; background: var(--papel); }
+#inicio { --pantallas: 1; background: var(--papel); position: relative; isolation: isolate; }
+
+/* Dibujos de fondo de «Hola»: casi transparentes y detrás del texto. Cada uno
+   en una esquina, sin tapar la lectura. */
+/* Dentro del bloque del texto: nunca suben al título ni bajan a los nombres. */
+.cita { position: relative; isolation: isolate; }
+.inicio-fondos { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+/* Cada marco: un cuadro punteado que hace de sitio. El dibujo va en la primera
+   capa de background-image: si el archivo no existe, esa capa no pinta nada y
+   se ve solo el marco. */
+.fondo-marco {
+  position: absolute;
+  width: 34%;
+  aspect-ratio: 1;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  opacity: .4;
+  animation: fondo-vaiven 16s ease-in-out infinite alternate;
+}
+/* Cada uno en su sitio, con su propio desplazamiento y su propio ritmo: van
+   subiendo y bajando despacio alrededor del texto. */
+.fondo-1 { top: 4%; left: 4%; --dx: 12px; --dy: -10px; animation-duration: 15s; background-image: url("../img/dibujos/inicio-1.png"); }
+.fondo-2 { top: 4%; right: 4%; --dx: -14px; --dy: 8px; animation-duration: 18s; background-image: url("../img/dibujos/inicio-2.png"); }
+.fondo-3 { bottom: 4%; left: 4%; --dx: 10px; --dy: -10px; animation-duration: 13s; background-image: url("../img/dibujos/inicio-3.png"); }
+.fondo-4 { bottom: 4%; right: 4%; --dx: -12px; --dy: -8px; animation-duration: 17s; background-image: url("../img/dibujos/inicio-4.png"); }
+.fondo-5 { top: 30%; left: 32%; --dx: 8px; --dy: -8px; animation-duration: 14s; background-image: url("../img/dibujos/inicio-5.png"); }
+@keyframes fondo-vaiven {
+  from { transform: translate(0, 0); }
+  to { transform: translate(var(--dx), var(--dy)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fondo-marco { animation: none; }
+}
 
 /* Los novios ya van al pie: el filete sube por encima del nombre y el aire
    queda por encima de la línea, no por debajo. */
@@ -57,13 +90,15 @@
   margin: 0;
   text-wrap: pretty;
 }
-.cita strong { font-weight: 400; color: var(--tinta); }
+.cita p { margin: 0 0 var(--e2); }
+.cita p:last-child { margin-bottom: 0; }
+.cita strong { font-weight: 700; color: var(--tinta); }
 
 /* ---------- el día ---------- */
 
 /* El lugar como título, la fecha en una línea, el enlace al mapa y, al final,
    la tira de fotos que se mueve sola. */
-#el-dia { --pantallas: 1; }
+#el-dia { --pantallas: 0; }
 
 /* El título de «¿Dónde?» va grande: es lo primero que se lee de la sección. */
 #el-dia .titulo,
@@ -76,7 +111,7 @@
 }
 
 /* El único enlace al mapa, centrado debajo de los dos sitios. */
-.lugar-mapa { text-align: center; margin: var(--e4) 0 0; }
+.lugar-mapa { text-align: center; margin: 0 0 var(--e3); }
 
 /* La sección del lugar: el papel de arriba se funde en verde claro, como la
    acuarela se funde en el papel de la portada. Va con dos IDs para ganarle a
@@ -88,7 +123,7 @@
     linear-gradient(var(--velo-papel), var(--velo-papel)),
     url("../img/fondos/fondo-acuarela-verde-claro.jpg") center / cover no-repeat;
   /* Aire para que el fundido quede por encima del título y no lo toque. */
-  padding-top: calc(var(--e6) + 1.5rem);
+  padding-top: var(--e5);
   /* Aire debajo del botón del mapa, para que la ola de abajo no lo tape. */
   padding-bottom: var(--e4);
   /* El borde de arriba es la línea de encuentro con la sección anterior: esta
@@ -103,14 +138,6 @@
     linear-gradient(#000 0 0) bottom / 100% calc(100% - 1.5rem) no-repeat;
 }
 
-/* La floritura abre la sección de confirmar, justo debajo de la sección de
-   los lugares: centrada, arriba del todo. */
-#confirmar .separador {
-  display: block;
-  width: min(14rem, 60%);
-  height: auto;
-  margin: 0 auto var(--e3);
-}
 
 /* Los dos sitios en una rejilla de dos columnas hecha solo de filetes ocre: una
    línea arriba, otra abajo y una entre los dos. */
@@ -177,11 +204,15 @@
 
 /* El párrafo entre el título y la tira, con el marcador de imagen a la izquierda. */
 .lugar-intro-fila {
-  display: flow-root;
-  margin: var(--e3) 0 var(--e4);
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+  margin: var(--e1) 0 var(--e3);
 }
+.lugar-intro-texto { flex: 1 1 auto; min-width: 0; }
+.lugar-intro:last-child { margin-bottom: 0; }
 .lugar-intro {
-  margin: 0;
+  margin: 0 0 var(--e2);
   font-size: var(--t-ui);
   line-height: 1.55;
   color: var(--musgo);
@@ -192,7 +223,7 @@
 
 /* La franja: la tira de fotos y, encima, las dos cajas de los sitios centradas
    en vertical. Las cajas van en absoluto para que el centro sea el de la tira. */
-.franja { position: relative; margin-top: var(--e4); }
+.franja { position: relative; margin-top: var(--e3); }
 
 /* La tira se queda dentro de los márgenes y sus dos bordes se desvanecen, en
    vez de llegar a los lados de la página. */

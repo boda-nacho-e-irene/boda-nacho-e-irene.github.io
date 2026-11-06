@@ -9,6 +9,7 @@ const HOJA_CONFIG = 'Configuracion';
  * Pestaña "Invitados", cabeceras en la fila 1:
  *   A: token   B: nombre   C: asiste   D: fecha_respuesta   E: alergenos   F: nota
  *   G: vuelta  (hora del autobús de vuelta, o "No")
+ *   H: ida     (hora del autobús de ida, o "No")
  *
  * Pestaña "Canciones" (se crea sola con la primera sugerencia):
  *   A: id   B: fecha   C: token   D: nombre   E: cancion
@@ -22,7 +23,7 @@ const HOJA_CONFIG = 'Configuracion';
  *   Quién tiene acceso: Cualquier usuario
  */
 
-const COL = { token: 1, nombre: 2, asiste: 3, fecha: 4, alergenos: 5, nota: 6, vuelta: 7 };
+const COL = { token: 1, nombre: 2, asiste: 3, fecha: 4, alergenos: 5, nota: 6, vuelta: 7, ida: 8 };
 
 /* Cada sección de la invitación guarda lo suyo por separado, así que el cuerpo
    del POST trae solo sus campos: la confirmación manda `asiste` y `nota`, las
@@ -33,7 +34,8 @@ const CAMPOS = {
   asiste:    { col: COL.asiste,    valor: function (v) { return v === true ? 'SI' : 'NO'; } },
   alergenos: { col: COL.alergenos, valor: function (v) { return String(v || '').slice(0, 500); } },
   nota:      { col: COL.nota,      valor: function (v) { return String(v || '').slice(0, 1000); } },
-  vuelta:    { col: COL.vuelta,    valor: function (v) { return String(v || '').slice(0, 20); } }
+  vuelta:    { col: COL.vuelta,    valor: function (v) { return String(v || '').slice(0, 20); } },
+  ida:       { col: COL.ida,       valor: function (v) { return String(v || '').slice(0, 20); } }
 };
 
 const COL_C = { id: 1, fecha: 2, token: 3, nombre: 4,
@@ -149,7 +151,7 @@ function cancionesFuera_(lista) {
   });
 }
 
-/** GET ?token=XXXX -> { ok, nombre, asiste, alergenos, nota, vuelta, canciones, config } */
+/** GET ?token=XXXX -> { ok, nombre, asiste, alergenos, nota, ida, vuelta, canciones, config } */
 function doGet(e) {
   const token = String((e.parameter && e.parameter.token) || '').trim();
   if (!token) return json_({ ok: false, error: 'sin_token' });
@@ -157,14 +159,15 @@ function doGet(e) {
   const fila = buscarFila_(token);
   if (!fila) return json_({ ok: false, error: 'no_encontrado' });
 
-  const f = hoja_().getRange(fila, COL.nombre, 1, 6).getValues()[0];
-  // f = [nombre, asiste, fecha, alergenos, nota, vuelta]
+  const f = hoja_().getRange(fila, COL.nombre, 1, 7).getValues()[0];
+  // f = [nombre, asiste, fecha, alergenos, nota, vuelta, ida]
   return json_({
     ok: true,
     nombre: f[0],
     asiste: f[1] || null,
     alergenos: f[3] || '',
     nota: f[4] || '',
+    ida: vueltaTexto_(f[6]),
     vuelta: vueltaTexto_(f[5]),
     canciones: cancionesFuera_(cancionesDe_(token)),
     config: configuracionSegura_()
@@ -414,7 +417,7 @@ function filasConfiguracionInicial_() {
     ['alergias_otros_pista', 'Otra alergia, medicación, lo que sea'],
     ['alergias_enviar', 'Guardar alergias'],
     ['alergias_guardado', 'Guardado. Se lo pasamos a la cocina.'],
-    ['titulo_cuenta', 'Cuenta atrás'],
+    ['titulo_cuenta', 'No puedo esperar, ¿Cuándo?'],
     ['cuenta_hoy', 'Hoy nos casamos'],
     ['cuenta_dia', 'día'],
     ['cuenta_dias', 'días'],
@@ -495,10 +498,8 @@ function filasConfiguracionInicial_() {
     ['cuenta-atras', 'Cuenta atrás'],
     ['el-dia', 'El gran día'],
     ['confirmar', 'Confirmar'],
-    ['alergias', 'Alergias'],
+    ['mas-detalles', 'Más detalles'],
     ['dedicatoria', 'Dedicatoria'],
-    ['playlist', 'Playlist'],
-    ['transporte', 'Transporte'],
     ['alojamiento', 'Alojamiento'],
     ['sitio-web', 'Sitio web'],
     [],
@@ -526,8 +527,8 @@ function filasConfiguracionInicial_() {
     ['trayecto', 'orden', 'lugar', 'detalle'],
     ['transporte-ida', '1', 'Venta de Baños', 'Ayuntamiento'],
     ['transporte-ida', '2', 'Palencia', 'San Lázaro'],
-    ['transporte-ida', '3', 'Convento de Mave', ''],
-    ['transporte-vuelta', '1', 'Convento de Mave', ''],
+    ['transporte-ida', '3', 'Mave', ''],
+    ['transporte-vuelta', '1', 'Mave', ''],
     ['transporte-vuelta', '2', 'Palencia', 'San Lázaro'],
     ['transporte-vuelta', '3', 'Venta de Baños', 'Ayuntamiento']
   ];
@@ -552,7 +553,7 @@ function guardarRespuesta_(datos, fila) {
 
     // Texto plano en la columna de la vuelta: si no, Sheets se queda "21:30"
     // como una hora y deja de coincidir con los botones de la invitación.
-    if (campo.col === COL.vuelta) { h.getRange(fila, campo.col).setNumberFormat('@'); }
+    if (campo.col === COL.vuelta || campo.col === COL.ida) { h.getRange(fila, campo.col).setNumberFormat('@'); }
 
     h.getRange(fila, campo.col).setValue(campo.valor(datos[nombre]));
     escritos.push(nombre);
@@ -646,7 +647,8 @@ function quitarCancion_(datos, token) {
  * manda solo sus campos y los demás se quedan como estaban:
  *   { "token": "XXXX", "asiste": true, "nota": "…" }      ← Confirmar
  *   { "token": "XXXX", "alergenos": "Gluten, Marisco" }   ← Alergias
- *   { "token": "XXXX", "vuelta": "21:30" }                ← Transporte
+ *   { "token": "XXXX", "ida": "10:00" }                   ← Transporte (ida)
+ *   { "token": "XXXX", "vuelta": "21:30" }                ← Transporte (vuelta)
  *
  * Canción:
  *   { "token": "XXXX", "accion": "cancion", "cancion": "…", "artista": "…",

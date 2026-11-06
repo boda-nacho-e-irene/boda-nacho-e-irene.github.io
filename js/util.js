@@ -113,6 +113,15 @@ function titulo(id, texto) {
          '<h2 class="titulo">' + escapar(texto) + '</h2>';
 }
 
+/* El subtítulo de un bloque del formulario, con un icono de línea delante. El
+   `dibujo` son los trazos del <svg>; el color lo pone la hoja de estilos. */
+function subtituloConIcono(texto, dibujo) {
+  return '<h3 class="subtitulo">' +
+           '<svg class="sub-icono" viewBox="0 0 24 24" aria-hidden="true">' + dibujo + '</svg>' +
+           escapar(texto) +
+         '</h3>';
+}
+
 /* El título sin emblema: para las secciones que no llevan icono encima. */
 function tituloSinIcono(texto) {
   return '<h2 class="titulo">' + escapar(texto) + '</h2>';

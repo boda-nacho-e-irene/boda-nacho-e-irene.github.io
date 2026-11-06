@@ -1,12 +1,21 @@
 /* --- transporte --- */
 
-/* La hora, o las horas, a las que sale ese autobús. */
-function horasSalida(salidas) {
-  if (!salidas || !salidas.length) return '';
+/* Lo que se guarda cuando el invitado no coge ese autobús: así la celda de la
+   hoja distingue «no lo coge» de «todavía no ha contestado». */
+var SIN_TRAMO = 'No';
+
+/* Las horas de salida del recorrido, cada una como botón, y al final la X para
+   no coger ese autobús. Los botones de la tabla son la elección: no hay
+   formulario aparte ni botón de enviar. */
+function horasSalida(salidas, tramo) {
   var html = '';
   for (var i = 0; i < salidas.length; i++) {
-    html += '<span class="hora">' + escapar(salidas[i]) + '</span>';
+    html += '<button type="button" class="hora" data-tramo="' + tramo + '" data-v="' + escapar(salidas[i]) + '" aria-pressed="false">' +
+            escapar(salidas[i]) + '</button>';
   }
+  html += '<button type="button" class="hora no" data-tramo="' + tramo + '" data-v="' + SIN_TRAMO + '" aria-pressed="false"' +
+          ' aria-label="' + escapar(t('transporte_no_viaje')) + '" title="' + escapar(t('transporte_no_viaje')) + '">×</button>';
+
   return '<p class="salidas">' +
            '<span class="salidas-rotulo">' +
              escapar(salidas.length === 1 ? t('transporte_salida') : t('transporte_salidas')) +
@@ -29,54 +38,38 @@ function ruta(paradas) {
   return '<ol class="ruta">' + html + '</ol>';
 }
 
-/* Lo que se guarda cuando el invitado no coge el autobús de vuelta: así la
-   celda de la hoja distingue «no lo necesita» de «todavía no ha contestado». */
-var SIN_VUELTA = 'No';
-
-/* Las horas entre las que elige el invitado: las del trayecto marcado como
-   `elegible`. Vacío si no hay ninguno, o si solo tiene una hora (entonces no
-   hay nada que elegir y no pintamos los botones). */
-function salidasElegibles() {
-  var ts = TRANSPORTE.trayectos || [];
-  for (var i = 0; i < ts.length; i++) {
-    if (ts[i].elegible && ts[i].salidas && ts[i].salidas.length > 1) return ts[i].salidas;
-  }
-  return [];
-}
-
-/* Van con los recorridos, en *Transporte*, y llevan su propio botón: la
-   elección se guarda sola, sin pasar por la confirmación. */
-function camposVuelta() {
-  var horas = salidasElegibles();
-  if (!horas.length) return '';
-
-  var botones = '';
-  for (var i = 0; i < horas.length; i++) {
-    botones += '<button type="button" class="chip" data-v="' + escapar(horas[i]) + '" aria-pressed="false">'
-             + escapar(horas[i]) + '</button>';
-  }
-  botones += '<button type="button" class="chip" data-v="' + SIN_VUELTA + '" aria-pressed="false">'
-           + escapar(t('transporte_sin_vuelta')) + '</button>';
-
-  return '<fieldset class="campos-vuelta">' +
-           '<legend>' + escapar(t('transporte_vuelta')) + '</legend>' +
-           '<p class="ayuda">' + escapar(t('transporte_vuelta_ayuda')) + '</p>' +
-           '<div class="chips" id="vuelta">' + botones + '</div>' +
-         '</fieldset>' +
-         '<button type="button" class="enviar" id="enviar-transporte" disabled>' +
-           escapar(t('transporte_guardar')) + '</button>';
-}
-
-/* Exclusiva: solo se vuelve en un autobús. */
-function elegirVuelta(hora) {
-  var caja = document.getElementById('vuelta');
+/* Marca la elección de un tramo en la tabla. No envía nada: lo usa también al
+   volver a entrar, con lo que ya está guardado. */
+function marcarTramo(tramo, valor) {
+  var caja = document.getElementById('transporte');
   if (!caja) return;
-  vuelta = hora;
   var b = caja.getElementsByTagName('button');
   for (var i = 0; i < b.length; i++) {
-    b[i].setAttribute('aria-pressed', b[i].getAttribute('data-v') === hora ? 'true' : 'false');
+    if (b[i].getAttribute('data-tramo') === tramo) {
+      b[i].setAttribute('aria-pressed', b[i].getAttribute('data-v') === valor ? 'true' : 'false');
+    }
   }
-  document.getElementById('enviar-transporte').disabled = false;
+  if (tramo === 'ida') { ida = valor; } else { vuelta = valor; }
+}
+
+/* Un clic en una hora (o en la X) es la elección de ese tramo: se marca y se
+   guarda en el momento, sin pasar por ningún botón de enviar. */
+function elegirTramo(tramo, valor) {
+  marcarTramo(tramo, valor);
+
+  var cuerpo = { token: token };
+  cuerpo[tramo] = valor;
+  estadoBloque('transporte', t('guardando'));
+
+  pedir('POST', API, JSON.stringify(cuerpo), function (d) {
+    if (!d || !d.ok || !campoEscrito(d, tramo)) {
+      estadoBloque('transporte', t('error_guardar'), true);
+      return;
+    }
+    guardado[tramo] = true;
+    estadoBloque('transporte', t('transporte_guardado'));
+    montarIndice();
+  });
 }
 
 function seccionTransporte() {
@@ -86,22 +79,22 @@ function seccionTransporte() {
   var html = '';
   for (var i = 0; i < trayectos.length; i++) {
     var tr = trayectos[i];
+    var tramo = tr.id.replace(/^transporte-/, '');
     html += '<div class="trayecto" id="' + escapar(tr.id) + '">' +
               '<h3 class="sub-titulo">' + escapar(tr.titulo) + '</h3>' +
-              horasSalida(tr.salidas) +
+              horasSalida(tr.salidas, tramo) +
               ruta(tr.paradas) +
             '</div>';
   }
 
   var nota = t('transporte_nota');
-  return '<section class="seccion" id="transporte">' +
-           titulo('transporte', t('titulo_transporte')) +
+  return '<div class="tras" id="transporte">' +
+           subtituloConIcono(t('titulo_transporte'), '<rect x="5" y="3" width="14" height="14" rx="2"/><path d="M5 11h14M9 17l-2 4M15 17l2 4"/><circle cx="9" cy="13.5" r=".6"/><circle cx="15" cy="13.5" r=".6"/>') +
            bloque('transporte',
              '<div class="trayectos">' + html + '</div>' +
              (nota
                ? '<p class="promesa" style="margin-top:2rem">' + escapar(nota) + '</p>'
-               : '') +
-             camposVuelta()
+               : '')
            ) +
-         '</section>';
+         '</div>';
 }

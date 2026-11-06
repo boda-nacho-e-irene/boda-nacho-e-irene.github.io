@@ -103,9 +103,21 @@ function alergenosTexto() {
    esperar a nada más. Antes vivían plegados dentro de *Confirmar* porque
    compartían con ella el botón de enviar. El grupo de chips lleva su etiqueta a
    mano: el <legend> que la daba es ahora el título de la sección. */
+/* Alergias, sugerencias de música y transporte van juntas en una sola sección,
+   detrás de «Confirmar». Cada una es un bloque dentro de ella, sin título propio. */
+function seccionMasDetalles() {
+  return '<section class="seccion" id="mas-detalles">' +
+           tituloSinIcono(t('titulo_mas_detalles')) +
+           '<p class="mas-intro">' + escapar(t('mas_detalles_intro')) + '</p>' +
+           seccionAlergias() +
+           seccionPlaylist() +
+           seccionTransporte() +
+         '</section>';
+}
+
 function seccionAlergias() {
-  return '<section class="seccion" id="alergias">' +
-           titulo('alergias', t('titulo_alergias')) +
+  return '<div class="tras" id="alergias">' +
+           subtituloConIcono(t('titulo_alergias'), '<path d="M5 19C5 11 10 6 19 5C18 14 13 19 5 19Z"/><path d="M5 19L12 12"/>') +
            bloque('alergias',
              '<fieldset>' +
                '<p class="ayuda">' + escapar(t('alergias_ayuda')) + '</p>' +
@@ -120,7 +132,7 @@ function seccionAlergias() {
              '<button type="button" class="enviar" id="enviar-alergias" disabled>' +
                escapar(t('alergias_enviar')) + '</button>'
            ) +
-         '</section>';
+         '</div>';
 }
 
 function elegir(asiste) {

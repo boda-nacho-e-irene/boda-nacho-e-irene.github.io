@@ -51,10 +51,8 @@ var BODA = {
    Si `trayectos` se queda vacío, la sección no se pinta y el índice descarta
    sus entradas él solo, igual que con las fotos.
 
-   `elegible: true` marca el trayecto cuyas salidas elige el invitado: esas
-   horas salen como botones dentro de *Transporte* y la elegida viaja a la hoja
-   en su propio envío. Solo tiene sentido en uno, y solo si tiene más de una
-   hora. */
+   Cada trayecto se elige en su propia tabla: sus horas son botones, y una X
+   para no coger ese autobús. Ida y vuelta se guardan por separado. */
 var TRANSPORTE = {
   trayectos: [
     { id: 'transporte-ida', titulo: 'Ida',
@@ -62,14 +60,13 @@ var TRANSPORTE = {
       paradas: [
         { lugar: 'Venta de Baños', detalle: 'Ayuntamiento' },
         { lugar: 'Palencia',       detalle: 'San Lázaro' },
-        { lugar: 'Convento de Mave' }
+        { lugar: 'Mave' }
       ] },
 
     { id: 'transporte-vuelta', titulo: 'Vuelta',
       salidas: ['21:30', '23:30'],
-      elegible: true,
       paradas: [
-        { lugar: 'Convento de Mave' },
+        { lugar: 'Mave' },
         { lugar: 'Palencia',       detalle: 'San Lázaro' },
         { lugar: 'Venta de Baños', detalle: 'Ayuntamiento' }
       ] }
@@ -91,10 +88,8 @@ var SECCIONES = [
   { id: 'cuenta-atras',  titulo: 'Cuenta atrás' },
   { id: 'el-dia',        titulo: 'El gran día' },
   { id: 'confirmar',     titulo: 'Confirmar' },
-  { id: 'alergias',      titulo: 'Alergias' },
+  { id: 'mas-detalles',  titulo: 'Más detalles' },
   { id: 'dedicatoria',   titulo: 'Dedicatoria' },
-  { id: 'playlist',      titulo: 'Playlist' },
-  { id: 'transporte',    titulo: 'Transporte' },
   { id: 'alojamiento',   titulo: 'Alojamiento' },
   { id: 'sitio-web',     titulo: 'Sitio web' }
 ];
@@ -189,7 +184,7 @@ var TEXTOS = {
   alergias_guardado: 'Guardado. Se lo pasamos a la cocina.',
 
   titulo_cuenta: 'No puedo esperar, ¿Cuándo?',
-  cuenta_intro_1: 'Todo lo bueno se hace esperar y tenemos muchas ganas de disfrutar del día con vosotros, hemos cogido una fecha en la que no haga fresquito para que todos esos outfits puedan relucir.',
+  cuenta_intro_1: 'Todo lo bueno se hace esperar... pero no mucho. Hemos cogido una fecha en la que no haga fresquito para que todos esos outfits puedan relucir.',
   cuenta_intro_2: 'Abajo te dejamos un recordatorio para bloquear la agenda en el calendario porque olvidarlo no creemos que podáis.',
   cuenta_hoy: 'Hoy nos casamos',
   cuenta_dia: 'día',
@@ -241,6 +236,11 @@ var TEXTOS = {
   transporte_guardado: 'Guardado. Te guardamos sitio.',
   resumen_vuelta: 'Vuelta a las {hora}',
   resumen_sin_vuelta: 'Sin autobús de vuelta',
+  resumen_ida: 'Ida a las {hora}',
+  resumen_sin_ida: 'Sin autobús de ida',
+  transporte_no_viaje: 'No cojo este autobús',
+  titulo_mas_detalles: 'Unos detalles más',
+  mas_detalles_intro: 'Con esto nos facilitas tener toda la información juntita. Si necesitas cambiar algo, preferimos que nos avises directamente a nosotros.',
 
   indice_hecho: 'Hecho',
   indice_proximamente: 'Próximamente',
@@ -267,13 +267,14 @@ var token = (function () {
 
 var elegido = null;          // true | false | null
 var marcados = {};           // alérgenos seleccionados
-var vuelta = null;           // hora del autobús de vuelta, SIN_VUELTA, o null
+var ida = null;              // hora del autobús de ida, SIN_TRAMO, o null
+var vuelta = null;           // hora del autobús de vuelta, SIN_TRAMO, o null
 
 /* Lo que ya está en la hoja, campo a campo. Es lo que da un formulario por
    hecho —y por tanto lo que se pliega—, y no lo que haya en los campos: un chip
    marcado sin enviar no cuenta. Se llena al cargar con lo que devuelve el
    backend y en cada envío que sale bien. */
-var guardado = { asiste: false, alergenos: false, vuelta: false };
+var guardado = { asiste: false, alergenos: false, ida: false, vuelta: false };
 
 var canciones = [];          // las que ya ha mandado este invitado
 var hallazgos = [];          // lo último que devolvió iTunes

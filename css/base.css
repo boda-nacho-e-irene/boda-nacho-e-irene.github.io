@@ -34,6 +34,7 @@
   --amarillo:    #ECCF74;   /* amarillo de la misma acuarela, sin las flores */
   --terracota:   #BC7059;   /* rojo oscuro de la misma acuarela de presentación */
   --verde-oscuro: #7D835C;  /* verde oscuro de las hojas de la misma acuarela */
+  --azul:        #5F7F95;   /* azul grisáceo de la acuarela de la sección de más detalles */
 
   /* Las sombras son color con una forma delante: viven aquí para que sigan a
      la tinta y no se queden de otro color al cambiar la paleta. */

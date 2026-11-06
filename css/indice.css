@@ -205,6 +205,13 @@
 .paso[disabled]:hover { border-color: var(--hueco); background: var(--piedra); }
 
 .paso svg { display: block; width: 16px; height: 12px; }
+
+/* El pie vacío del final: papel, con el mismo alto que los botones de saltar. */
+.pie-pagina {
+  display: block;
+  height: 2.75rem;
+  background: var(--papel);
+}
 .paso path { fill: none; stroke: currentColor; stroke-width: 1.5; }
 
 /* Con marco, el botón, el panel y las flechas se meten dentro de él: el índice se abre

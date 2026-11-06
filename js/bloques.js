@@ -104,11 +104,17 @@ function resumenAlergias() {
   return guardado.alergenos ? (alergenosTexto() || SIN_ALERGIAS) : '';
 }
 
+/* Sale solo cuando ya están guardadas las dos elecciones: ida y vuelta. */
 function resumenTransporte() {
-  if (!guardado.vuelta) return '';
-  return vuelta === SIN_VUELTA
-    ? t('resumen_sin_vuelta')
-    : t('resumen_vuelta', { hora: vuelta });
+  if (!guardado.ida || !guardado.vuelta) return '';
+  return textoTramo('ida', ida) + ' · ' + textoTramo('vuelta', vuelta);
+}
+
+function textoTramo(tramo, valor) {
+  if (valor === SIN_TRAMO) {
+    return t(tramo === 'ida' ? 'resumen_sin_ida' : 'resumen_sin_vuelta');
+  }
+  return t(tramo === 'ida' ? 'resumen_ida' : 'resumen_vuelta', { hora: valor });
 }
 
 /* Este no mira `guardado`: cada canción se guarda al añadirla, así que tenerlas
@@ -186,12 +192,6 @@ function enviarAlergias() {
   if (!texto) return;
   enviarBloque('alergias', { token: token, alergenos: texto },
                'alergenos', t('alergias_guardado'));
-}
-
-function enviarVuelta() {
-  if (!vuelta) return;
-  enviarBloque('transporte', { token: token, vuelta: vuelta },
-               'vuelta', t('transporte_guardado'));
 }
 
 /* El botón de alergias no se enciende hasta que haya algo que mandar: la celda

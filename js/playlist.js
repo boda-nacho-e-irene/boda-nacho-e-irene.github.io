@@ -8,8 +8,8 @@
    así que no hay nada que reenviar. Se pliega igual al volver a entrar, y su
    botón de resumen solo abre y cierra. */
 function seccionPlaylist() {
-  return '<section class="seccion" id="playlist">' +
-           titulo('playlist', t('titulo_playlist')) +
+  return '<div class="tras" id="playlist">' +
+           subtituloConIcono(t('titulo_playlist'), '<circle cx="7" cy="17" r="3"/><circle cx="17" cy="15" r="3"/><path d="M10 17V5l10-2v12"/>') +
            bloque('playlist',
              '<p class="ayuda">' + escapar(t('playlist_ayuda', { max: MAX_CANCIONES })) + '</p>' +
              '<h3 class="subtitulo">' + escapar(t('playlist_tus_canciones')) + '</h3>' +
@@ -20,7 +20,7 @@ function seccionPlaylist() {
              '</fieldset>' +
              '<div class="resultados" id="resultados" aria-live="polite"></div>'
            ) +
-         '</section>';
+         '</div>';
 }
 
 /* Escribe en el `.estado` del bloque, que está fuera del pliegue: lo que se

@@ -26,14 +26,6 @@
   }
 }
 
-/* Los recorridos son para leerlos y esto es para contestar: la línea fina
-   marca dónde acaba lo uno y empieza lo otro. */
-.campos-vuelta {
-  margin-top: var(--e4);
-  padding-top: var(--e4);
-  border-top: var(--linea);
-}
-
 .sub-titulo {
   font-family: var(--letra-titulo);
   font-size: calc(var(--t-sub) * var(--escala-titulo));
@@ -64,15 +56,34 @@
   color: var(--musgo);
 }
 
+/* Cada hora es un botón: la elegida se rellena de ocre. La X, al final, es no
+   coger ese autobús. */
 .hora {
   padding: .15rem .55rem;
   border: 1px solid var(--ocre);
   border-radius: var(--r);
+  background: transparent;
+  color: var(--tinta);
+  cursor: pointer;
   font-family: var(--letra-cifra);
   font-size: calc(var(--t-medio) * var(--escala-cifra));
   line-height: 1.35;
   font-variant-numeric: tabular-nums;
 }
+.hora[aria-pressed="true"] { background: var(--ocre); color: var(--papel); }
+/* La X: el mismo botón que los de guardar del calendario y del mapa, pero en
+   azul. Relleno sin borde, letra de papel, medio transparente. */
+.hora.no {
+  min-width: 2.5rem;
+  padding: .15rem .55rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--azul);
+  color: var(--papel);
+  opacity: .8;
+}
+.hora.no:hover { background: var(--tinta); }
+.hora.no[aria-pressed="true"] { background: var(--tinta); opacity: 1; }
 
 /* Las paradas en orden, colgadas de una línea vertical. Punto lleno en el
    origen y en el destino, hueco en las paradas de en medio. */

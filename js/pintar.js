@@ -77,10 +77,24 @@ function pintar(d) {
           '</svg>' +
         '</p>' +
         '<h2 class="nombre"> ' + escapar(t('inicio_saludo')) + ', ' + escapar(d.nombre) + '</h2>' +
-        '<p class="cita">' + escapar(t('inicio_cita_1')) +
-          ' <strong> ' + escapar(t('inicio_cita_destacado')) + ' </strong> ' +
-          escapar(t('inicio_cita_2')) +
-          ' <br> ' + escapar(t('inicio_cita_3')) + '</p>' +
+        /* Texto de la invitación: cuatro párrafos, con los destacados en negrita.
+           Los dibujos de fondo van dentro de este bloque: así nunca quedan por
+           encima del título ni por debajo de los nombres. */
+        '<div class="cita">' +
+          /* Dibujos de fondo, casi transparentes y detrás del texto. Cada uno es
+             un marco; si existe su archivo en img/dibujos, el dibujo se pinta. */
+          '<div class="inicio-fondos" aria-hidden="true">' +
+            '<span class="fondo-marco fondo-1"></span>' +
+            '<span class="fondo-marco fondo-2"></span>' +
+            '<span class="fondo-marco fondo-3"></span>' +
+            '<span class="fondo-marco fondo-4"></span>' +
+            '<span class="fondo-marco fondo-5"></span>' +
+          '</div>' +
+          '<p>Como ya sabes <strong>¡Nos casamos!</strong> y nos encantaría que nos acompañáseis en este día tan especial.</p>' +
+          '<p>No todos los días se puede celebrar uno de los días más felices de nuestra vida rodeados de toda la gente que queremos.</br>Estamos muy felices de compartir el día con todos vosotros y ansiosos por disfrutarlo a tope. Hemos hecho esta invitación para que tengáis toda la información que necesitéis.</p>' +
+          '<p>Abajo podéis encontrar <strong>un formulario muy cortito</strong> para los pequeños detalles de organización, agradeceríamos que respondiéseis y nos comentáseis cualquier cosa que se os ocurra (un whatsapp también vale pero esto mola más).</p>' +
+          '<p>Tenemos muchas ganas de veros!</p>' +
+        '</div>' +
         '<p class="novios">' + escapar(BODA.novios) + '</p>' +
       '</section>' +
 
@@ -89,14 +103,16 @@ function pintar(d) {
       '<section class="seccion ola" id="el-dia">' +
         tituloSinIcono('y... ¿Dónde?') +
         '<div class="lugar-intro-fila">' + marcadorImagen('img/dibujos/mapa.png') +
-          '<p class="lugar-intro">' + escapar(t('lugar_intro')) + '</p>' +
+          '<div class="lugar-intro-texto">' +
+            '<p class="lugar-intro">' + escapar(t('lugar_intro')) + '</p>' +
+            '<p class="lugar-intro">Juntar a todo el mundo a veces es complicado, nos encantaría que estuviéseis lo máximo posible con nosotros, por eso todo el evento se va a realizar en la misma zona.</p>' +
+          '</div>' +
         '</div>' +
-        '<div class="franja">' + carruselLugar() + lugaresDelDia() + '</div>' +
         botonMapa() +
+        '<div class="franja">' + carruselLugar() + lugaresDelDia() + '</div>' +
       '</section>' +
 
       '<section class="seccion" id="confirmar">' +
-        '<img class="separador" src="img/separadores/floritura-horizontal-ocre.webp" width="1200" height="298" alt="" aria-hidden="true">' +
         titulo('confirmar', t('titulo_confirmar')) +
         bloque('confirmar',
           '<div class="eleccion">' +
@@ -119,9 +135,11 @@ function pintar(d) {
         ) +
       '</section>' +
 
-      seccionAlergias() +
-      seccionPlaylist() +
-      seccionTransporte() +
+      seccionMasDetalles() +
+
+      /* Pie vacío al final: su alto es el de los botones de saltar, así lo último
+         de la página no queda debajo de ellos. */
+      '<footer class="pie-pagina" aria-hidden="true"></footer>' +
 
       /* Las de EN_OBRAS no se pintan: hasta que tengan contenido viven solo en
          el índice, como botones apagados. */
@@ -188,15 +206,15 @@ function pintar(d) {
     if (id) { quitarCancion(id); }
   };
 
-  /* Sin trayecto elegible no hay botones que elegir ni nada que enviar desde
-     *Transporte*: la sección se queda en los recorridos y ya está. */
-  var cajaVuelta = document.getElementById('vuelta');
-  if (cajaVuelta) {
-    var botonesVuelta = cajaVuelta.getElementsByTagName('button');
-    for (var v = 0; v < botonesVuelta.length; v++) {
-      botonesVuelta[v].onclick = function () { elegirVuelta(this.getAttribute('data-v')); };
-    }
-    document.getElementById('enviar-transporte').onclick = enviarVuelta;
+  /* Las horas de cada recorrido y la X son la elección: un clic guarda ese
+     tramo. Un solo manejador en la sección, que las horas se repintan enteras. */
+  var cajaTransporte = document.getElementById('transporte');
+  if (cajaTransporte) {
+    cajaTransporte.onclick = function (e) {
+      var b = botonDe(e.target, this);
+      if (!b || !b.getAttribute('data-tramo')) return;
+      elegirTramo(b.getAttribute('data-tramo'), b.getAttribute('data-v'));
+    };
   }
 
   ponerIconos();
@@ -236,7 +254,8 @@ function restaurar(d) {
     }
     if (sueltos.length) { document.getElementById('otros').value = sueltos.join(', '); }
   }
-  if (d.vuelta) { elegirVuelta(String(d.vuelta)); }
+  if (d.ida) { marcarTramo('ida', String(d.ida)); }
+  if (d.vuelta) { marcarTramo('vuelta', String(d.vuelta)); }
   if (d.nota) { document.getElementById('nota').value = d.nota; }
   if (d.asiste === 'SI') { elegir(true); }
   else if (d.asiste === 'NO') { elegir(false); }
@@ -245,6 +264,7 @@ function restaurar(d) {
      que decide qué llega plegado y qué llega abierto. */
   guardado.asiste = !!d.asiste;
   guardado.alergenos = !!d.alergenos;
+  guardado.ida = !!d.ida;
   guardado.vuelta = !!d.vuelta;
 
   repasarEnvioAlergias();
