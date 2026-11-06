@@ -59,6 +59,14 @@ function escapar(s) {
    icono lo sustituye. La comprobación la hace `probarIcono()` después de pintar:
    el arco ya está puesto y solo se cambia si el icono llega, así que ni parpadea
    ni da un salto, y una sección sin icono se queda con su arco sin enterarse. */
+/* Marcador de sitio para una imagen que aún no está: un cuadro punteado con un
+   icono de imagen. Se sustituye cuando haya foto. */
+function marcadorImagen(src) {
+  return '<div class="cuenta-placeholder" aria-hidden="true">' +
+           '<img src="' + escapar(src) + '" alt="" loading="lazy" decoding="async">' +
+         '</div>';
+}
+
 /* Los sitios del día, cada uno con su rótulo, su nombre y su enlace al mapa. */
 function lugaresDelDia() {
   var html = '';
@@ -103,6 +111,11 @@ function titulo(id, texto) {
            '<span class="arco-chico"></span>' +
          '</p>' +
          '<h2 class="titulo">' + escapar(texto) + '</h2>';
+}
+
+/* El título sin emblema: para las secciones que no llevan icono encima. */
+function tituloSinIcono(texto) {
+  return '<h2 class="titulo">' + escapar(texto) + '</h2>';
 }
 
 function ponerIconos() {

@@ -32,8 +32,15 @@ function hayCuenta() {
 
 function seccionCuenta() {
   if (!hayCuenta()) return '';
-  return '<section class="seccion ola" id="cuenta-atras">' +
-           titulo('cuenta-atras', t('titulo_cuenta')) +
+  return '<section class="seccion" id="cuenta-atras">' +
+           tituloSinIcono(t('titulo_cuenta')) +
+           '<div class="cuenta-intro-fila">' +
+             marcadorImagen('img/dibujos/calendario.png') +
+             '<div class="cuenta-intro-texto">' +
+               '<p class="cuenta-intro">' + escapar(t('cuenta_intro_1')) + '</p>' +
+               '<p class="cuenta-intro">' + escapar(t('cuenta_intro_2')) + '</p>' +
+             '</div>' +
+           '</div>' +
            '<div id="cuenta"></div>' +
            bloqueCalendario() +
          '</section>';

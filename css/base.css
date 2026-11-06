@@ -32,6 +32,8 @@
   --arena:       #E6D19F;
   --salvia:      #BDC3A2;   /* verde claro de las hojas de la misma acuarela */
   --amarillo:    #ECCF74;   /* amarillo de la misma acuarela, sin las flores */
+  --terracota:   #BC7059;   /* rojo oscuro de la misma acuarela de presentación */
+  --verde-oscuro: #7D835C;  /* verde oscuro de las hojas de la misma acuarela */
 
   /* Las sombras son color con una forma delante: viven aquí para que sigan a
      la tinta y no se queden de otro color al cambiar la paleta. */
@@ -291,7 +293,7 @@ main { margin: 0 auto; }
   position: absolute;
   left: 0;
   right: 0;
-  top: calc(100% - 1.5rem);
+  top: calc(100% - 0.75rem);
   height: 1.5rem;
   z-index: 1;
   background: var(--papel);

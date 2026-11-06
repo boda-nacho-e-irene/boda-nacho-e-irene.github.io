@@ -151,13 +151,11 @@ function guardarEnCalendario() {
 function bloqueCalendario() {
   if (objetivoMs === null) return '';
   return '<div class="calendario">' +
-           '<span class="calendario-rotulo">' + escapar(t('calendario_rotulo')) + '</span>' +
-           '<p class="calendario-texto">' + escapar(t('calendario_texto', { fecha: BODA.fecha })) + '</p>' +
-           '<button type="button" class="guardar" id="guardar">' + escapar(t('calendario_boton')) + '</button>' +
-           '<p class="calendario-otro">' +
-             '<a href="' + escapar(enlaceGoogle()) + '" target="_blank" rel="noopener">' +
+           '<div class="calendario-botones">' +
+             '<button type="button" class="guardar" id="guardar">' + escapar(t('calendario_boton')) + '</button>' +
+             '<a class="guardar" href="' + escapar(enlaceGoogle()) + '" target="_blank" rel="noopener">' +
                escapar(t('calendario_google')) + '</a>' +
-           '</p>' +
+           '</div>' +
            '<p class="estado" id="calendario-aviso" aria-live="polite"></p>' +
          '</div>';
 }
