@@ -82,7 +82,6 @@ var TRANSPORTE = {
 var SECCIONES = [
   { id: 'presentacion',  titulo: 'Presentación' },
   { id: 'inicio',        titulo: 'Inicio' },
-  { id: 'fotos',         titulo: 'Fotos' },
   { id: 'el-dia',        titulo: 'El gran día' },
   { id: 'confirmar',     titulo: 'Confirmar' },
   { id: 'alergias',      titulo: 'Alergias' },
@@ -126,21 +125,6 @@ var ALERGENOS = [
 var MAX_CANCIONES = 3;
 var ITUNES_PAIS = 'ES';
 
-/* Fotos de la sección «Fotos». `src` puede ser una ruta relativa dentro del
-   repo (img/foo.webp, que en un repo de proyecto sirve sin barra inicial) o una
-   URL https:// de cualquier alojamiento.
-
-   'ancho' y 'alto' son los píxeles reales del archivo; el navegador
-   reserva el hueco con ellos y la página no pega saltos al cargar.
-   'pie' es opcional.
-
-   Lista vacía: no hay sección y el índice descarta su entrada. */
-var FOTOS = [
-  { src: 'img/claustro-mave.webp', ancho: 1200, alto: 800,
-    alt: 'El claustro del convento de Mave' },
-  { src: 'img/claustro-mave2.webp', ancho: 1200, alto: 800,
-    alt: 'El claustro del convento de Mave 2' }
-];
 
 /* Los textos de la página. Cada clave se usa con t('clave') (js/configuracion.js).
    Los que llevan {algo} se rellenan al pintar. Las frases de *Inicio* van partidas
@@ -155,7 +139,6 @@ var TEXTOS = {
   inicio_cita_2: 'y nos encantaría que nos acompañases en este día tan especial.',
   inicio_cita_3: 'Aquí te dejamos algunos detalles y toda la información que necesitas.',
 
-  titulo_fotos: 'Fotos',
 
   titulo_dia: 'El gran día',
   dia_fecha: 'Fecha',

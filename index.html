@@ -7,8 +7,7 @@
 <meta name="theme-color" content="#E9E5D9">
 <title>Invitación</title>
 
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,11 +19,6 @@
      hasta que baja y lee la hoja. Precargada empieza a bajar con la página y
      está puesta cuando el invitado abre el sobre. -->
 <link rel="preload" as="image" href="img/presentacion.webp">
-
-<!-- Descomentar con la ruta de la primera foto de FOTOS: empieza a bajarla
-     sin esperar al backend. Solo la primera; precargarlas todas le quita
-     ancho de banda al resto de la página. -->
-<!-- <link rel="preload" as="image" href="img/PRIMERA.webp"> -->
 
 <!-- La hoja va partida por secciones, en el orden en que estaba escrita: el
      orden de estos enlaces es la cascada. Los tokens de color y de letra
@@ -67,7 +61,6 @@ window.onerror = function (msg, src, linea) {
 <script defer src="js/datos.js"></script>
 <script defer src="js/util.js"></script>
 <script defer src="js/sobre.js"></script>
-<script defer src="js/fotos.js"></script>
 <script defer src="js/cuenta.js"></script>
 <script defer src="js/calendario.js"></script>
 <script defer src="js/transporte.js"></script>

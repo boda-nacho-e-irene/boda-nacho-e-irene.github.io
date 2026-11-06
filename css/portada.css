@@ -49,65 +49,6 @@
 }
 .cita strong { font-weight: 400; color: var(--tinta); }
 
-/* ---------- fotos ---------- */
-
-/* Una pantalla. Con dos fotos no hay con qué llenar dos: pedirlas dejaba
-   media vacía y las fotos a caballo entre pantalla y pantalla. Cuando la
-   galería crezca no hace falta tocar nada —crece sola—; si algún día se
-   quiere el hueco de sobra a propósito, se sube aquí. */
-#fotos { --pantallas: 1; }
-
-/* Rejilla de dos columnas: una de cada tres fotos ocupa el ancho entero, así
-   el ojo baja con un ritmo desigual en vez de por una escalera de imágenes
-   iguales. `dense` rellena los huecos que deja el salto de anchura.
-   El margen negativo cancela el margen de página de la sección: las fotos
-   llegan al borde de la columna y el texto se queda con su medida. */
-.galeria {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-auto-flow: dense;
-  gap: var(--e1);
-  margin: 0 calc(var(--margen) * -1);
-}
-
-/* Los hijos son `<figure>` o `<img>` pelado, según la foto lleve pie o no: las
-   reglas de rejilla van sobre `.galeria > *`, nunca sobre `figure`. */
-.galeria > * { margin: 0; min-width: 0; }
-.galeria > *:nth-child(3n+1) { grid-column: 1 / -1; }
-
-.foto {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: var(--r);
-  /* el hueco queda del color de las juntas mientras la foto baja */
-  background: var(--hueco);
-}
-
-/* Solo se recortan las estrechas, y a un vertical suave: son pequeñas y así
-   las dos de una fila acaban a la misma altura. Las de ancho completo van con
-   su proporción real, que es donde se ve la gente y donde un recorte hace
-   daño. */
-.galeria > *:not(:nth-child(3n+1)) .foto,
-.galeria > .foto:not(:nth-child(3n+1)) {
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-}
-
-.pie {
-  font-family: var(--letra-cita);
-  font-style: var(--cursiva-cita);
-  font-size: calc(var(--t-ui) * var(--escala-cita));
-  text-align: center;
-  color: var(--musgo);
-  margin: var(--e1) 0 0;
-}
-/* La foto ancha llega al borde de la columna; su pie no puede ir pegado a él. */
-.galeria > *:nth-child(3n+1) .pie {
-  text-align: left;
-  padding: 0 var(--margen);
-}
-
 /* ---------- el día ---------- */
 
 /* Tres líneas y un enlace: una pantalla le sobra. */

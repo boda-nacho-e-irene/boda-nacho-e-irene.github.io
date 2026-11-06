@@ -84,8 +84,6 @@ function pintar(d) {
           ' <br> ' + escapar(t('inicio_cita_3')) + '</p>' +
       '</section>' +
 
-      seccionFotos() +
-
       '<section class="seccion" id="el-dia">' +
         titulo('el-dia', t('titulo_dia')) +
         '<dl class="datos">' +
