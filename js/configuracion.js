@@ -46,9 +46,4 @@ function aplicarConfiguracion(c) {
   if (c.secciones && c.secciones.length) { SECCIONES = c.secciones; }
   if (c.en_obras && c.en_obras.length) { EN_OBRAS = c.en_obras; }
   if (c.transporte && c.transporte.length) { TRANSPORTE.trayectos = c.transporte; }
-
-  // Solo fotos de un sitio que sepamos servir: el repo o https. Lo demás se cae.
-  if (c.fotos && c.fotos.length) {
-    FOTOS = c.fotos.filter(function (f) { return /^(https:\/\/|img\/)/.test(f.src); });
-  }
 }

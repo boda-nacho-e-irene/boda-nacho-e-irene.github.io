@@ -4,7 +4,17 @@
    ve al apartar el sobre, y lo que hay debajo se busca bajando. El alto y el
    centrado se los da `.seccion` como a todas; aquí solo se dice cuántas
    pantallas pide. */
-#inicio { --pantallas: 1; }
+#inicio { --pantallas: 1; background: var(--papel); }
+
+/* Los novios ya van al pie: el filete sube por encima del nombre y el aire
+   queda por encima de la línea, no por debajo. */
+#inicio .novios {
+  margin: var(--e5) 0 0;
+  padding: var(--e2) 0 0;
+  border-top: var(--linea);
+  border-bottom: 0;
+  color: var(--ocre);
+}
 
 .emblema-grande { height: 84px; margin-bottom: var(--e3); }
 .emblema-grande .icono { height: 84px; max-width: 132px; }
@@ -49,88 +59,130 @@
 }
 .cita strong { font-weight: 400; color: var(--tinta); }
 
-/* ---------- fotos ---------- */
-
-/* Una pantalla. Con dos fotos no hay con qué llenar dos: pedirlas dejaba
-   media vacía y las fotos a caballo entre pantalla y pantalla. Cuando la
-   galería crezca no hace falta tocar nada —crece sola—; si algún día se
-   quiere el hueco de sobra a propósito, se sube aquí. */
-#fotos { --pantallas: 1; }
-
-/* Rejilla de dos columnas: una de cada tres fotos ocupa el ancho entero, así
-   el ojo baja con un ritmo desigual en vez de por una escalera de imágenes
-   iguales. `dense` rellena los huecos que deja el salto de anchura.
-   El margen negativo cancela el margen de página de la sección: las fotos
-   llegan al borde de la columna y el texto se queda con su medida. */
-.galeria {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-auto-flow: dense;
-  gap: var(--e1);
-  margin: 0 calc(var(--margen) * -1);
-}
-
-/* Los hijos son `<figure>` o `<img>` pelado, según la foto lleve pie o no: las
-   reglas de rejilla van sobre `.galeria > *`, nunca sobre `figure`. */
-.galeria > * { margin: 0; min-width: 0; }
-.galeria > *:nth-child(3n+1) { grid-column: 1 / -1; }
-
-.foto {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: var(--r);
-  /* el hueco queda del color de las juntas mientras la foto baja */
-  background: var(--hueco);
-}
-
-/* Solo se recortan las estrechas, y a un vertical suave: son pequeñas y así
-   las dos de una fila acaban a la misma altura. Las de ancho completo van con
-   su proporción real, que es donde se ve la gente y donde un recorte hace
-   daño. */
-.galeria > *:not(:nth-child(3n+1)) .foto,
-.galeria > .foto:not(:nth-child(3n+1)) {
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-}
-
-.pie {
-  font-family: var(--letra-cita);
-  font-style: var(--cursiva-cita);
-  font-size: calc(var(--t-ui) * var(--escala-cita));
-  text-align: center;
-  color: var(--musgo);
-  margin: var(--e1) 0 0;
-}
-/* La foto ancha llega al borde de la columna; su pie no puede ir pegado a él. */
-.galeria > *:nth-child(3n+1) .pie {
-  text-align: left;
-  padding: 0 var(--margen);
-}
-
 /* ---------- el día ---------- */
 
-/* Tres líneas y un enlace: una pantalla le sobra. */
+/* El lugar como título, la fecha en una línea, el enlace al mapa y, al final,
+   la tira de fotos que se mueve sola. */
 #el-dia { --pantallas: 1; }
 
-.datos { margin: 0; }
-.datos > div {
-  display: grid;
-  grid-template-columns: 5.5rem 1fr;
-  gap: 0 1rem;
-  padding: var(--e2) 0;
-  border-top: var(--linea);
+/* El título de «¿Dónde?» va grande: es lo primero que se lee de la sección. */
+#el-dia .titulo {
+  display: inline-block;
+  font-size: calc(var(--t-titulo) * 1.45 * var(--escala-titulo));
+  padding: var(--e1) var(--e3);
+  margin-bottom: 0;
+  color: var(--tinta);
 }
-.datos > div:last-child { border-bottom: var(--linea); }
-.datos dt {
+
+/* El único enlace al mapa, centrado debajo de los dos sitios. */
+.lugar-mapa { text-align: center; margin: var(--e4) 0 0; }
+
+/* La sección del lugar: el papel de arriba se funde en verde claro, como la
+   acuarela se funde en el papel de la portada. Va con dos IDs para ganarle a
+   la regla general de las secciones (`#inicio ~ .seccion` en base.css). */
+#inicio ~ #el-dia {
+  /* La acuarela rosa va con un velo de papel por delante para que el texto se
+     lea; el fundido de arriba sigue entrando desde el papel de la portada. */
+  background:
+    linear-gradient(var(--velo-papel), var(--velo-papel)),
+    url("../img/fondos/fondo-acuarela-verde-claro.jpg") center / cover no-repeat;
+  /* Aire para que el fundido quede por encima del título y no lo toque. */
+  padding-top: var(--e6);
+  /* Aire debajo del botón del mapa, para que la ola de abajo no lo tape. */
+  padding-bottom: var(--e4);
+}
+
+/* La floritura cierra la sección de los novios y la separa de la siguiente:
+   centrada, debajo de los nombres. */
+#inicio .separador {
+  display: block;
+  width: min(14rem, 60%);
+  height: auto;
+  margin: var(--e3) auto 0;
+}
+
+/* Los dos sitios en una rejilla de dos columnas hecha solo de filetes ocre: una
+   línea arriba, otra abajo y una entre los dos. */
+.lugares {
+  /* Debajo de la tira, pegadas a su borde de abajo, una al lado de la otra. */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0;
+  /* Una tabla de puros filetes negros: arriba, abajo y uno entre los dos
+     sitios. Sus bordes se desvanecen igual que los de la tira de fotos. */
+  border-top: 1px solid var(--tinta);
+  border-bottom: 1px solid var(--tinta);
+  background: var(--papel);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+}
+
+/* Cada sitio en su propio rectángulo de filete fino negro: rótulo en versalitas
+   y nombre en la cursiva de las citas. */
+.lugar {
+  text-align: center;
+  margin: 0;
+  padding: var(--e3) var(--e2);
+}
+.lugar + .lugar { border-left: 1px solid var(--tinta); }.lugar-rotulo {
+  margin: 0;
   font-family: var(--letra-rotulo);
-  font-size: calc(var(--t-menor) * var(--escala-rotulo));
+  font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
+  font-weight: var(--peso-rotulo);
   letter-spacing: var(--aire-dato);
   text-transform: var(--caja-rotulo);
   color: var(--musgo);
-  align-self: center;
 }
-.datos dd { margin: 0; }
+.lugar-nombre {
+  margin: var(--e1) 0 0;
+  font-family: var(--letra-cita);
+  font-style: var(--cursiva-cita);
+  font-size: calc(var(--t-sub) * var(--escala-cita));
+  line-height: 1.25;
+  color: var(--tinta);
+}
+
+/* La tira: la pista lleva dos tandas iguales y avanza media pista, así que el
+   bucle cierra sin saltos. `width: max-content` para que las fotos no se
+   encojan para caber en la sección. */
+/* Llega a los bordes de la sección: el margen negativo le quita el de página y
+   el ancho se queda en el de la sección entera, sin desbordar. */
+/* La franja: la tira de fotos y, encima, las dos cajas de los sitios centradas
+   en vertical. Las cajas van en absoluto para que el centro sea el de la tira. */
+.franja { position: relative; margin-top: var(--e4); }
+
+/* La tira se queda dentro de los márgenes y sus dos bordes se desvanecen, en
+   vez de llegar a los lados de la página. */
+.carrusel {
+  overflow: hidden;
+  margin: 0;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+}
+.carrusel-pista {
+  display: flex;
+  width: max-content;
+  animation: carrusel-marcha 28s linear infinite;
+}
+.carrusel:hover .carrusel-pista,
+.carrusel:focus-within .carrusel-pista { animation-play-state: paused; }
+.carrusel-tanda { display: flex; }
+.carrusel-tanda img {
+  flex: none;
+  width: 12rem;
+  height: 9rem;
+  object-fit: cover;
+  border-radius: var(--r);
+  background: var(--hueco);
+}
+@keyframes carrusel-marcha { to { transform: translateX(-50%); } }
+
+/* Sin movimiento, la tira se queda quieta y se desliza a mano. */
+@media (prefers-reduced-motion: reduce) {
+  .carrusel { overflow-x: auto; }
+  .carrusel-pista { animation: none; }
+  .carrusel-tanda[aria-hidden="true"] { display: none; }
+}
 
 .mapa {
   display: inline-block;

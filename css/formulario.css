@@ -1,4 +1,8 @@
-/* ---------- formulario ---------- */
+/* La cuarta sección (Confirmar) vuelve al papel blanco. Dos IDs para ganarle a
+   `#inicio ~ .seccion` de base.css. */
+#inicio ~ #confirmar { background: var(--papel); }
+
+/* ----------formulario ---------- */
 
 /* Confirmar es lo único que necesitamos de verdad, así que es lo único que se
    levanta del fondo. Ya no es una caja suelta con sus esquinas: la sección

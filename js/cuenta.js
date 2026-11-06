@@ -32,7 +32,7 @@ function hayCuenta() {
 
 function seccionCuenta() {
   if (!hayCuenta()) return '';
-  return '<section class="seccion" id="cuenta-atras">' +
+  return '<section class="seccion ola" id="cuenta-atras">' +
            titulo('cuenta-atras', t('titulo_cuenta')) +
            '<div id="cuenta"></div>' +
            bloqueCalendario() +

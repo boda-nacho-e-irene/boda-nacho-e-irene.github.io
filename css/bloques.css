@@ -19,6 +19,11 @@
    de un título que está a un hilo de distancia. */
 .bloque.plegado .resumen { margin-bottom: 0; }
 
+/* Sección con formulario plegado: no hace falta una pantalla entera para el
+   resumen de una línea. Cuando se abre («Cambiar»), el bloque deja de ser
+   plegado y la sección recupera el suelo normal. */
+.seccion:has(.bloque.plegado) { min-height: 0; }
+
 .resumen-texto { font-size: var(--t-ui); text-wrap: pretty; }
 /* La marca de hecho, en el ocre de la casa y no en un verde de semáforo. */
 .resumen-marca { color: var(--ocre); font-weight: 600; }

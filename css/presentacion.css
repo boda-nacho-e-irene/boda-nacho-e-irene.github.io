@@ -22,7 +22,7 @@
   justify-content: flex-start;
   min-height: 100vh;
   min-height: 100svh;
-  margin: calc(var(--e4) * -1) calc(var(--margen) * -1) 0;
+  margin: calc(var(--e4) * -1) 0 0;
   padding: 11vh var(--e4) var(--e6);
   padding-top: 11svh;
   /* El velo de arriba es el que sostiene la maqueta cuando la pantalla es
@@ -30,10 +30,8 @@
      hasta donde van los nombres. Con el velo, lo que sube llega ya aclarado y
      el texto sigue encima de algo casi liso. En un móvil, que es alto, cae
      sobre el cielo —que ya es casi papel— y no se nota. */
-  background:
-    linear-gradient(to bottom, var(--velo-papel), transparent 48%),
-    url("../img/presentacion.webp") center bottom / cover no-repeat,
-    var(--papel);
+  background: var(--papel);
+  isolation: isolate;
   text-align: center;
   /* Un halo del color del papel detrás de las letras: en el cielo no se ve, y
      es lo que mantiene legible la línea que cae sobre los tejados o sobre las
@@ -41,10 +39,31 @@
   text-shadow: 0 1px 14px var(--capa-grano);
 }
 
-/* La siguiente sección arranca con el mismo aire que da la portada, y el hilo
-   baja hasta ella cruzando el hueco entero. */
-#presentacion + .seccion { margin-top: var(--e6); }
-#presentacion + .seccion::before { height: calc(var(--e6) - var(--hilo-aire)); }
+/* La acuarela va en su propia capa, con los bordes desvanecidos hacia el papel
+   de la sección: no hay una foto con marco que se vea, y lo que sobre de la
+   pantalla (en móvil, casi siempre a los lados) cae sobre el mismo papel. */
+#presentacion::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url("../img/presentacion.webp") center bottom / cover no-repeat;
+  /* El trazo de la costura (sobre.css) también apunta a todos los ::before de
+     sección; aquí se apaga para que la acuarela no quede escalada a cero. */
+  transform: none;
+  transition: none;
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent, #000 22%, #000 90%, transparent),
+    linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, transparent, #000 22%, #000 90%, transparent),
+    linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+  mask-composite: intersect;
+}
+
+/* La siguiente sección pega con la portada: sin hueco entre las dos. */
+#presentacion + .seccion { margin-top: 0; }
 
 /* Rótulo de arriba: versalitas muy abiertas, como el `.novios` de la portada.
    Aquí va en tinta y no en ocre: sobre el cielo de la acuarela el ocre se
