@@ -88,10 +88,10 @@ var TRANSPORTE = {
 var SECCIONES = [
   { id: 'presentacion',  titulo: 'Presentación' },
   { id: 'inicio',        titulo: 'Inicio' },
+  { id: 'cuenta-atras',  titulo: 'Cuenta atrás' },
   { id: 'el-dia',        titulo: 'El gran día' },
   { id: 'confirmar',     titulo: 'Confirmar' },
   { id: 'alergias',      titulo: 'Alergias' },
-  { id: 'cuenta-atras',  titulo: 'Cuenta atrás' },
   { id: 'dedicatoria',   titulo: 'Dedicatoria' },
   { id: 'playlist',      titulo: 'Playlist' },
   { id: 'transporte',    titulo: 'Transporte' },
@@ -161,6 +161,7 @@ var TEXTOS = {
 
 
   titulo_dia: 'El gran día',
+  lugar_intro: 'Queríamos un sitio con naturaleza, con iglesia y que pillase muuuy cerquita. Nada se nos resiste.',
   dia_fecha: 'Fecha',
   dia_hora: 'Hora',
   dia_lugar: 'Lugar',
@@ -187,7 +188,9 @@ var TEXTOS = {
   alergias_enviar: 'Guardar alergias',
   alergias_guardado: 'Guardado. Se lo pasamos a la cocina.',
 
-  titulo_cuenta: 'Cuenta atrás',
+  titulo_cuenta: 'No puedo esperar, ¿Cuándo?',
+  cuenta_intro_1: 'Todo lo bueno se hace esperar y tenemos muchas ganas de disfrutar del día con vosotros, hemos cogido una fecha en la que no haga fresquito para que todos esos outfits puedan relucir.',
+  cuenta_intro_2: 'Abajo te dejamos un recordatorio para bloquear la agenda en el calendario porque olvidarlo no creemos que podáis.',
   cuenta_hoy: 'Hoy nos casamos',
   cuenta_dia: 'día',
   cuenta_dias: 'días',

@@ -1,7 +1,7 @@
 /* ---------- cuenta atrás ---------- */
 
 /* Las cifras y el botón de guardar la fecha, debajo: una pantalla. */
-#cuenta-atras { --pantallas: 1; }
+#cuenta-atras { --pantallas: 1; padding-bottom: var(--e4); }
 
 /* La sección del «save the date» va con la acuarela rosa. Arriba se funde en
    papel, a juego con la ola de la sección anterior; abajo acaba en su ola
@@ -25,7 +25,7 @@
 }
 
 .digitos > div { padding: var(--e1) 0; }
-.digitos > div + div { border-left: var(--linea); }
+.digitos > div + div { border-left: 1px solid var(--terracota); }
 
 .digitos .valor {
   display: block;
@@ -55,6 +55,50 @@
   margin: 0;
 }
 
+/* El texto de introducción va encima de la cuenta atrás, con un marcador a la
+   derecha que hace de sitio para una imagen. */
+.cuenta-intro-fila {
+  display: flow-root;
+  margin-bottom: var(--e4);
+}
+.cuenta-intro {
+  margin: 0 0 var(--e2);
+  font-size: var(--t-ui);
+  line-height: 1.55;
+  color: var(--musgo);
+  text-align: justify;
+  hyphens: auto;
+  text-wrap: pretty;
+}
+.cuenta-intro:last-child { margin-bottom: 0; }
+
+/* Marcador de imagen: el dibujo, sin fondo, más grande. Asoma un poco por el
+   borde de la página: la sección corta lo que se sale. */
+/* El texto no entra en el círculo que dibuja el sitio: `shape-outside` marca un
+   círculo invisible de radio 9rem centrado en el dibujo, y `shape-margin` deja
+   un poco de aire alrededor. Las coordenadas son las de la caja del float. */
+.cuenta-placeholder {
+  float: right;
+  width: 18rem;
+  height: 18rem;
+  margin: 0 calc(-1 * var(--margen) - 5rem) var(--e2) var(--e3);
+  shape-outside: circle(9rem at calc(var(--e3) + 9rem) 9rem);
+  shape-margin: var(--e2);
+}
+.cuenta-placeholder img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+#cuenta-atras,
+#el-dia { overflow-x: clip; }
+#el-dia .cuenta-placeholder {
+  float: left;
+  margin: 0 var(--e3) var(--e2) calc(-1 * var(--margen) - 5rem);
+  shape-outside: circle(9rem at calc(4rem - var(--margen)) 9rem);
+}
+
 /* ---------- guardar la fecha ---------- */
 
 /* Vive debajo de la cuenta atrás, dentro de la misma sección, separado por la
@@ -62,18 +106,7 @@
 .calendario {
   margin-top: var(--e4);
   padding-top: var(--e3);
-  border-top: var(--linea);
   text-align: center;
-}
-
-.calendario-rotulo {
-  display: block;
-  margin-bottom: var(--e1);
-  font-family: var(--letra-rotulo);
-  font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
-  letter-spacing: var(--aire-marco);
-  text-transform: var(--caja-rotulo);
-  color: var(--musgo);
 }
 
 .calendario-texto {
@@ -95,15 +128,34 @@
 }
 .guardar:hover { background: var(--ocre); color: var(--piedra); }
 
-.calendario-otro { margin: var(--e2) 0 0; font-size: var(--t-nota); }
-
-.calendario-otro a {
-  color: var(--musgo);
-  text-decoration: none;
-  border-bottom: var(--linea);
-  padding-bottom: 1px;
+/* Los dos botones del calendario: relleno terracota oscuro, sin borde y con
+   letra blanca de papel. El hover pasa a tinta. */
+.calendario .guardar {
+  background: var(--terracota);
+  color: var(--papel);
+  border: 0;
+  border-radius: 10px;
+  opacity: .8;
+  padding: var(--e1) var(--e3);
+  min-height: 2.5rem;
+  font-size: var(--t-menor);
 }
-.calendario-otro a:hover { color: var(--tinta); border-bottom-color: currentColor; }
+.calendario .guardar:hover { background: var(--tinta); color: var(--papel); }
+
+/* Los dos botones del calendario, uno al lado del otro, con el mismo formato. */
+.calendario-botones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--e2);
+}
+.calendario-botones .guardar {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
 
 /* Visible solo para lectores de pantalla. */
 .solo-voz {

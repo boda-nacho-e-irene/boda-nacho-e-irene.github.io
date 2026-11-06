@@ -66,7 +66,8 @@
 #el-dia { --pantallas: 1; }
 
 /* El título de «¿Dónde?» va grande: es lo primero que se lee de la sección. */
-#el-dia .titulo {
+#el-dia .titulo,
+#cuenta-atras .titulo {
   display: inline-block;
   font-size: calc(var(--t-titulo) * 1.45 * var(--escala-titulo));
   padding: var(--e1) var(--e3);
@@ -87,18 +88,28 @@
     linear-gradient(var(--velo-papel), var(--velo-papel)),
     url("../img/fondos/fondo-acuarela-verde-claro.jpg") center / cover no-repeat;
   /* Aire para que el fundido quede por encima del título y no lo toque. */
-  padding-top: var(--e6);
+  padding-top: calc(var(--e6) + 1.5rem);
   /* Aire debajo del botón del mapa, para que la ola de abajo no lo tape. */
   padding-bottom: var(--e4);
+  /* El borde de arriba es la línea de encuentro con la sección anterior: esta
+     sección sube 1,5rem por detrás de ella y su borde superior es una ola.
+     Dos capas: la banda de arriba recortada en ola, y el resto entero. */
+  margin-top: -1.5rem;
+  -webkit-mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30C150 0 300 60 450 30S750 0 900 30S1150 60 1200 30V60H0Z'/%3E%3C/svg%3E") top / 100% 1.5rem no-repeat,
+    linear-gradient(#000 0 0) bottom / 100% calc(100% - 1.5rem) no-repeat;
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30C150 0 300 60 450 30S750 0 900 30S1150 60 1200 30V60H0Z'/%3E%3C/svg%3E") top / 100% 1.5rem no-repeat,
+    linear-gradient(#000 0 0) bottom / 100% calc(100% - 1.5rem) no-repeat;
 }
 
-/* La floritura cierra la sección de los novios y la separa de la siguiente:
-   centrada, debajo de los nombres. */
-#inicio .separador {
+/* La floritura abre la sección de confirmar, justo debajo de la sección de
+   los lugares: centrada, arriba del todo. */
+#confirmar .separador {
   display: block;
   width: min(14rem, 60%);
   height: auto;
-  margin: var(--e3) auto 0;
+  margin: 0 auto var(--e3);
 }
 
 /* Los dos sitios en una rejilla de dos columnas hecha solo de filetes ocre: una
@@ -110,9 +121,10 @@
   margin: 0;
   /* Una tabla de puros filetes negros: arriba, abajo y uno entre los dos
      sitios. Sus bordes se desvanecen igual que los de la tira de fotos. */
-  border-top: 1px solid var(--tinta);
-  border-bottom: 1px solid var(--tinta);
-  background: var(--papel);
+  border-top: 1px solid var(--verde-oscuro);
+  border-bottom: 1px solid var(--verde-oscuro);
+  /* El papel de la tabla va al 60%: la acuarela se intuye debajo. */
+  background: color-mix(in srgb, var(--papel) 60%, transparent);
   -webkit-mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
   mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
 }
@@ -124,7 +136,7 @@
   margin: 0;
   padding: var(--e3) var(--e2);
 }
-.lugar + .lugar { border-left: 1px solid var(--tinta); }.lugar-rotulo {
+.lugar + .lugar { border-left: 1px solid var(--verde-oscuro); }.lugar-rotulo {
   margin: 0;
   font-family: var(--letra-rotulo);
   font-size: calc(var(--t-rotulo) * var(--escala-rotulo));
@@ -147,6 +159,37 @@
    encojan para caber en la sección. */
 /* Llega a los bordes de la sección: el margen negativo le quita el de página y
    el ancho se queda en el de la sección entera, sin desbordar. */
+/* El icono de sección va en la misma línea que el título: a la izquierda en
+   «No puedo esperar» (el calendario) y a la derecha en «y... ¿Dónde?» (el
+   mapa). El orden de los hijos es el que decide el lado. */
+.titulo-fila {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e2);
+  margin-bottom: var(--e3);
+}
+/* Nada de saltar de línea: el título se parte dentro de su hueco, y el icono
+   queda siempre al lado. */
+.titulo-fila .titulo { margin: 0; min-width: 0; text-align: center; }
+.titulo-fila .emblema { flex: none; margin: 0; }
+.titulo-fila .emblema .icono { height: 28px; }
+
+/* El párrafo entre el título y la tira, con el marcador de imagen a la izquierda. */
+.lugar-intro-fila {
+  display: flow-root;
+  margin: var(--e3) 0 var(--e4);
+}
+.lugar-intro {
+  margin: 0;
+  font-size: var(--t-ui);
+  line-height: 1.55;
+  color: var(--musgo);
+  text-align: justify;
+  hyphens: auto;
+  text-wrap: pretty;
+}
+
 /* La franja: la tira de fotos y, encima, las dos cajas de los sitios centradas
    en vertical. Las cajas van en absoluto para que el centro sea el de la tira. */
 .franja { position: relative; margin-top: var(--e4); }
@@ -184,13 +227,23 @@
   .carrusel-tanda[aria-hidden="true"] { display: none; }
 }
 
+/* El botón del mapa: el mismo formato que los del calendario, pero en verde
+   oscuro. Relleno sin borde, letra de papel, medio transparente y esquinas
+   algo redondeadas. */
 .mapa {
-  display: inline-block;
-  margin-top: var(--e3);
-  font-size: var(--t-ui);
-  color: var(--ocre);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: var(--e1) var(--e3);
+  font-size: var(--t-menor);
+  color: var(--papel);
+  background: var(--verde-oscuro);
+  border: 0;
+  border-radius: 10px;
+  opacity: .8;
   text-decoration: none;
-  border-bottom: 1px solid currentColor;
-  padding-bottom: 1px;
+  transition: background-color .18s;
 }
+.mapa:hover { background: var(--tinta); }
 

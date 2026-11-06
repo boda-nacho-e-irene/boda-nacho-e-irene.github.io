@@ -82,16 +82,21 @@ function pintar(d) {
           escapar(t('inicio_cita_2')) +
           ' <br> ' + escapar(t('inicio_cita_3')) + '</p>' +
         '<p class="novios">' + escapar(BODA.novios) + '</p>' +
-        '<img class="separador" src="img/separadores/floritura-horizontal-ocre.webp" width="1200" height="298" alt="" aria-hidden="true">' +
       '</section>' +
 
-      '<section class="seccion ola ola-arriba" id="el-dia">' +
-        '<h2 class="titulo">y... ¿Dónde?</h2>' +
+      seccionCuenta() +
+
+      '<section class="seccion ola" id="el-dia">' +
+        tituloSinIcono('y... ¿Dónde?') +
+        '<div class="lugar-intro-fila">' + marcadorImagen('img/dibujos/mapa.png') +
+          '<p class="lugar-intro">' + escapar(t('lugar_intro')) + '</p>' +
+        '</div>' +
         '<div class="franja">' + carruselLugar() + lugaresDelDia() + '</div>' +
         botonMapa() +
       '</section>' +
 
       '<section class="seccion" id="confirmar">' +
+        '<img class="separador" src="img/separadores/floritura-horizontal-ocre.webp" width="1200" height="298" alt="" aria-hidden="true">' +
         titulo('confirmar', t('titulo_confirmar')) +
         bloque('confirmar',
           '<div class="eleccion">' +
@@ -115,7 +120,6 @@ function pintar(d) {
       '</section>' +
 
       seccionAlergias() +
-      seccionCuenta() +
       seccionPlaylist() +
       seccionTransporte() +
 
