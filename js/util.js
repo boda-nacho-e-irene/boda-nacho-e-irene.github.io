@@ -59,6 +59,45 @@ function escapar(s) {
    icono lo sustituye. La comprobación la hace `probarIcono()` después de pintar:
    el arco ya está puesto y solo se cambia si el icono llega, así que ni parpadea
    ni da un salto, y una sección sin icono se queda con su arco sin enterarse. */
+/* Los sitios del día, cada uno con su rótulo, su nombre y su enlace al mapa. */
+function lugaresDelDia() {
+  var html = '';
+  for (var i = 0; i < BODA.lugares.length; i++) {
+    var l = BODA.lugares[i];
+    html += '<div class="lugar">' +
+              '<p class="lugar-rotulo">' + escapar(l.etiqueta) + '</p>' +
+              '<p class="lugar-nombre">' + escapar(l.nombre) + '</p>' +
+            '</div>';
+  }
+  return '<div class="lugares">' + html + '</div>';
+}
+
+/* El único enlace al mapa, debajo de la tira de fotos. */
+function botonMapa() {
+  if (!BODA.mapa) return '';
+  return '<p class="lugar-mapa"><a class="mapa" href="' + escapar(BODA.mapa) + '" target="_blank" rel="noopener">' +
+           escapar(t('dia_mapa')) + '</a></p>';
+}
+
+/* El carrusel del lugar: la misma tanda dos veces, la segunda escondida a los
+   lectores de pantalla. Al mover la pista la mitad de su ancho, el bucle cierra
+   sin saltos. */
+function carruselLugar() {
+  if (!LUGAR_FOTOS || !LUGAR_FOTOS.length) return '';
+  var tanda = '';
+  for (var i = 0; i < LUGAR_FOTOS.length; i++) {
+    var f = LUGAR_FOTOS[i];
+    tanda += '<img src="' + escapar(f.src) + '" width="' + escapar(f.ancho) + '" height="' + escapar(f.alto) +
+             '" alt="' + escapar(f.alt) + '" loading="lazy" decoding="async">';
+  }
+  return '<div class="carrusel" role="region" aria-label="Fotos del lugar">' +
+           '<div class="carrusel-pista">' +
+             '<div class="carrusel-tanda">' + tanda + '</div>' +
+             '<div class="carrusel-tanda" aria-hidden="true">' + tanda.replace(/alt="[^"]*"/g, 'alt=""') + '</div>' +
+           '</div>' +
+         '</div>';
+}
+
 function titulo(id, texto) {
   return '<p class="emblema" id="emblema-' + escapar(id) + '" aria-hidden="true">' +
            '<span class="arco-chico"></span>' +

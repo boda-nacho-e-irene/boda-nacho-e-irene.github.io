@@ -27,6 +27,11 @@
      el color base; aquí manda el literal. */
   --tinta-honda: #1A221D;               /* tinta un punto más oscura: hover del botón */
   --papel:       #F3F0E7;               /* medio tono por encima de la piedra */
+  /* Colores sacados de la acuarela de presentación (img/presentacion.webp):
+     el trigo claro sirve de fondo a las secciones desde la tercera. */
+  --arena:       #E6D19F;
+  --salvia:      #BDC3A2;   /* verde claro de las hojas de la misma acuarela */
+  --amarillo:    #ECCF74;   /* amarillo de la misma acuarela, sin las flores */
 
   /* Las sombras son color con una forma delante: viven aquí para que sigan a
      la tinta y no se queden de otro color al cambiar la paleta. */
@@ -248,9 +253,8 @@ main { margin: 0 auto; }
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: calc(var(--pantallas) * 100vh);
-  min-height: calc(var(--pantallas) * 100svh);
-  padding: var(--e4) var(--margen) var(--paso-hueco);
+  min-height: 0;
+  padding: var(--e3) var(--margen);
 }
 /* Las secciones de después de «Confirmar» se esconden si alguien no viene.
    Gana al `display: flex` de arriba por especificidad, así que se van del todo
@@ -264,13 +268,54 @@ main { margin: 0 auto; }
    que enseñar va en la otra dirección. La primera sección no la lleva: no
    viene de ninguna parte. */
 .seccion + .seccion::before {
-  content: '';
+  content: none; /* sin costura: las secciones pegan directamente */
   position: absolute;
   top: var(--e3);
   left: calc(50% - var(--costura) / 2);
   width: var(--costura);
   height: 1px;
   background: var(--hueco);
+}
+
+/* Desde la tercera sección (después de la portada) el fondo es el trigo de la
+   acuarela. La presentación y la portada se quedan en papel. */
+#inicio ~ .seccion { background: var(--arena); }
+
+/* Una sección «ola» acaba en una ola y no en una recta: el borde de abajo es
+   un papel con el borde de arriba ondulado, del color de la sección siguiente
+   (el papel). Va con una máscara, así que el color sale de los tokens y no del
+   SVG. Deja aire debajo para que la ola no tape el último elemento. */
+.ola { padding-bottom: var(--e4); }
+.ola::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% - 1.5rem);
+  height: 1.5rem;
+  z-index: 1;
+  background: var(--papel);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30C150 0 300 60 450 30S750 0 900 30S1150 60 1200 30V60H0Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30C150 0 300 60 450 30S750 0 900 30S1150 60 1200 30V60H0Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+/* La misma ola, boca abajo, para el borde de arriba: el papel de encima se
+   curva hacia abajo y la sección empieza ondulada en vez de con un fundido. */
+.seccion.ola-arriba::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  width: auto;
+  height: 1.5rem;
+  z-index: 1;
+  background: var(--papel);
+  transform: scaleY(-1);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30C150 0 300 60 450 30S750 0 900 30S1150 60 1200 30V60H0Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30C150 0 300 60 450 30S750 0 900 30S1150 60 1200 30V60H0Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  pointer-events: none;
 }
 
 /* Emblema de sección: el arco por defecto, o el icono de `img/iconos/<id>.svg`

@@ -16,8 +16,14 @@ var BODA = {
 
   fecha:  '17 de Julio de 2027',
   lugar:  'Convento de Mave, Palencia',
+  // Los dos sitios del día: la ceremonia y la recepción.
+  lugares: [
+    { etiqueta: 'Ceremonia', nombre: 'Iglesia de Santa María de Mave' },
+    { etiqueta: 'Recepción', nombre: 'Hotel El Convento' }
+  ],
   hora:   '12:30',
-  mapa:   'https://www.google.com/maps/search/?api=1&query=Convento%20de%20Mave%20Palencia',
+  // El único enlace al mapa de «¿Dónde?»: lleva a la recepción, en el hotel.
+  mapa:   'https://www.google.com/maps/search/?api=1&query=Hotel%20El%20Convento%20Mave%20Palencia',
   // La misma fecha y hora de arriba, en formato máquina y con el desfase de
   // España en julio (+02:00), para que la cuenta atrás salga bien también si
   // alguien abre la invitación desde otro huso. Si cambias 'fecha' u 'hora',
@@ -124,6 +130,20 @@ var ALERGENOS = [
    rechazarla. ITUNES_PAIS es el catálogo de iTunes en el que se busca. */
 var MAX_CANCIONES = 3;
 var ITUNES_PAIS = 'ES';
+
+/* Fotos del lugar para el carrusel de «El gran día»: todas las de img/place/.
+   Una página estática no puede listar una carpeta, así que la lista va a mano:
+   al añadir o quitar una foto en img/place/, se toca aquí también. Los nombres
+   con espacios o paréntesis van codificados en la ruta (%20, %28, %29). */
+var LUGAR_FOTOS = [
+  { src: 'img/place/2Exterior%20en%20piedra.jpg', ancho: 640, alto: 351, alt: 'Exterior del convento de Mave en piedra' },
+  { src: 'img/place/81446263.jpg', ancho: 1024, alto: 683, alt: 'El convento de Mave' },
+  { src: 'img/place/BJSSBMYIU7WS5XCR2R6ZVXAKK4.avif', ancho: 1960, alto: 1470, alt: 'El convento de Mave' },
+  { src: 'img/place/claustro-mave.webp', ancho: 1360, alto: 1020, alt: 'El claustro del convento de Mave' },
+  { src: 'img/place/CONVENTO_DE_MAVE_01.jpg', ancho: 1024, alto: 683, alt: 'El convento de Mave' },
+  { src: 'img/place/images%20%281%29.jpg', ancho: 547, alto: 365, alt: 'El convento de Mave' },
+  { src: 'img/place/images.jpg', ancho: 547, alto: 365, alt: 'El convento de Mave' }
+];
 
 
 /* Los textos de la página. Cada clave se usa con t('clave') (js/configuracion.js).

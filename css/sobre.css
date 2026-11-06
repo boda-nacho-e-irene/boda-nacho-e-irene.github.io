@@ -168,30 +168,12 @@ body.sobre-visible { overflow: hidden; }
 
 /* ---------- entrada y revelado ---------- */
 
-.entra { animation: subir .7s ease both; }
+/* La invitación ya está pintada detrás del sobre: no se le aplica ninguna
+   entrada de opacidad, porque al apartarse el sobre bajaba a cero y volvía a
+   subir, y eso se veía como un parpadeo. Solo se traza el arco. */
 .arco path { stroke-dasharray: 340; stroke-dashoffset: 340; }
 .entra .arco path { animation: trazo 1.1s ease .15s forwards; }
 
-/* Las secciones se esconden solo bajo `.con-revelado`, y esa clase la pone el
-   JS al montar el observador. Si el navegador no trae IntersectionObserver, o
-   si el script se cae antes, la clase no llega y la invitación se ve entera:
-   nunca una página en blanco por culpa de una animación. */
-.con-revelado .seccion {
-  opacity: 0;
-  transform: translateY(14px);
-  transition: opacity .6s ease .18s, transform .6s ease .18s;
-}
-.con-revelado .seccion.dentro { opacity: 1; transform: none; }
-
-/* El retardo de arriba es para esto: primero se traza la costura, abriéndose
-   desde el centro, y la sección que empieza en ella aparece después. */
-.con-revelado .seccion::before {
-  transform: scaleX(0);
-  transition: transform .45s ease;
-}
-.con-revelado .seccion.dentro::before { transform: scaleX(1); }
-
-@keyframes subir { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes trazo { to { stroke-dashoffset: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
@@ -199,6 +181,4 @@ body.sobre-visible { overflow: hidden; }
   * { animation: none !important; transition: none !important; }
   .arco path { stroke-dashoffset: 0; }
   .cuerpo, .respuesta { transition: none; }
-  .con-revelado .seccion { opacity: 1; transform: none; }
-  .con-revelado .seccion::before { transform: scaleX(1); }
 }

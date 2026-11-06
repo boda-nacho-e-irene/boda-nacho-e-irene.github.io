@@ -76,25 +76,19 @@ function pintar(d) {
             '<path d="M4 130 L4 64 A56 56 0 0 1 116 64 L116 130"/>' +
           '</svg>' +
         '</p>' +
-        '<p class="novios">' + escapar(BODA.novios) + '</p>' +
         '<h2 class="nombre"> ' + escapar(t('inicio_saludo')) + ', ' + escapar(d.nombre) + '</h2>' +
         '<p class="cita">' + escapar(t('inicio_cita_1')) +
           ' <strong> ' + escapar(t('inicio_cita_destacado')) + ' </strong> ' +
           escapar(t('inicio_cita_2')) +
           ' <br> ' + escapar(t('inicio_cita_3')) + '</p>' +
+        '<p class="novios">' + escapar(BODA.novios) + '</p>' +
+        '<img class="separador" src="img/separadores/floritura-horizontal-ocre.webp" width="1200" height="298" alt="" aria-hidden="true">' +
       '</section>' +
 
-      '<section class="seccion" id="el-dia">' +
-        titulo('el-dia', t('titulo_dia')) +
-        '<dl class="datos">' +
-          '<div><dt>' + escapar(t('dia_fecha')) + '</dt><dd>' + escapar(BODA.fecha) + '</dd></div>' +
-          '<div><dt>' + escapar(t('dia_hora')) + '</dt><dd>' + escapar(BODA.hora) + '</dd></div>' +
-          '<div><dt>' + escapar(t('dia_lugar')) + '</dt><dd>' + escapar(BODA.lugar) + '</dd></div>' +
-        '</dl>' +
-        (BODA.mapa
-          ? '<p style="margin:0"><a class="mapa" href="' + escapar(BODA.mapa) + '" target="_blank" rel="noopener">' +
-              escapar(t('dia_mapa')) + '</a></p>'
-          : '') +
+      '<section class="seccion ola ola-arriba" id="el-dia">' +
+        '<h2 class="titulo">y... ¿Dónde?</h2>' +
+        '<div class="franja">' + carruselLugar() + lugaresDelDia() + '</div>' +
+        botonMapa() +
       '</section>' +
 
       '<section class="seccion" id="confirmar">' +
