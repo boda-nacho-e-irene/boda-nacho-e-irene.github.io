@@ -2,6 +2,61 @@
    `#inicio ~ .seccion` de base.css. */
 #inicio ~ #confirmar { background: var(--papel); }
 
+/* Lo que va después de «Confirmar», en una sola sección sobre el fondo azul. */
+#inicio ~ #mas-detalles {
+  background:
+    linear-gradient(var(--velo-papel), var(--velo-papel)),
+    url("../img/fondos/fondo-acuarela-azul.jpg") center / cover no-repeat;
+  padding-top: var(--e4);
+}
+.tras + .tras { margin-top: var(--e5); }
+
+/* El título general de la sección de detalles y lo que dice debajo. */
+.mas-intro {
+  max-width: 34rem;
+  margin: 0 auto var(--e4);
+  text-align: center;
+  font-size: var(--t-ui);
+  line-height: 1.55;
+  color: var(--musgo);
+  text-wrap: pretty;
+}
+
+/* Los botones del formulario, sobre papel blanco. Los marcados (la hora o el
+   «sí» elegido, en ocre) y la X azul conservan su color. */
+#confirmar button:not([aria-pressed="true"]):not(.no),
+#mas-detalles button:not([aria-pressed="true"]):not(.no) {
+  background: var(--papel);
+  color: var(--tinta);
+}
+
+/* Icono de línea delante del subtítulo de cada bloque: en el ocre de la casa. */
+.sub-icono {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: var(--e1);
+  vertical-align: -0.3rem;
+  fill: none;
+  stroke: var(--ocre);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Con el formulario ya plegado, el subtítulo, lo elegido y el botón de cambiar
+   van en una sola línea: así una sección rellena casi no ocupa sitio. */
+.tras:has(.bloque.plegado) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e1) var(--e2);
+}
+.tras:has(.bloque.plegado) > .subtitulo { flex: none; margin: 0; }
+.tras:has(.bloque.plegado) > .bloque { flex: 1 1 16rem; min-width: 0; }
+.bloque.plegado .resumen { margin: 0; padding: 0; border: 0; }
+.bloque.plegado .estado:empty { display: none; }
+
 /* ----------formulario ---------- */
 
 /* Confirmar es lo único que necesitamos de verdad, así que es lo único que se
@@ -18,7 +73,6 @@
 #confirmar {
   --pantallas: 1;
   background: var(--papel);
-  border-top: var(--linea);
   border-bottom: var(--linea);
 }
 

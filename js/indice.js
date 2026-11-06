@@ -3,6 +3,10 @@
 /* Una sección está hecha cuando su formulario ya está guardado, o sea cuando
    tiene resumen. Las que no piden nada no cuentan. */
 function seccionHecha(id) {
+  /* «Más detalles» va pegada a «Confirmar»: cuando Confirmar ya está hecha, las
+     dos bajan juntas; si no, se queda justo debajo de ella. */
+  if (id === 'mas-detalles') return seccionHecha('confirmar');
+
   for (var i = 0; i < BLOQUES.length; i++) {
     if (BLOQUES[i].id === id) return !!BLOQUES[i].resumen();
   }
@@ -94,6 +98,18 @@ function ordenarSecciones() {
   }
 
   var orden = pendientes.concat(hechas);
+
+  /* Una sección que no está en SECCIONES (por ejemplo, si la hoja trae una
+     lista vieja) se queda junto a la que tenía delante en la página. Si no, se
+     quedaría en su sitio mientras las demás se mueven, y saldría por encima. */
+  var hijos = contenido.children;
+  for (var k = 0; k < hijos.length; k++) {
+    var suelta = hijos[k];
+    if (suelta.tagName !== 'SECTION' || orden.indexOf(suelta) >= 0) continue;
+    var anterior = k > 0 ? orden.indexOf(hijos[k - 1]) : -1;
+    orden.splice(anterior + 1, 0, suelta);
+  }
+
   if (mismoOrden(contenido, orden)) return;
 
   /* Antes de tocar nada: qué sección tiene delante el invitado y a qué altura,
@@ -105,6 +121,9 @@ function ordenarSecciones() {
   var foco = document.activeElement;
 
   for (var j = 0; j < orden.length; j++) { contenido.appendChild(orden[j]); }
+  /* El pie vacío siempre va al final, después de las secciones que se acaban de mover. */
+  var pie = contenido.getElementsByClassName('pie-pagina')[0];
+  if (pie) { contenido.appendChild(pie); }
 
   if (foco && foco.focus && contenido.contains(foco)) {
     // El objeto no lo entiende el navegador viejo, que se limita a ignorarlo;

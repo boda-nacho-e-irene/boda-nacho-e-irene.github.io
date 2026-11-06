@@ -1,7 +1,7 @@
 /* ---------- cuenta atrás ---------- */
 
 /* Las cifras y el botón de guardar la fecha, debajo: una pantalla. */
-#cuenta-atras { --pantallas: 1; padding-bottom: var(--e4); }
+#cuenta-atras { --pantallas: 0; padding-bottom: var(--e6); }
 
 /* La sección del «save the date» va con la acuarela rosa. Arriba se funde en
    papel, a juego con la ola de la sección anterior; abajo acaba en su ola
@@ -11,7 +11,7 @@
     linear-gradient(to bottom, var(--papel), transparent 30%),
     linear-gradient(var(--velo-papel), var(--velo-papel)),
     url("../img/fondos/fondo-acuarela-rojo-claro.jpg") center / cover no-repeat;
-  padding-top: var(--e6);
+  padding-top: var(--e3);
 }
 
 /* Columnas de ancho fijo: las cifras no mueven la maqueta al cambiar. Las
@@ -58,9 +58,12 @@
 /* El texto de introducción va encima de la cuenta atrás, con un marcador a la
    derecha que hace de sitio para una imagen. */
 .cuenta-intro-fila {
-  display: flow-root;
-  margin-bottom: var(--e4);
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+  margin-bottom: var(--e3);
 }
+.cuenta-intro-texto { flex: 1 1 auto; min-width: 0; }
 .cuenta-intro {
   margin: 0 0 var(--e2);
   font-size: var(--t-ui);
@@ -71,19 +74,20 @@
   text-wrap: pretty;
 }
 .cuenta-intro:last-child { margin-bottom: 0; }
+.cuenta-fecha strong { font-weight: 700; color: var(--tinta); }
 
 /* Marcador de imagen: el dibujo, sin fondo, más grande. Asoma un poco por el
    borde de la página: la sección corta lo que se sale. */
-/* El texto no entra en el círculo que dibuja el sitio: `shape-outside` marca un
-   círculo invisible de radio 9rem centrado en el dibujo, y `shape-margin` deja
-   un poco de aire alrededor. Las coordenadas son las de la caja del float. */
+/* El dibujo va en la misma línea que el texto, centrado en vertical. Sale un
+   poco por el borde de la página (la sección corta lo que se sale). */
 .cuenta-placeholder {
-  float: right;
+  flex: 0 0 18rem;
   width: 18rem;
   height: 18rem;
-  margin: 0 calc(-1 * var(--margen) - 5rem) var(--e2) var(--e3);
-  shape-outside: circle(9rem at calc(var(--e3) + 9rem) 9rem);
-  shape-margin: var(--e2);
+}
+#cuenta-atras .cuenta-placeholder {
+  order: 2;
+  margin-right: calc(-1 * var(--margen) - 5rem);
 }
 .cuenta-placeholder img {
   display: block;
@@ -94,9 +98,12 @@
 #cuenta-atras,
 #el-dia { overflow-x: clip; }
 #el-dia .cuenta-placeholder {
-  float: left;
-  margin: 0 var(--e3) var(--e2) calc(-1 * var(--margen) - 5rem);
-  shape-outside: circle(9rem at calc(4rem - var(--margen)) 9rem);
+  margin-left: calc(-1 * var(--margen) - 5rem);
+}
+
+/* En el móvil el dibujo baja de tamaño para que el texto tenga sitio. */
+@media (max-width: 600px) {
+  .cuenta-placeholder { flex-basis: 11rem; width: 11rem; height: 11rem; }
 }
 
 /* ---------- guardar la fecha ---------- */
@@ -104,8 +111,7 @@
 /* Vive debajo de la cuenta atrás, dentro de la misma sección, separado por la
    misma línea fina que las juntas del resto de la página. */
 .calendario {
-  margin-top: var(--e4);
-  padding-top: var(--e3);
+  margin: var(--e2) 0 var(--e3);
   text-align: center;
 }
 
