@@ -50,7 +50,11 @@
   --sobre-lado:   #EDE8DB;
   --solapa-alta:  #E1DBC8;
   --solapa-baja:  #EDE9DC;
-  --lacre-trazo:  rgba(249,246,238,.9); /* el arco grabado en el lacre */
+  /* Las manchas de acuarela del fondo del sobre y del marco de la carta: los
+     colores de la acuarela de presentación, rebajados a casi nada. */
+  --mancha-rosa:  rgba(188,112,89,.20);
+  --mancha-verde: rgba(189,195,162,.45);
+  --mancha-azul:  rgba(95,127,149,.16);
 
   /* ---------- tipos ---------- */
   /* Las dos familias son el material. */
@@ -131,6 +135,11 @@
   --margen: 1.5rem;
   /* Lo que mide el filete que marca la junta entre dos pantallas. */
   --costura: 2.5rem;
+  /* Lo que tarda el fondo de una sección en deshacerse en papel por arriba y
+     por abajo. Es lo mismo que mide el desvanecido de la acuarela de la
+     presentación en un móvil (un 10% de la pantalla); subirlo hace las
+     uniones más largas y más lentas. */
+  --fundido: 5rem;
 
   /* Lo que el paginador se reserva abajo para no pisar el contenido: su aire,
      su botón y su aire otra vez. */
@@ -187,6 +196,10 @@
     --velo-papel:  color-mix(in srgb, var(--piedra) 65%,  transparent);
     --relleno:     color-mix(in srgb, var(--piedra) 82%,  var(--tinta));
 
+    --mancha-rosa:  color-mix(in srgb, var(--terracota) 20%, transparent);
+    --mancha-verde: color-mix(in srgb, var(--salvia)    45%, transparent);
+    --mancha-azul:  color-mix(in srgb, var(--azul)      16%, transparent);
+
     --sombra:        0 1px 2px  color-mix(in srgb, var(--tinta) 4%,  transparent),
                      0 6px 20px color-mix(in srgb, var(--tinta) 6%,  transparent);
     --sombra-indice: 8px 0 28px color-mix(in srgb, var(--tinta) 12%, transparent);
@@ -197,7 +210,11 @@
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+/* El hueco de la barra de desplazamiento se guarda siempre, también mientras
+   el sobre tapa la página y no hay barra. Si no, al apartarse el sobre la
+   barra aparece de golpe, la columna se corre medio hueco a la izquierda y la
+   presentación salta justo cuando la carta desplegada se funde con ella. */
+html { scroll-behavior: smooth; scrollbar-gutter: stable; }
 
 body {
   margin: 0;
@@ -258,7 +275,36 @@ main { margin: 0 auto; }
   justify-content: center;
   min-height: 0;
   padding: var(--e3) var(--margen);
+  /* Para que el fundido de abajo quede detrás del contenido y no salga de la
+     sección: su `z-index: -1` se queda aquí dentro. */
+  isolation: isolate;
 }
+
+/* El fundido: el mismo de la acuarela de la presentación, ahora en todas las
+   uniones. Allí la acuarela se desvanece hacia el papel y la portada, que es
+   papel, empieza justo donde acaba; no hay corte porque a los dos lados de la
+   junta hay el mismo color. Aquí se hace lo mismo con todas: cada sección se
+   deshace en papel por arriba y por abajo, así que dos secciones cualesquiera
+   se encuentran siempre en papel, vengan en el orden que vengan y aunque se
+   esconda alguna.
+
+   Es una capa de papel por delante del fondo de la sección y por detrás del
+   contenido, opaca en los bordes y transparente en el medio. Sobre una
+   sección de papel no se ve; sobre una acuarela es el desvanecido. La
+   presentación no la lleva: ya se funde ella sola con su máscara. */
+.seccion::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to bottom,
+    var(--papel),
+    transparent var(--fundido),
+    transparent calc(100% - var(--fundido)),
+    var(--papel));
+  pointer-events: none;
+}
+#presentacion::after { content: none; }
 /* Las secciones de después de «Confirmar» se esconden si alguien no viene.
    Gana al `display: flex` de arriba por especificidad, así que se van del todo
    y no dejan la pantalla en blanco que ocupaban. */
@@ -284,42 +330,11 @@ main { margin: 0 auto; }
    acuarela. La presentación y la portada se quedan en papel. */
 #inicio ~ .seccion { background: var(--arena); }
 
-/* Una sección «ola» acaba en una ola y no en una recta: el borde de abajo es
-   un papel con el borde de arriba ondulado, del color de la sección siguiente
-   (el papel). Va con una máscara, así que el color sale de los tokens y no del
-   SVG. Deja aire debajo para que la ola no tape el último elemento. */
-.ola { padding-bottom: var(--e4); }
-.ola::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% - 0.75rem);
-  height: 1.5rem;
-  z-index: 1;
-  background: var(--papel);
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30C150 0 300 60 450 30S750 0 900 30S1150 60 1200 30V60H0Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30C150 0 300 60 450 30S750 0 900 30S1150 60 1200 30V60H0Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
-  pointer-events: none;
-}
-
-/* La misma ola, boca abajo, para el borde de arriba: el papel de encima se
-   curva hacia abajo y la sección empieza ondulada en vez de con un fundido. */
-.seccion.ola-arriba::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  width: auto;
-  height: 1.5rem;
-  z-index: 1;
-  background: var(--papel);
-  transform: scaleY(-1);
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30C150 0 300 60 450 30S750 0 900 30S1150 60 1200 30V60H0Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30C150 0 300 60 450 30S750 0 900 30S1150 60 1200 30V60H0Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
-  pointer-events: none;
-}
+/* Aquí había dos olas —`.ola` para acabar una sección en una curva de papel y
+   `.ola-arriba` para empezarla así— y el fundido las sustituye: no conviven.
+   Una ola es un borde, y lo que se busca ahora es que no haya ninguno; además,
+   con las dos secciones deshechas en papel en la junta, una ola de papel caería
+   sobre papel y no se vería. */
 
 /* Emblema de sección: el arco por defecto, o el icono de `img/iconos/<id>.svg`
    si lo hay. La altura va fija para que cambiar de uno a otro no mueva nada

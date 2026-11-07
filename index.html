@@ -61,6 +61,11 @@ window.onerror = function (msg, src, linea) {
 <script defer src="js/datos.js"></script>
 <script defer src="js/util.js"></script>
 <script defer src="js/sobre.js"></script>
+<!-- Three.js para el sobre en 3D. Es el último build clásico (sin módulos),
+     el que funciona también con la página abierta desde el disco. Si no
+     baja, js/sobre3d.js no hace nada y queda el sobre de CSS. -->
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script defer src="js/sobre3d.js"></script>
 <script defer src="js/cuenta.js"></script>
 <script defer src="js/calendario.js"></script>
 <script defer src="js/transporte.js"></script>
@@ -75,18 +80,43 @@ window.onerror = function (msg, src, linea) {
 <body class="sobre-visible">
 
 <div class="sobre-capa" id="sobre">
+  <!-- Aquí pinta js/sobre3d.js el sobre de Three.js. Si no puede, se queda
+       vacío y se ve el sobre de CSS de debajo. -->
+  <canvas class="sobre-lienzo" id="sobre-lienzo" aria-hidden="true"></canvas>
+  <!-- la sombra de la columna, para cuando la carta desplegada la ocupa -->
+  <span class="sobre-columna" aria-hidden="true"></span>
   <button type="button" class="sobre" id="sobre-btn" aria-label="Abrir la invitación">
     <span class="sobre-fondo"></span>
-    <span class="sobre-carta"><svg class="carta-arco" viewBox="0 0 120 132" aria-hidden="true"><path d="M4 130 L4 64 A56 56 0 0 1 116 64 L116 130"/></svg></span>
+    <!-- La carta: papel con un marco de acuarela y, en la ventana, la misma
+         acuarela de la presentación. Al abrir sube, crece hasta llenar la
+         pantalla y se funde con la presentación de verdad, que está detrás. -->
+    <span class="sobre-carta">
+      <span class="carta-manchas"></span>
+      <span class="carta-ventana"></span>
+    </span>
     <span class="sobre-lado izq"></span>
     <span class="sobre-lado der"></span>
     <span class="sobre-frente"></span>
     <span class="sobre-nombre" id="sobre-nombre"></span>
-    <span class="sobre-solapa"></span>
-    <span class="sobre-lacre"><svg viewBox="0 0 120 132" aria-hidden="true"><path d="M4 130 L4 64 A56 56 0 0 1 116 64 L116 130"/></svg></span>
+    <!-- El lacre va cosido a la solapa: al abrirse sube con ella. -->
+    <span class="sobre-solapa">
+      <span class="solapa-papel"></span>
+      <span class="sobre-lacre"><img src="img/lacre.webp" alt=""></span>
+    </span>
   </button>
-  <p class="sobre-pista" id="sobre-pista"><span class="solo-tacto">Toca</span><span class="solo-raton">Haz clic</span> para abrir</p>
+  <!-- Dos pistas: la de tocar es la del sobre de CSS; la del sello, la del
+       de 3D, que se abre arrastrando el lacre hacia arriba. -->
+  <p class="sobre-pista" id="sobre-pista"><span class="pista-toque"><span class="solo-tacto">Toca</span><span class="solo-raton">Haz clic</span> para abrir</span><span class="pista-sello"><span class="solo-tacto">Desliza</span><span class="solo-raton">Arrastra</span> el sello hacia arriba</span></p>
 </div>
+
+<!-- El borde mojado de la acuarela: un ruido que desplaza los bordes de lo que
+     lo lleva. Lo usan las manchas del fondo del sobre y el marco de la carta. -->
+<svg class="filtros-ocultos" aria-hidden="true" focusable="false">
+  <filter id="acuarela-borde" x="-15%" y="-15%" width="130%" height="130%">
+    <feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="3" seed="7"/>
+    <feDisplacementMap in="SourceGraphic" scale="16" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
 
 <div id="navegacion"></div>
 <main id="app"><p class="centrado">Abriendo la invitación…</p></main>

@@ -113,29 +113,19 @@
 /* El único enlace al mapa, centrado debajo de los dos sitios. */
 .lugar-mapa { text-align: center; margin: 0 0 var(--e3); }
 
-/* La sección del lugar: el papel de arriba se funde en verde claro, como la
-   acuarela se funde en el papel de la portada. Va con dos IDs para ganarle a
-   la regla general de las secciones (`#inicio ~ .seccion` en base.css). */
+/* La sección del lugar, sobre la acuarela verde clara. Va con dos IDs para
+   ganarle a la regla general de las secciones (`#inicio ~ .seccion` en
+   base.css). Por arriba y por abajo se deshace en papel con el fundido de
+   todas las secciones (`.seccion::after`, en base.css). */
 #inicio ~ #el-dia {
-  /* La acuarela rosa va con un velo de papel por delante para que el texto se
-     lea; el fundido de arriba sigue entrando desde el papel de la portada. */
+  /* La acuarela va con un velo de papel por delante para que el texto se lea. */
   background:
     linear-gradient(var(--velo-papel), var(--velo-papel)),
     url("../img/fondos/fondo-acuarela-verde-claro.jpg") center / cover no-repeat;
-  /* Aire para que el fundido quede por encima del título y no lo toque. */
+  /* Aire para que el título no caiga en lo más blanco del fundido de arriba. */
   padding-top: var(--e5);
-  /* Aire debajo del botón del mapa, para que la ola de abajo no lo tape. */
+  /* Y aire debajo de la tira, por lo mismo con el fundido de abajo. */
   padding-bottom: var(--e4);
-  /* El borde de arriba es la línea de encuentro con la sección anterior: esta
-     sección sube 1,5rem por detrás de ella y su borde superior es una ola.
-     Dos capas: la banda de arriba recortada en ola, y el resto entero. */
-  margin-top: -1.5rem;
-  -webkit-mask:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30C150 0 300 60 450 30S750 0 900 30S1150 60 1200 30V60H0Z'/%3E%3C/svg%3E") top / 100% 1.5rem no-repeat,
-    linear-gradient(#000 0 0) bottom / 100% calc(100% - 1.5rem) no-repeat;
-  mask:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30C150 0 300 60 450 30S750 0 900 30S1150 60 1200 30V60H0Z'/%3E%3C/svg%3E") top / 100% 1.5rem no-repeat,
-    linear-gradient(#000 0 0) bottom / 100% calc(100% - 1.5rem) no-repeat;
 }
 
 

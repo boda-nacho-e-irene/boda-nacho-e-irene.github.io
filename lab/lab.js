@@ -173,9 +173,7 @@
         { t: '--solapa-alta',  n: 'Solapa, alto', pista: 'el degradado de la solapa grande',
           receta: { de: '--piedra', luz: 0.833 } },
         { t: '--solapa-baja',  n: 'Solapa, bajo', pista: 'el otro extremo del degradado',
-          receta: { de: '--piedra', luz: 0.896 } },
-        { t: '--lacre-trazo',  n: 'Arco del lacre', pista: 'el arco grabado dentro del sello', alfa: 0.9,
-          receta: { de: '--piedra', luz: 0.955 } }
+          receta: { de: '--piedra', luz: 0.896 } }
       ]}
   ];
 
@@ -650,7 +648,8 @@
     window.sobreAbierto = false;
     window.sobreAbriendo = false;
     s.style.display = '';
-    s.className = 'sobre-capa';
+    s.className = window.sobre3d ? 'sobre-capa en-3d' : 'sobre-capa';
+    if (window.sobre3d) window.sobre3d.reponer();
     b.className = 'sobre';
     if (p) p.className = 'sobre-pista';
     document.body.className = 'sobre-visible';
