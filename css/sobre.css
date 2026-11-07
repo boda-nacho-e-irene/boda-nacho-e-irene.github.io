@@ -51,6 +51,15 @@
   transition: opacity .9s ease;
 }
 .sobre-capa.en-3d .sobre-lienzo { opacity: 1; }
+
+/* En 3D se abre arrastrando el lacre, no tocando: fuera la mano de enlace
+   (js/sobre3d.js pone la de agarrar al pasar por el sello) y fuera el gesto
+   del navegador, que si no se lleva el arrastre para desplazar o recargar. */
+.sobre-capa.en-3d { cursor: default; touch-action: none; }
+.sobre-capa.en-3d .sobre { cursor: inherit; touch-action: none; }
+.pista-sello { display: none; }
+.sobre-capa.en-3d .pista-toque { display: none; }
+.sobre-capa.en-3d .pista-sello { display: inline; }
 .sobre-capa.en-3d .sobre {
   position: absolute;
   top: 0; left: 0;

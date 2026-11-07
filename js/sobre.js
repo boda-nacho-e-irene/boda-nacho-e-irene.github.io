@@ -126,6 +126,15 @@ function medirCrecida(boton) {
   boton.style.setProperty('--crece', crece.toFixed(3));
 }
 
-/* Vale tocar en cualquier parte; el botón está dentro y el clic burbujea. */
-if (capa) { capa.onclick = abrirSobre; }
+/* Con el sobre de CSS vale tocar en cualquier parte: el botón está dentro y
+   el clic burbujea. Con el de 3D se abre arrastrando el lacre hacia arriba
+   (js/sobre3d.js), así que un clic o un toque no hace nada; solo cuenta el
+   «clic» que manda el teclado al pulsar Intro o Espacio sobre el botón, que
+   llega con `detail` a 0. */
+if (capa) {
+  capa.onclick = function (ev) {
+    if (window.sobre3d && ev && ev.detail !== 0) return;
+    abrirSobre();
+  };
+}
 

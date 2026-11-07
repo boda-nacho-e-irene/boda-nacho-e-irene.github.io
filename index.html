@@ -104,7 +104,9 @@ window.onerror = function (msg, src, linea) {
       <span class="sobre-lacre"><img src="img/lacre.webp" alt=""></span>
     </span>
   </button>
-  <p class="sobre-pista" id="sobre-pista"><span class="solo-tacto">Toca</span><span class="solo-raton">Haz clic</span> para abrir</p>
+  <!-- Dos pistas: la de tocar es la del sobre de CSS; la del sello, la del
+       de 3D, que se abre arrastrando el lacre hacia arriba. -->
+  <p class="sobre-pista" id="sobre-pista"><span class="pista-toque"><span class="solo-tacto">Toca</span><span class="solo-raton">Haz clic</span> para abrir</span><span class="pista-sello"><span class="solo-tacto">Desliza</span><span class="solo-raton">Arrastra</span> el sello hacia arriba</span></p>
 </div>
 
 <!-- El borde mojado de la acuarela: un ruido que desplaza los bordes de lo que

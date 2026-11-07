@@ -676,6 +676,9 @@
     function sale(x) { return 1 - Math.pow(1 - x, 3); }
 
     var estado = 'reposo', t0 = 0, tAbre = 0, corriendo = false;
+    var quieto = 0, tAntes = 0;
+    var arrastre = null, pSuelta = 0, tSuelta = 0;   // el dedo sobre el sello
+    var p0 = 0, tSolapa = 1.3;                     // desde dónde sigue la solapa
     var alFundir = null, alTerminar = null, alDesplegar = null, fundido = false, desplegado = false;
     var dCerca = 1;           // a qué distancia la carta abierta llena el alto
     var dxColumna = 0;        // cuánto se corre la columna del centro, en unidades
@@ -688,7 +691,14 @@
       var flota = sinMovimiento ? 0 : 1;
       matNombre.opacity = !nombreDesde ? 0 : sinMovimiento ? 1 : sale(tramo(ahora - nombreDesde, 0, 700));
       var u = estado === 'abriendo' ? (ahora - tAbre) / 1000 : -1;
-      var calma = u < 0 ? 1 : 1 - sale(tramo(u, 0, 0.5));
+
+      // Quieto mientras se arrastra el sello o se abre: el sobre deja de
+      // flotar para que el lacre no se escape de debajo del dedo.
+      var dt = Math.min(0.1, Math.max(0, (ahora - tAntes) / 1000));
+      tAntes = ahora;
+      var quiere = estado === 'reposo' && !arrastre ? 0 : 1;
+      quieto += (quiere - quieto) * Math.min(1, dt * 7);
+      var calma = 1 - quieto;
       var llega = sale(tramo(t, 0, 1.1));
       sobre.position.y = (-0.25 * (1 - llega) + Math.sin(t * 0.9) * 0.018 * flota) * calma;
       sobre.rotation.x = Math.sin(t * 0.7) * 0.06 * flota * calma;
@@ -696,27 +706,46 @@
 
       camara.position.set(0, 0, distReposo);
       camara.lookAt(0, 0, 0);
-      if (u < 0) return;
 
-      // 1. el lacre da un respingo
-      var e = Math.sin(Math.PI * tramo(u, 0, 0.35));
+      if (u < 0) {
+        /* Cerrado. La solapa va donde la lleve el dedo; si se suelta antes
+           de tiempo vuelve a su sitio, y si nadie la toca se levanta un pelo
+           de vez en cuando para decir que se puede. */
+        var pS;
+        if (arrastre) pS = arrastre.p;
+        else if (tSuelta) pS = pSuelta * (1 - sale(tramo(ahora - tSuelta, 0, 380)));
+        else {
+          var ciclo = (t - 2.2) % 4.6;
+          pS = t > 2.2 && flota ? 0.07 * Math.sin(Math.PI * tramo(ciclo, 0, 0.9)) : 0;
+        }
+        bisagra.rotation.x = -Math.PI * pS;
+        bisagra.position.z = pS < 0.5 ? 0.07 : -0.03;
+        lacre.scale.setScalar(arrastre ? 1.05 : 1);
+        return;
+      }
+
+      // 1. el lacre da un respingo (solo si se abre sin arrastrar: teclado)
+      var e = p0 ? 0 : Math.sin(Math.PI * tramo(u, 0, 0.35));
       lacre.scale.setScalar(1 + 0.08 * e);
 
-      // 2. la solapa se levanta; al ponerse de canto se pasa detrás de la carta
-      var a = suave(tramo(u, 0.25, 1.3));
+      // 2. la solapa acaba de levantarse desde donde la dejó el dedo; al
+      //    ponerse de canto se pasa detrás de la carta. Lo que viene después
+      //    se adelanta lo que se haya ahorrado la solapa.
+      var a = p0 + (1 - p0) * suave(tramo(u, 0, tSolapa));
       // Abierta del todo queda plana y por detrás: si se queda un poco
       // levantada, la punta sale por delante de la carta que sube.
       bisagra.rotation.x = -Math.PI * a;
       bisagra.position.z = a < 0.5 ? 0.07 : -0.03;
+      var v = u + 1.3 - tSolapa;
 
       // 3. la carta sale del sobre, doblada, hasta quedar entera por encima
-      var c = suave(tramo(u, 0.95, 2.0));
+      var c = suave(tramo(v, 0.95, 2.0));
       var arribaY = H / 2 + tercio / 2 + 0.08;
       var cy = -0.02 + (arribaY + 0.02) * c;
 
       // 4. el sobre, entero, se retira despacio hacia abajo, y la carta se
       //    pone en medio y un poco por delante
-      var d = suave(tramo(u, 1.9, 3.2));
+      var d = suave(tramo(v, 1.9, 3.2));
       var baja = -4 * d;
       fondo.position.y = izq.position.y = der.position.y = abajo.position.y = baja;
       bisagra.position.y = H / 2 + baja;
@@ -725,11 +754,11 @@
       carta.position.z = 0.012 + 0.15 * d;
 
       // 5. la carta se despliega: primero la hoja de arriba, luego la de abajo
-      plegar(1 - suave(tramo(u, 2.45, 3.3)), 1 - suave(tramo(u, 2.8, 3.7)));
+      plegar(1 - suave(tramo(v, 2.45, 3.3)), 1 - suave(tramo(v, 2.8, 3.7)));
 
       // la cámara sigue a la carta y se acerca hasta que la carta abierta mide
       // justo el alto de la pantalla: es la presentación
-      var f = suave(tramo(u, 2.0, 3.8));
+      var f = suave(tramo(v, 2.0, 3.8));
       var mira = cy * (1 - f) * 0.6;
       // si la columna no está en medio exacto de la capa, la cámara se corre
       // lo justo para que la carta caiga encima de ella
@@ -738,11 +767,11 @@
       camara.lookAt(mx, mira, 0);
 
       // ya desplegada y quieta: fuera la luz de la escena, la imagen tal cual
-      luzDentro(suave(tramo(u, 3.1, 3.8)));
+      luzDentro(suave(tramo(v, 3.1, 3.8)));
 
-      if (!desplegado && u >= 2.45) { desplegado = true; if (alDesplegar) alDesplegar(); }
-      if (!fundido && u >= 3.85) { fundido = true; if (alFundir) alFundir(); }
-      if (u >= 4.1 && estado === 'abriendo') {
+      if (!desplegado && v >= 2.45) { desplegado = true; if (alDesplegar) alDesplegar(); }
+      if (!fundido && v >= 3.85) { fundido = true; if (alFundir) alFundir(); }
+      if (v >= 4.1 && estado === 'abriendo') {
         estado = 'fuera';
         if (alTerminar) alTerminar();
       }
@@ -776,6 +805,77 @@
       fondo.position.y = izq.position.y = der.position.y = abajo.position.y = 0;
     }
 
+    /* ---------- el gesto: arrastrar el sello hacia arriba ----------
+
+       Se agarra el lacre (con un margen generoso alrededor, que el dedo es
+       gordo) y se sube: la solapa lo sigue. Pasado algo más de un tercio del
+       recorrido, al soltar se abre sola; antes, vuelve a cerrarse. Un clic o
+       un toque sin arrastrar no hace nada; el teclado sigue abriendo con el
+       botón (js/sobre.js). */
+    var punto = new T.Vector3(), borde3 = new T.Vector3();
+    function enPantalla(v) {
+      v.project(camara);
+      return { x: (v.x + 1) / 2 * ancho, y: (1 - v.y) / 2 * alto };
+    }
+    function sobreElSello(x, y) {
+      // la escena como está ahora mismo, aunque aún no se haya pintado
+      colocar(performance.now());
+      escena.updateMatrixWorld();
+      camara.updateMatrixWorld();
+      lacre.getWorldPosition(punto);
+      borde3.copy(punto).x += R;
+      var c = enPantalla(punto), b = enPantalla(borde3);
+      var radio = Math.max(30, Math.abs(b.x - c.x) * 1.6);
+      var r = lienzo.getBoundingClientRect();
+      var dx = x - r.left - c.x, dy = y - r.top - c.y;
+      return dx * dx + dy * dy <= radio * radio;
+    }
+    // cuántos píxeles de pantalla son abrir la solapa del todo: lo que sube
+    // la punta, de abajo del sobre a por encima de él
+    function recorrido() {
+      punto.set(0, 0, 0);
+      borde3.set(0, 2 * L, 0);
+      return Math.max(80, Math.abs(enPantalla(borde3).y - enPantalla(punto).y) * 0.75);
+    }
+    function xy(ev) { return { x: ev.clientX, y: ev.clientY }; }
+
+    capa.addEventListener('pointerdown', function (ev) {
+      if (estado !== 'reposo' || (ev.button != null && ev.button > 0)) return;
+      var q = xy(ev);
+      if (!sobreElSello(q.x, q.y)) return;
+      arrastre = { y0: q.y, p: 0, largo: recorrido() };
+      tSuelta = 0;
+      capa.style.cursor = 'grabbing';
+      if (capa.setPointerCapture) { try { capa.setPointerCapture(ev.pointerId); } catch (e) { /* nada */ } }
+      ev.preventDefault();
+      arrancar();
+    });
+    capa.addEventListener('pointermove', function (ev) {
+      var q = xy(ev);
+      if (!arrastre) {
+        if (estado === 'reposo' && ev.pointerType === 'mouse') {
+          capa.style.cursor = sobreElSello(q.x, q.y) ? 'grab' : '';
+        }
+        return;
+      }
+      arrastre.p = Math.max(0, Math.min(1, (arrastre.y0 - q.y) / arrastre.largo));
+      if (!corriendo) pintar();
+    });
+    function soltar() {
+      if (!arrastre) return;
+      capa.style.cursor = '';
+      if (arrastre.p >= 0.35 && typeof window.abrirSobre === 'function') {
+        window.abrirSobre();            // js/sobre.js: abre de verdad
+      } else {
+        pSuelta = arrastre.p;
+        tSuelta = performance.now();
+        arrastre = null;
+        arrancar();
+      }
+    }
+    capa.addEventListener('pointerup', soltar);
+    capa.addEventListener('pointercancel', soltar);
+
     t0 = performance.now();
     reponerPiezas();
     capa.className += ' en-3d';
@@ -795,6 +895,10 @@
         // que se adelanta la carta al salir)
         dCerca = hojaH / (2 * TAN) + 0.162;
         estado = 'abriendo';
+        p0 = arrastre ? arrastre.p : 0;
+        arrastre = null;
+        tSuelta = 0;
+        tSolapa = 0.3 + (1 - p0);
         tAbre = performance.now();
         arrancar();
       },
@@ -812,6 +916,10 @@
       // para el laboratorio: volver a cerrar el sobre
       reponer: function () {
         estado = 'reposo';
+        arrastre = null;
+        tSuelta = 0;
+        p0 = 0;
+        capa.style.cursor = '';
         t0 = performance.now();
         reponerPiezas();
         if (sinMovimiento) pintar(); else arrancar();
