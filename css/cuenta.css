@@ -3,12 +3,12 @@
 /* Las cifras y el botón de guardar la fecha, debajo: una pantalla. */
 #cuenta-atras { --pantallas: 0; padding-bottom: var(--e6); }
 
-/* La sección del «save the date» va con la acuarela rosa. Arriba se funde en
-   papel, a juego con la ola de la sección anterior; abajo acaba en su ola
-   (clase `ola` en base.css). Dos IDs para ganarle a `#inicio ~ .seccion`. */
+/* La sección del «save the date» va con la acuarela rosa. Por arriba y por
+   abajo se deshace en papel con el fundido de todas las secciones
+   (`.seccion::after`, en base.css). Dos IDs para ganarle a
+   `#inicio ~ .seccion`. */
 #inicio ~ #cuenta-atras {
   background:
-    linear-gradient(to bottom, var(--papel), transparent 30%),
     linear-gradient(var(--velo-papel), var(--velo-papel)),
     url("../img/fondos/fondo-acuarela-rojo-claro.jpg") center / cover no-repeat;
   padding-top: var(--e3);

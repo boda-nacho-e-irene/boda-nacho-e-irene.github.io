@@ -100,7 +100,7 @@ function pintar(d) {
 
       seccionCuenta() +
 
-      '<section class="seccion ola" id="el-dia">' +
+      '<section class="seccion" id="el-dia">' +
         tituloSinIcono('y... ¿Dónde?') +
         '<div class="lugar-intro-fila">' + marcadorImagen('img/dibujos/mapa.png') +
           '<div class="lugar-intro-texto">' +

@@ -267,6 +267,13 @@ recorridos— crecen solas cuando toca. Cada número vive en la hoja de su
 sección (`css/portada.css`, `css/playlist.css`…), que es donde se toca para
 moverlo.
 
+Entre una sección y la siguiente no hay corte: cada una se deshace en papel
+por arriba y por abajo (`.seccion::after` en `css/base.css`), igual que la
+acuarela de la presentación se desvanece hacia la portada. Así dos secciones
+cualesquiera se encuentran en papel, sea cual sea su fondo y su orden. Lo que
+dura el desvanecido es `--fundido`, en el `:root`. Una sección con un fondo
+propio no tiene que hacer nada para fundirse: le basta con su `background`.
+
 Una sección **no lleva `scroll-margin-top`**, y es a propósito: mide una
 pantalla, así que al saltar a ella —desde el índice o desde las flechas— tiene
 que quedar clavada en la pantalla, y cualquier margen la baja y la descentra.
