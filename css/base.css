@@ -50,7 +50,11 @@
   --sobre-lado:   #EDE8DB;
   --solapa-alta:  #E1DBC8;
   --solapa-baja:  #EDE9DC;
-  --lacre-trazo:  rgba(249,246,238,.9); /* el arco grabado en el lacre */
+  /* Las manchas de acuarela del fondo del sobre y del marco de la carta: los
+     colores de la acuarela de presentación, rebajados a casi nada. */
+  --mancha-rosa:  rgba(188,112,89,.20);
+  --mancha-verde: rgba(189,195,162,.45);
+  --mancha-azul:  rgba(95,127,149,.16);
 
   /* ---------- tipos ---------- */
   /* Las dos familias son el material. */
@@ -186,6 +190,10 @@
     --capa-grano:  color-mix(in srgb, var(--piedra) 96%,  transparent);
     --velo-papel:  color-mix(in srgb, var(--piedra) 65%,  transparent);
     --relleno:     color-mix(in srgb, var(--piedra) 82%,  var(--tinta));
+
+    --mancha-rosa:  color-mix(in srgb, var(--terracota) 20%, transparent);
+    --mancha-verde: color-mix(in srgb, var(--salvia)    45%, transparent);
+    --mancha-azul:  color-mix(in srgb, var(--azul)      16%, transparent);
 
     --sombra:        0 1px 2px  color-mix(in srgb, var(--tinta) 4%,  transparent),
                      0 6px 20px color-mix(in srgb, var(--tinta) 6%,  transparent);

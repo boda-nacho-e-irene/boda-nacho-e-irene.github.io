@@ -9,15 +9,32 @@ function cargar() {
     if (!lab) { aviso(t('aviso_incompleto')); }
     return;
   }
+  /* El nombre del sobre, de la visita anterior: así sale en cuanto se abre la
+     página en vez de esperar a que conteste el servidor, que tarda. Si luego
+     el servidor dice otro, manda el del servidor. */
+  nombreEnSobre(nombreGuardado());
   pedir('GET', API + '?token=' + encodeURIComponent(token), null, function (d) {
     if (!d) { aviso(t('aviso_sin_conexion')); return; }
     if (!d.ok) { aviso(t('aviso_no_encontrado')); return; }
     /* Antes de pintar nada: lo que dice la hoja pisa a lo de datos.js. Un
        backend viejo no trae `config` y entonces se queda todo como estaba. */
     aplicarConfiguracion(d.config);
+    guardarNombre(d.nombre);
     nombreEnSobre(d.nombre);
     pintar(d);
   });
+}
+
+/* El nombre se guarda por enlace, en este navegador y nada más. Todo dentro
+   de un try: en una ventana privada o con los datos bloqueados el almacén
+   lanza, y entonces simplemente no hay nombre guardado. */
+function nombreGuardado() {
+  try { return window.localStorage.getItem('sobre-nombre:' + token) || ''; }
+  catch (e) { return ''; }
+}
+function guardarNombre(nombre) {
+  try { if (nombre) window.localStorage.setItem('sobre-nombre:' + token, nombre); }
+  catch (e) { /* sin almacén, sin caché */ }
 }
 
 /* El laboratorio de estilos —el panel para probar colores y letras— vive en

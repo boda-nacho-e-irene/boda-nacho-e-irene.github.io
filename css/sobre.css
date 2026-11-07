@@ -1,5 +1,17 @@
 /* ---------- sobre ---------- */
 
+/* La coreografía al abrirlo, en clases que js/sobre.js va poniendo en el
+   botón una detrás de otra:
+
+     abriendo   el lacre da un respingo y la pista se va
+     abierto    la solapa se levanta y se lleva el lacre con ella
+     sacando    la carta sube y asoma por encima del sobre
+     soltando   el sobre se deshace a los lados y hacia abajo, y la carta
+                crece hasta llenar la pantalla
+
+   y al final la capa entera se funde con la presentación, que es la misma
+   acuarela que lleva la carta en la ventana. */
+
 .sobre-capa {
   position: fixed;
   top: 0; right: 0; bottom: 0; left: 0;
@@ -10,14 +22,68 @@
   justify-content: center;
   gap: var(--e4);
   padding: var(--margen);
-  background: var(--piedra);
+  overflow: hidden;
+  isolation: isolate;
+  background-color: var(--piedra);
+  background-image:
+    linear-gradient(var(--capa-grano), var(--capa-grano)),
+    var(--grano);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: opacity .55s ease, transform .55s ease;
+  transition: opacity .6s ease;
 }
-.sobre-capa.fuera { opacity: 0; transform: scale(1.05); pointer-events: none; }
+.sobre-capa.fuera { opacity: 0; pointer-events: none; }
+
+/* ---------- el sobre en 3D ---------- */
+
+/* El lienzo de js/sobre3d.js tapa la capa entera. Mientras no hay 3D está
+   apagado y se ve el sobre de CSS; con `en-3d` es al revés. El botón sigue
+   ahí, invisible y del tamaño de la capa, para el teclado y el lector de
+   pantalla. */
+.sobre-lienzo {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: block;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .9s ease;
+}
+.sobre-capa.en-3d .sobre-lienzo { opacity: 1; }
+.sobre-capa.en-3d .sobre {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  opacity: 0;
+  animation: none;
+}
+.sobre-capa.en-3d .sobre-pista {
+  position: absolute;
+  left: 0; right: 0; bottom: 14%;
+  z-index: 1;
+  text-align: center;
+}
+
+/* Las manchas de acuarela de las esquinas: rosa arriba a la izquierda, verde y
+   un poco de azul a la derecha, con el borde mojado del filtro. */
+.sobre-capa::before {
+  content: '';
+  position: absolute;
+  top: -5%; right: -5%; bottom: -5%; left: -5%;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 38% 30% at 6% 10%,  var(--mancha-rosa)  0, var(--mancha-rosa) 35%, transparent 72%),
+    radial-gradient(ellipse 22% 18% at 18% 30%, var(--mancha-rosa)  0, transparent 70%),
+    radial-gradient(ellipse 34% 30% at 96% 86%, var(--mancha-verde) 0, var(--mancha-verde) 30%, transparent 72%),
+    radial-gradient(ellipse 26% 22% at 92% 6%,  var(--mancha-verde) 0, transparent 70%),
+    radial-gradient(ellipse 20% 16% at 84% 94%, var(--mancha-azul)  0, transparent 70%);
+  filter: url(#acuarela-borde);
+}
 
 body.sobre-visible { overflow: hidden; }
+
+.filtros-ocultos { position: absolute; width: 0; height: 0; overflow: hidden; }
 
 .sobre {
   --w: min(21rem, 80vw);
@@ -25,7 +91,7 @@ body.sobre-visible { overflow: hidden; }
   display: block;
   overflow: visible;
   width: var(--w);
-  height: calc(var(--w) * .655);
+  height: calc(var(--w) * .68);
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -36,7 +102,13 @@ body.sobre-visible { overflow: hidden; }
 }
 .sobre.abriendo { animation: none; transform: none; }
 
-.sobre-fondo, .sobre-carta, .sobre-frente, .sobre-lado, .sobre-solapa { position: absolute; display: block; }
+.sobre-fondo, .sobre-carta, .sobre-frente, .sobre-lado, .sobre-solapa,
+.solapa-papel, .carta-manchas, .carta-ventana { position: absolute; display: block; }
+
+/* Lo que se va al soltarse el sobre: todo menos la carta. */
+.sobre-fondo, .sobre-frente, .sobre-lado {
+  transition: transform .75s cubic-bezier(.55,0,.75,.4), opacity .6s ease .1s;
+}
 
 /* panel trasero */
 .sobre-fondo {
@@ -47,23 +119,47 @@ body.sobre-visible { overflow: hidden; }
   box-shadow: var(--sombra-sobre);
 }
 
-/* la carta, que asoma al abrirse la solapa */
+/* La carta: papel, un marco de manchas de acuarela con el borde mojado y, en
+   la ventana, la acuarela de la presentación. */
 .sobre-carta {
-  top: 7%; left: 5%;
-  width: 90%; height: 86%;
+  top: 6%; left: 6%;
+  width: 88%; height: 88%;
   z-index: 2;
   background: var(--sobre-carta);
-  border: 1px solid var(--pliegue);
   border-radius: var(--r);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform .8s cubic-bezier(.22,.61,.36,1) .25s;
+  box-shadow: 0 0 0 1px var(--pliegue);
+  transform: translate(0, 0) scale(1);
 }
-.sobre.abierto .sobre-carta { transform: translateY(-60%); }
+.carta-manchas {
+  top: 4%; right: 3%; bottom: 4%; left: 3%;
+  background:
+    radial-gradient(ellipse 60% 45% at 0 0,       var(--mancha-verde), transparent 75%),
+    radial-gradient(ellipse 55% 50% at 100% 100%, var(--mancha-rosa),  transparent 75%),
+    radial-gradient(ellipse 50% 40% at 100% 0,    var(--mancha-rosa),  transparent 75%),
+    radial-gradient(ellipse 45% 45% at 0 100%,    var(--mancha-azul),  transparent 75%),
+    var(--mancha-verde);
+  filter: url(#acuarela-borde);
+}
+.carta-ventana {
+  top: 13%; right: 10%; bottom: 13%; left: 10%;
+  background: var(--papel) url("../img/presentacion.webp") center bottom / cover no-repeat;
+  filter: url(#acuarela-borde);
+}
 
-.carta-arco { width: 30%; height: auto; opacity: .5; }
-.carta-arco path { fill: none; stroke: var(--ocre); stroke-width: 3; }
+.sobre.sacando .sobre-carta {
+  /* Una capa propia desde que empieza a moverse: el filtro de acuarela no se
+     vuelve a calcular en cada fotograma mientras la carta crece. */
+  will-change: transform;
+  transform: translate(0, -52%) scale(1);
+  transition: transform .9s cubic-bezier(.22,.61,.36,1);
+}
+/* Al soltarse, la carta pasa por delante de todo y crece hasta tapar la
+   pantalla. Cuánto y hacia dónde lo mide js/sobre.js en ese momento. */
+.sobre.soltando .sobre-carta {
+  z-index: 7;
+  transform: translate(var(--dx, 0px), calc(var(--dy, 0px) - 52%)) scale(var(--crece, 1.2));
+  transition: transform 1.05s cubic-bezier(.65,0,.3,1);
+}
 
 /* bolsillo delantero, con las dos dobleces en uve */
 .sobre-frente {
@@ -106,35 +202,43 @@ body.sobre-visible { overflow: hidden; }
 }
 .sobre-nombre.puesto { opacity: 1; }
 
+/* El sobre se deshace: las orejas se abren a los lados, el bolsillo cae y el
+   fondo y la solapa se apagan. */
+.sobre.soltando .sobre-lado.izq { transform: translateX(-70%) rotate(-6deg); opacity: 0; }
+.sobre.soltando .sobre-lado.der { transform: translateX(70%) rotate(6deg); opacity: 0; }
+.sobre.soltando .sobre-frente,
+.sobre.soltando .sobre-nombre  { transform: translateY(90%); opacity: 0; }
+.sobre.soltando .sobre-nombre  { transition: transform .75s cubic-bezier(.55,0,.75,.4), opacity .6s ease .1s; }
+.sobre.soltando .sobre-fondo   { opacity: 0; }
+.sobre.soltando .sobre-solapa  { opacity: 0; transition: opacity .4s ease; }
+
+/* La solapa es un marco sin pintar que gira; dentro van el papel en triángulo
+   y el lacre, que así sube con ella. */
 .sobre-solapa {
   top: 0; left: 0;
   width: 100%; height: 52%;
   z-index: 5;
-  background: linear-gradient(to bottom, var(--solapa-alta), var(--solapa-baja));
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
   transform-origin: top center;
   transform: rotateX(0deg);
 }
-.sobre.abierto .sobre-solapa { animation: solapa-abre .9s cubic-bezier(.52,.01,.3,1) .1s forwards; }
+.solapa-papel {
+  top: 0; right: 0; bottom: 0; left: 0;
+  background: linear-gradient(to bottom, var(--solapa-alta), var(--solapa-baja));
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.sobre.abierto .sobre-solapa { animation: solapa-abre .9s cubic-bezier(.52,.01,.3,1) forwards; }
 
 .sobre-lacre {
   position: absolute;
-  left: 50%; top: 52%;
-  width: calc(var(--w) * .155);
-  height: calc(var(--w) * .155);
-  margin: calc(var(--w) * -.0775) 0 0 calc(var(--w) * -.0775);
-  z-index: 6;
-  border-radius: 50%;
-  background: var(--ocre);
-  box-shadow: var(--sombra-lacre);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity .3s ease, transform .3s ease;
+  left: 50%; top: 100%;
+  width: calc(var(--w) * .17);
+  height: calc(var(--w) * .17);
+  margin: calc(var(--w) * -.085) 0 0 calc(var(--w) * -.085);
+  display: block;
+  filter: drop-shadow(var(--sombra-lacre));
 }
-.sobre-lacre svg { width: 46%; height: auto; }
-.sobre-lacre path { fill: none; stroke: var(--lacre-trazo); stroke-width: 9; }
-.sobre.abriendo .sobre-lacre { opacity: 0; transform: scale(.55); }
+.sobre-lacre img { display: block; width: 100%; height: 100%; }
+.sobre.abriendo .sobre-lacre { animation: lacre-salta .35s ease; }
 
 .sobre-pista {
   margin: 0;
@@ -157,13 +261,14 @@ body.sobre-visible { overflow: hidden; }
 @keyframes sobre-entra { from { opacity: 0; transform: translateY(16px) scale(.96); } to { opacity: 1; transform: none; } }
 @keyframes sobre-flota { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes latido { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+@keyframes lacre-salta { 40% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-/* el z-index salta con la solapa de canto, para que caiga por detras del sobre */
+/* el z-index salta con la solapa de canto, para que caiga por detras de la carta */
 @keyframes solapa-abre {
   0%   { transform: rotateX(0deg);    z-index: 5; }
   49%  { z-index: 5; }
   50%  { z-index: 0; }
-  100% { transform: rotateX(-167deg); z-index: 0; }
+  100% { transform: rotateX(-172deg); z-index: 0; }
 }
 
 /* ---------- entrada y revelado ---------- */

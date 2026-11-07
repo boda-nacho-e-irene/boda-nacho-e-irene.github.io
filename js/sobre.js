@@ -18,9 +18,10 @@ if (window.history && 'scrollRestoration' in window.history) {
 /* El sobre va dirigido a alguien: en cuanto llega el nombre, lo escribimos. */
 function nombreEnSobre(nombre) {
   var e = document.getElementById('sobre-nombre');
-  if (!e || !nombre) return;
+  if (!e || !nombre || e.textContent === nombre) return;
   e.textContent = nombre;
   e.className = 'sobre-nombre puesto';
+  if (window.sobre3d) { window.sobre3d.ponerNombre(nombre); }
 }
 
 /* La invitación se pinta detrás del sobre, así que su animación de
@@ -78,14 +79,49 @@ function abrirSobre() {
 
   if (sinMovimiento || !capa) { quitarCapa(); return; }
 
+  /* El sobre de Three.js (js/sobre3d.js), si ha podido montarse: él lleva
+     el reloj y avisa cuando toca fundir la capa y cuando ha terminado. */
+  if (window.sobre3d) {
+    document.getElementById('sobre-pista').className = 'sobre-pista ida';
+    window.sobre3d.abrir(
+      function () { capa.className = 'sobre-capa en-3d fuera'; },
+      function () { setTimeout(quitarCapa, 650); });
+    return;
+  }
+
   var boton = document.getElementById('sobre-btn');
   var pista = document.getElementById('sobre-pista');
-  boton.className = 'sobre abriendo';   // salta el lacre
+  boton.className = 'sobre abriendo';   // el lacre da un respingo
   pista.className = 'sobre-pista ida';
 
-  setTimeout(function () { boton.className = 'sobre abriendo abierto'; }, 260);
-  setTimeout(function () { capa.className = 'sobre-capa fuera'; }, 1330);
-  setTimeout(quitarCapa, 1900);
+  /* Los pasos, en el orden y con el ritmo del vídeo: la solapa se levanta
+     con el lacre, la carta sube, el sobre se deshace y la carta crece hasta
+     tapar la pantalla mientras la capa se funde con la presentación. Lo que
+     hace cada clase está en css/sobre.css. */
+  setTimeout(function () { boton.className = 'sobre abriendo abierto'; }, 250);
+  setTimeout(function () { boton.className = 'sobre abriendo abierto sacando'; }, 800);
+  setTimeout(function () {
+    medirCrecida(boton);
+    boton.className = 'sobre abriendo abierto sacando soltando';
+  }, 1750);
+  setTimeout(function () { capa.className = 'sobre-capa fuera'; }, 2250);
+  setTimeout(quitarCapa, 2900);
+}
+
+/* Cuánto tiene que crecer la carta para tapar la pantalla, y cuánto moverse
+   para quedar en medio. Se mide con la carta ya fuera del sobre, que es desde
+   donde arranca; el CSS lo lee en --dx, --dy y --crece. */
+function medirCrecida(boton) {
+  var carta = boton.querySelector('.sobre-carta');
+  if (!carta || !carta.getBoundingClientRect) return;
+  var r = carta.getBoundingClientRect();
+  if (!r.width || !r.height) return;
+  var ancho = window.innerWidth;
+  var alto = window.innerHeight;
+  var crece = Math.max(ancho / r.width, alto / r.height) * 1.15;
+  boton.style.setProperty('--dx', (ancho / 2 - (r.left + r.width / 2)) + 'px');
+  boton.style.setProperty('--dy', (alto / 2 - (r.top + r.height / 2)) + 'px');
+  boton.style.setProperty('--crece', crece.toFixed(3));
 }
 
 /* Vale tocar en cualquier parte; el botón está dentro y el clic burbujea. */
