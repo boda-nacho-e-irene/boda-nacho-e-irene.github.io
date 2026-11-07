@@ -58,6 +58,45 @@
   opacity: 0;
   animation: none;
 }
+/* Mientras la carta se despliega, lo que la rodea pasa a ser lo que rodea a
+   la invitación: en el escritorio, el relleno y la foto de los lados de la
+   columna, en vez del papel con manchas del sobre. Así, al fundirse la capa,
+   lo único que cambia es que aparece el texto. En el móvil la carta ocupa la
+   pantalla entera y no hace falta. */
+@media (min-width: 34rem) {
+  .sobre-capa::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    z-index: -1;
+    background-color: var(--relleno);
+    background-image: var(--fondo-escritorio);
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+  .sobre-capa.desplegando::after { opacity: 1; }
+
+  /* Y la sombra que despega la columna de la foto (la de `main`), que llega
+     cuando la carta ya casi la ocupa. Sin fondo: una sombra de fuera solo se
+     pinta fuera de la caja, así que no tapa nada de la carta. */
+  .sobre-columna {
+    position: absolute;
+    top: 0; bottom: 0; left: 50%;
+    z-index: 0;   /* por encima del relleno de ::after, que va en -1 */
+    width: var(--marco);
+    transform: translateX(-50%);
+    box-shadow: var(--sombra-sobre);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .8s ease .9s;
+  }
+  .sobre-capa.desplegando .sobre-columna { opacity: 1; }
+}
+.sobre-columna { display: none; }
+@media (min-width: 34rem) { .sobre-columna { display: block; } }
+
 .sobre-capa.en-3d .sobre-pista {
   position: absolute;
   left: 0; right: 0; bottom: 14%;
@@ -82,6 +121,12 @@
 }
 
 body.sobre-visible { overflow: hidden; }
+
+/* El botón del índice no está en la carta del sobre, así que entra solo y
+   despacio cuando el sobre ya se ha ido, en vez de aparecer de golpe con el
+   fundido. */
+.nav-boton { transition: opacity .8s ease .2s; }
+body.sobre-visible .nav-boton { opacity: 0; pointer-events: none; transition: none; }
 
 .filtros-ocultos { position: absolute; width: 0; height: 0; overflow: hidden; }
 

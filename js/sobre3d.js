@@ -304,51 +304,143 @@
       ponerGrano(g, 512, 512, 0.05);
     })();
     var matFuera = new T.MeshStandardMaterial({ map: textura(cFueraCarta), roughness: 0.9, shadowSide: T.DoubleSide });
-    var matDentro = new T.MeshStandardMaterial({ roughness: 0.9, shadowSide: T.DoubleSide });
-
-    // ancho entre alto de la columna de la invitación, que espera detrás
-    function proporcion() {
-      var app = document.getElementById('app');
-      var colW = (app && app.clientWidth) || window.innerWidth;
-      return Math.max(0.3, Math.min(1.3, colW / (window.innerHeight || 1)));
+    /* Por dentro, mientras la carta se mueve, el papel recibe la luz y las
+       sombras de la escena; al acabar de desplegarse pasa a verse tal cual es
+       la textura, sin luz encima (color a cero, la imagen como emisiva), que
+       es exactamente como pinta el navegador la presentación de debajo. */
+    var matDentro = new T.MeshStandardMaterial({
+      roughness: 0.9, shadowSide: T.DoubleSide, emissive: new T.Color(1, 1, 1), emissiveIntensity: 0 });
+    function luzDentro(plano) {
+      matDentro.color.setScalar(1 - plano);
+      matDentro.emissiveIntensity = plano;
     }
 
+    /* Lo que hay detrás de la capa, medido: la columna de la invitación (la
+       pantalla en el móvil, el marco en el escritorio) y la caja de la
+       presentación, que no tiene por qué empezar en el borde de arriba ni
+       acabar en el de abajo. La carta desplegada ocupa la columna de arriba
+       abajo y por dentro lleva pintado lo que el navegador va a enseñar ahí,
+       menos el texto, que entra con el fundido. Si la invitación aún no se
+       ha pintado (el servidor no ha contestado), se supone la presentación a
+       pantalla llena. */
+    function opaco(c) { return !!c && c !== 'transparent' && !/,\s*0\)$/.test(c); }
+    function medir() {
+      var vw = capa.clientWidth || window.innerWidth;
+      var vh = capa.clientHeight || window.innerHeight;
+      var app = document.getElementById('app');
+      var a = app && app.getBoundingClientRect();
+      var m = { vw: vw, vh: vh, l: 0, w: vw, papel: rgba(C.papel, 1), debajo: rgba(C.papel, 1) };
+      if (a && a.width) { m.l = a.left; m.w = a.width; }
+      m.sl = m.l; m.sw = m.w; m.st = 0; m.sh = vh;
+      var p = document.getElementById('presentacion');
+      var r = p && p.getBoundingClientRect();
+      if (r && r.width && r.height) {
+        m.sl = r.left; m.sw = r.width; m.st = r.top; m.sh = r.height;
+        var fs = getComputedStyle(p).backgroundColor;
+        if (opaco(fs)) m.papel = fs;
+        var sig = p.nextElementSibling;
+        while (sig && sig.hidden) sig = sig.nextElementSibling;
+        var fd = sig && getComputedStyle(sig).backgroundColor;
+        if (opaco(fd)) m.debajo = fd;
+      }
+      return m;
+    }
+    var medida = null;
+
     function pintarDentro() {
-      var g = cDentroCarta.getContext('2d'), w = cDentroCarta.width, h = cDentroCarta.height;
-      g.fillStyle = rgba(C.papel, 1);
+      var m = medida, g = cDentroCarta.getContext('2d');
+      var w = cDentroCarta.width, h = cDentroCarta.height, k = w / m.w;
+      // lo que asoma por debajo de la presentación, si asoma algo
+      g.fillStyle = m.debajo;
       g.fillRect(0, 0, w, h);
-      if (imgPresenta.complete && imgPresenta.naturalWidth) {
-        // `cover` anclado abajo, y las dos máscaras de la presentación
-        var tmp = lienzo2d(w, h), tg = tmp.getContext('2d');
-        var e = Math.max(w / imgPresenta.naturalWidth, h / imgPresenta.naturalHeight);
+      // la caja de la presentación, en las coordenadas de la carta
+      var sx = (m.sl - m.l) * k, sy = m.st * k, sw = Math.round(m.sw * k), sh = Math.round(m.sh * k);
+      g.fillStyle = m.papel;
+      g.fillRect(sx, sy, sw, sh);
+      if (imgPresenta.complete && imgPresenta.naturalWidth && sw > 0 && sh > 0) {
+        // `cover` anclado abajo y las dos máscaras de #presentacion::before
+        var tmp = lienzo2d(sw, sh), tg = tmp.getContext('2d');
+        var e = Math.max(sw / imgPresenta.naturalWidth, sh / imgPresenta.naturalHeight);
         var iw = imgPresenta.naturalWidth * e, ih = imgPresenta.naturalHeight * e;
-        tg.drawImage(imgPresenta, (w - iw) / 2, h - ih, iw, ih);
+        tg.drawImage(imgPresenta, (sw - iw) / 2, sh - ih, iw, ih);
         tg.globalCompositeOperation = 'destination-in';
-        var mv = tg.createLinearGradient(0, 0, 0, h);
+        var mv = tg.createLinearGradient(0, 0, 0, sh);
         mv.addColorStop(0, 'rgba(0,0,0,0)'); mv.addColorStop(0.22, 'rgba(0,0,0,1)');
         mv.addColorStop(0.9, 'rgba(0,0,0,1)'); mv.addColorStop(1, 'rgba(0,0,0,0)');
         tg.fillStyle = mv;
-        tg.fillRect(0, 0, w, h);
-        var mh = tg.createLinearGradient(0, 0, w, 0);
+        tg.fillRect(0, 0, sw, sh);
+        var mh = tg.createLinearGradient(0, 0, sw, 0);
         mh.addColorStop(0, 'rgba(0,0,0,0)'); mh.addColorStop(0.05, 'rgba(0,0,0,1)');
         mh.addColorStop(0.95, 'rgba(0,0,0,1)'); mh.addColorStop(1, 'rgba(0,0,0,0)');
         tg.fillStyle = mh;
-        tg.fillRect(0, 0, w, h);
-        g.drawImage(tmp, 0, 0);
+        tg.fillRect(0, 0, sw, sh);
+        g.drawImage(tmp, sx, sy);
       }
-      // las dos dobleces, apenas marcadas
-      [1 / 3, 2 / 3].forEach(function (k) {
-        var y = h * k, b = h * 0.012;
-        var gr = g.createLinearGradient(0, y - b, 0, y + b);
-        gr.addColorStop(0, rgba(C.tinta, 0));
-        gr.addColorStop(0.5, rgba(C.tinta, 0.05));
-        gr.addColorStop(0.56, 'rgba(255,255,255,.18)');
-        gr.addColorStop(1, rgba(C.tinta, 0));
-        g.fillStyle = gr;
-        g.fillRect(0, y - b, w, b * 2);
-      });
-      ponerGrano(g, w, h, 0.04);
+      pintarTextos(g, m, k);
       if (texDentro) texDentro.needsUpdate = true;
+    }
+
+    /* El texto de la presentación, letra a letra donde el navegador lo ha
+       puesto: se le pregunta a cada carácter su caja y se escribe ahí con la
+       letra, el color y el halo que tiene en la página. Así la carta lleva ya
+       escritos los nombres, la fecha y el sitio, y al fundirse con la página
+       no aparece nada nuevo. */
+    function sombras(css) {
+      var lista = [], re = /((?:rgba?|color|hsla?)\([^)]*\)|#[0-9a-f]+|[a-z]+)\s+(-?[\d.]+)px\s+(-?[\d.]+)px(?:\s+([\d.]+)px)?/gi, x;
+      if (!css || css === 'none') return lista;
+      while ((x = re.exec(css))) lista.push({ c: x[1], x: +x[2], y: +x[3], b: +(x[4] || 0) });
+      return lista;
+    }
+    function pintarTextos(g, m, k) {
+      var p = document.getElementById('presentacion');
+      if (!p || !document.createRange || !document.createTreeWalker) return;
+      var andar = document.createTreeWalker(p, 4 /* NodeFilter.SHOW_TEXT */, null, false);
+      var rango = document.createRange(), nodo, i;
+      g.save();
+      g.setTransform(k, 0, 0, k, -m.l * k, 0);
+      g.textBaseline = 'alphabetic';
+      while ((nodo = andar.nextNode())) {
+        var txt = nodo.nodeValue;
+        if (!/\S/.test(txt)) continue;
+        var el = nodo.parentNode, cs = getComputedStyle(el);
+        if (cs.visibility !== 'visible' || cs.display === 'none') continue;
+        var alfa = 1, e;
+        for (e = el; e && e !== p.parentNode; e = e.parentNode) alfa *= +getComputedStyle(e).opacity;
+        if (alfa <= 0) continue;
+        g.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+        g.fillStyle = cs.color;
+        g.globalAlpha = alfa;
+        var mayus = cs.textTransform === 'uppercase';
+        var halos = sombras(cs.textShadow);
+        for (i = 0; i < txt.length; i++) {
+          var ch = txt.charAt(i);
+          if (/\s/.test(ch)) continue;
+          rango.setStart(nodo, i);
+          rango.setEnd(nodo, i + 1);
+          var r = rango.getClientRects()[0];
+          if (!r || !r.width) continue;
+          if (mayus) ch = ch.toUpperCase();
+          var mt = g.measureText(ch), asc = mt.fontBoundingBoxAscent, des = mt.fontBoundingBoxDescent;
+          var base = asc != null && asc + des > 0 ? r.top + asc * r.height / (asc + des) : r.bottom - r.height * 0.22;
+          for (var h = 0; h < halos.length; h++) {
+            g.shadowColor = halos[h].c;
+            g.shadowOffsetX = halos[h].x * k;
+            g.shadowOffsetY = halos[h].y * k;
+            g.shadowBlur = halos[h].b * k;
+            g.fillText(ch, r.left, base);
+          }
+          g.shadowColor = 'rgba(0,0,0,0)';
+          g.fillText(ch, r.left, base);
+        }
+        // el subrayado de los enlaces, que es un borde de abajo
+        var bw = parseFloat(cs.borderBottomWidth) || 0;
+        if (bw && cs.borderBottomStyle !== 'none' && el.firstChild === nodo) {
+          var cajas = el.getClientRects();
+          g.fillStyle = cs.borderBottomColor;
+          for (i = 0; i < cajas.length; i++) g.fillRect(cajas[i].left, cajas[i].bottom - bw, cajas[i].width, bw);
+        }
+      }
+      g.restore();
     }
     imgPresenta.onload = function () {
       if (!cDentroCarta) return;
@@ -380,16 +472,20 @@
     function construirCarta() {
       carta.traverse(function (o) { if (o.geometry) o.geometry.dispose(); });
       while (carta.children.length) carta.remove(carta.children[0]);
-      var A = proporcion();
+      medida = medir();
+      var A = Math.max(0.3, Math.min(1.3, medida.w / medida.vh));
       hojaW = Math.min(1.8, 3 * A * 1.12);
       hojaH = hojaW / A;
       tercio = hojaH / 3;
 
       if (texDentro) texDentro.dispose();
-      cDentroCarta = lienzo2d(1200, Math.min(4096, Math.round(1200 / A)));
+      // a la resolución de la pantalla, para que a tamaño final se vea igual de nítida
+      var k = Math.min(window.devicePixelRatio || 1, 2, 4096 / medida.vh, 4096 / medida.w);
+      cDentroCarta = lienzo2d(Math.round(medida.w * k), Math.round(medida.vh * k));
       texDentro = textura(cDentroCarta);
       pintarDentro();
       matDentro.map = texDentro;
+      matDentro.emissiveMap = texDentro;
       matDentro.needsUpdate = true;
 
       carta.add(panel(1 / 3));
@@ -580,8 +676,9 @@
     function sale(x) { return 1 - Math.pow(1 - x, 3); }
 
     var estado = 'reposo', t0 = 0, tAbre = 0, corriendo = false;
-    var alFundir = null, alTerminar = null, fundido = false;
+    var alFundir = null, alTerminar = null, alDesplegar = null, fundido = false, desplegado = false;
     var dCerca = 1;           // a qué distancia la carta abierta llena el alto
+    var dxColumna = 0;        // cuánto se corre la columna del centro, en unidades
 
     function colocar(ahora) {
       var t = (ahora - t0) / 1000;
@@ -634,11 +731,18 @@
       // justo el alto de la pantalla: es la presentación
       var f = suave(tramo(u, 2.0, 3.8));
       var mira = cy * (1 - f) * 0.6;
-      camara.position.set(0, mira, distReposo + (dCerca - distReposo) * f);
-      camara.lookAt(0, mira, 0);
+      // si la columna no está en medio exacto de la capa, la cámara se corre
+      // lo justo para que la carta caiga encima de ella
+      var mx = -dxColumna * f;
+      camara.position.set(mx, mira, distReposo + (dCerca - distReposo) * f);
+      camara.lookAt(mx, mira, 0);
 
-      if (!fundido && u >= 3.75) { fundido = true; if (alFundir) alFundir(); }
-      if (u >= 4.0 && estado === 'abriendo') {
+      // ya desplegada y quieta: fuera la luz de la escena, la imagen tal cual
+      luzDentro(suave(tramo(u, 3.1, 3.8)));
+
+      if (!desplegado && u >= 2.45) { desplegado = true; if (alDesplegar) alDesplegar(); }
+      if (!fundido && u >= 3.85) { fundido = true; if (alFundir) alFundir(); }
+      if (u >= 4.1 && estado === 'abriendo') {
         estado = 'fuera';
         if (alTerminar) alTerminar();
       }
@@ -668,6 +772,7 @@
       bisagra.position.set(0, H / 2, 0.07);
       carta.position.set(0, -0.02, 0.012);
       plegar(1, 1);
+      luzDentro(0);
       fondo.position.y = izq.position.y = der.position.y = abajo.position.y = 0;
     }
 
@@ -677,10 +782,15 @@
     if (sinMovimiento) { pintar(); } else { arrancar(); }
 
     window.sobre3d = {
-      abrir: function (fundir, terminar) {
+      abrir: function (fundir, terminar, desplegar) {
         alFundir = fundir;
         alTerminar = terminar;
-        fundido = false;
+        alDesplegar = desplegar;
+        fundido = desplegado = false;
+        /* La carta se rehace ahora, midiendo la página tal como ha quedado
+           detrás: aún está metida en el sobre, así que el cambio no se ve. */
+        construirCarta();
+        dxColumna = (medida.l + medida.w / 2 - medida.vw / 2) * hojaH / medida.vh;
         // cerca: la carta abierta mide el alto de la pantalla (0.162 es lo
         // que se adelanta la carta al salir)
         dCerca = hojaH / (2 * TAN) + 0.162;

@@ -83,6 +83,8 @@ window.onerror = function (msg, src, linea) {
   <!-- Aquí pinta js/sobre3d.js el sobre de Three.js. Si no puede, se queda
        vacío y se ve el sobre de CSS de debajo. -->
   <canvas class="sobre-lienzo" id="sobre-lienzo" aria-hidden="true"></canvas>
+  <!-- la sombra de la columna, para cuando la carta desplegada la ocupa -->
+  <span class="sobre-columna" aria-hidden="true"></span>
   <button type="button" class="sobre" id="sobre-btn" aria-label="Abrir la invitación">
     <span class="sobre-fondo"></span>
     <!-- La carta: papel con un marco de acuarela y, en la ventana, la misma

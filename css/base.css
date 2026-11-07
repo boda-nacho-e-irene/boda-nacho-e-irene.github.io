@@ -205,7 +205,11 @@
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+/* El hueco de la barra de desplazamiento se guarda siempre, también mientras
+   el sobre tapa la página y no hay barra. Si no, al apartarse el sobre la
+   barra aparece de golpe, la columna se corre medio hueco a la izquierda y la
+   presentación salta justo cuando la carta desplegada se funde con ella. */
+html { scroll-behavior: smooth; scrollbar-gutter: stable; }
 
 body {
   margin: 0;

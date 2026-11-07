@@ -84,8 +84,10 @@ function abrirSobre() {
   if (window.sobre3d) {
     document.getElementById('sobre-pista').className = 'sobre-pista ida';
     window.sobre3d.abrir(
-      function () { capa.className = 'sobre-capa en-3d fuera'; },
-      function () { setTimeout(quitarCapa, 650); });
+      function () { capa.className = 'sobre-capa en-3d desplegando fuera'; },
+      function () { setTimeout(quitarCapa, 650); },
+      // mientras la carta se abre, el fondo de la capa pasa a ser el de la página
+      function () { capa.className = 'sobre-capa en-3d desplegando'; });
     return;
   }
 
