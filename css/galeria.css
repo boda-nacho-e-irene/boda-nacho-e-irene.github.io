@@ -1,0 +1,82 @@
+/* ---------- el álbum de detrás del sobre ---------- */
+
+/* Tiras de fotos de alturas distintas que se mueven detrás del sobre mientras
+   carga la invitación. Las monta js/galeria.js; aquí solo está cómo se ven.
+   Cada tira trae su alto (`--peso`, la parte de la pantalla que se lleva),
+   su duración (`--dura`) y su punto de arranque (`--desfase`) puestos en
+   línea, porque salen de cuentas con el ancho de la pantalla.
+
+   Va dentro de la capa del sobre, que lleva `isolation`, así que el -2 la
+   deja por encima del papel de la capa y por debajo de todo lo demás: las
+   manchas de las esquinas (::before) y el relleno del escritorio que sube
+   al desplegarse la carta (::after) van en -1. Con la capa se va también el
+   álbum, sin pedir nada. */
+.galeria-fondo {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  z-index: -2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e1);
+  padding: var(--e1) 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* Lo de dentro no mueve nada de fuera ni pinta fuera: el navegador no
+     tiene que mirar más allá de la caja cuando algo cambia aquí. */
+  contain: strict;
+}
+
+/* El velo de papel por encima de las fotos: las deja como un recuerdo detrás
+   del sobre en vez de competir con él. Un color plano encima, que no cuesta
+   nada; una `opacity` en las tiras haría componer cada una aparte. */
+.galeria-fondo::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  z-index: 1;
+  background: var(--velo-album);
+}
+
+.galeria-fila {
+  flex: var(--peso) 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* La pista lleva dos tandas iguales y avanza media: el bucle cierra sin
+   saltos. Solo se mueve `transform`, así que la tarjeta gráfica la desliza
+   sin volver a pintar las fotos. */
+.galeria-pista {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  animation: galeria-marcha var(--dura) linear var(--desfase) infinite;
+  will-change: transform;
+}
+.galeria-fila.a-derecha .galeria-pista { animation-direction: reverse; }
+
+.galeria-tanda { display: flex; height: 100%; }
+
+/* El hueco va a la derecha de cada foto y no entre tandas: así una tanda mide
+   exactamente media pista y el salto del bucle no se ve. El ancho sale solo
+   del alto y de los `width`/`height` de la etiqueta. */
+.galeria-tanda img {
+  flex: none;
+  display: block;
+  width: auto;
+  height: 100%;
+  margin-right: var(--e1);
+  border-radius: var(--r);
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity .8s ease;
+}
+.galeria-tanda img.lista { opacity: 1; }
+
+@keyframes galeria-marcha { to { transform: translateX(-50%); } }
+
+/* Sin movimiento las tiras se quedan quietas: la regla general de
+   css/sobre.css ya para toda animación. Las fotos salen sin fundido. */
+@media (prefers-reduced-motion: reduce) {
+  .galeria-tanda img { opacity: 1; }
+}

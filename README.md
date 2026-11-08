@@ -30,14 +30,17 @@ css/bloques.css   los formularios plegables y sus resúmenes
 css/playlist.css
 css/cuenta.css    cuenta atrás y guardar la fecha
 css/sobre.css     el sobre, la entrada y el revelado
+css/galeria.css   el álbum de tiras de fotos de detrás del sobre
 js/datos.js       valores de respaldo: API, BODA, SECCIONES, EN_OBRAS, TRANSPORTE,
-                  FOTOS, ALERGENOS, RESPUESTAS, MAX_CANCIONES, TEXTOS, y el estado
+                  LUGAR_FOTOS, GALERIA_FOTOS, GALERIA_FILAS, ALERGENOS,
+                  RESPUESTAS, MAX_CANCIONES, TEXTOS, y el estado
 js/configuracion.js  lo de la hoja por encima de datos.js: aplicarConfiguracion(),
                   t() para los textos, recalcularFechas()
 js/util.js        pedir(), jsonp(), escapar(), titulo(), iconos, pantalla()
+js/galeria.js     monta el álbum de detrás del sobre y lo vacía al abrirse
 js/sobre.js       abrir el sobre y revelar las secciones
 js/sobre3d.js     el sobre en 3D (Three.js): la escena, el gesto y la carta
-js/fotos.js       js/cuenta.js       js/calendario.js
+js/cuenta.js      js/calendario.js
 js/transporte.js  js/playlist.js     js/formulario.js
 js/bloques.js     los formularios plegables, los resúmenes y los envíos
 js/indice.js      el índice lateral, las flechas de saltar sección y el orden

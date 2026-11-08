@@ -33,6 +33,7 @@
 <link rel="stylesheet" href="css/playlist.css">
 <link rel="stylesheet" href="css/cuenta.css">
 <link rel="stylesheet" href="css/sobre.css">
+<link rel="stylesheet" href="css/galeria.css">
 
 <script>
 /* Aquí dentro y en ES5 a propósito: se queda puesto antes de que corra ningún
@@ -60,6 +61,9 @@ window.onerror = function (msg, src, linea) {
      El laboratorio de ?lab no está aquí: lo baja cargar() y solo si hace falta. -->
 <script defer src="js/datos.js"></script>
 <script defer src="js/util.js"></script>
+<!-- El álbum de detrás del sobre, pronto y antes de Three.js: así se pinta en
+     cuanto está el DOM, sin esperar a que baje lo de la red. -->
+<script defer src="js/galeria.js"></script>
 <script defer src="js/sobre.js"></script>
 <!-- Three.js para el sobre en 3D. Es el último build clásico (sin módulos),
      el que funciona también con la página abierta desde el disco. Si no
@@ -80,6 +84,9 @@ window.onerror = function (msg, src, linea) {
 <body class="sobre-visible">
 
 <div class="sobre-capa" id="sobre">
+  <!-- El álbum: tiras de fotos que se mueven detrás del sobre mientras carga
+       la invitación. Lo llena js/galeria.js y lo vacía al quitarse el sobre. -->
+  <div class="galeria-fondo" id="galeria-fondo" aria-hidden="true"></div>
   <!-- Aquí pinta js/sobre3d.js el sobre de Three.js. Si no puede, se queda
        vacío y se ve el sobre de CSS de debajo. -->
   <canvas class="sobre-lienzo" id="sobre-lienzo" aria-hidden="true"></canvas>

@@ -62,6 +62,8 @@ function revelarSecciones(c) {
 
 function quitarCapa() {
   if (capa) { capa.style.display = 'none'; }
+  // el álbum de detrás ya no se ve: fuera sus fotos y sus animaciones
+  if (typeof galeriaFuera === 'function') { galeriaFuera(); }
   document.body.className = '';
   sobreAbierto = true;
   animarEntrada();

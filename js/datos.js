@@ -140,6 +140,35 @@ var LUGAR_FOTOS = [
   { src: 'img/place/images.jpg', ancho: 547, alto: 365, alt: 'El convento de Mave' }
 ];
 
+/* Fotos del álbum que se mueve detrás del sobre mientras carga la invitación
+   (js/galeria.js). Son copias pequeñas —300 px de alto, unos 20 KB cada una—
+   para que no le quiten red al sobre: van detrás de un velo de papel y no
+   hace falta más. Por ahora son las del lugar; cuando estén las nuestras, se
+   dejan en img/galeria/ y se cambia esta lista. Sin `alt`: es decoración.
+   Se sacan así (ImageMagick):
+     magick foto.jpg -resize x300 -strip -quality 60 img/galeria/foto.webp */
+var GALERIA_FOTOS = [
+  { src: 'img/galeria/exterior-piedra.webp', ancho: 547, alto: 300 },
+  { src: 'img/galeria/convento-1.webp',      ancho: 450, alto: 300 },
+  { src: 'img/galeria/convento-2.webp',      ancho: 400, alto: 300 },
+  { src: 'img/galeria/claustro.webp',        ancho: 400, alto: 300 },
+  { src: 'img/galeria/convento-3.webp',      ancho: 450, alto: 300 },
+  { src: 'img/galeria/convento-4.webp',      ancho: 450, alto: 300 },
+  { src: 'img/galeria/convento-5.webp',      ancho: 450, alto: 300 }
+];
+
+/* Las tiras del álbum, de arriba abajo. `peso` es la parte del alto de la
+   pantalla que se lleva cada una —las alturas distintas son el efecto—,
+   `vel` los píxeles por segundo y `dir` el sentido: 1 hacia la izquierda,
+   -1 hacia la derecha. En el móvil se usan solo las tres primeras. */
+var GALERIA_FILAS = [
+  { peso: 3, vel: 24, dir:  1 },
+  { peso: 5, vel: 16, dir: -1 },
+  { peso: 2, vel: 32, dir:  1 },
+  { peso: 4, vel: 20, dir: -1 },
+  { peso: 3, vel: 28, dir:  1 }
+];
+
 
 /* Los textos de la página. Cada clave se usa con t('clave') (js/configuracion.js).
    Los que llevan {algo} se rellenan al pintar. Las frases de *Inicio* van partidas
