@@ -95,6 +95,7 @@ function abrirSobre() {
 
   var boton = document.getElementById('sobre-btn');
   var pista = document.getElementById('sobre-pista');
+  capa.className = 'sobre-capa';        // si aún esperaba al 3D, ya no
   boton.className = 'sobre abriendo';   // el lacre da un respingo
   pista.className = 'sobre-pista ida';
 
@@ -128,14 +129,18 @@ function medirCrecida(boton) {
   boton.style.setProperty('--crece', crece.toFixed(3));
 }
 
-/* Vale tocar en cualquier parte: el botón está dentro y el clic burbujea. Con
-   el sobre de 3D el gesto bonito es arrastrar el lacre hacia arriba
-   (js/sobre3d.js), pero un toque, un clic, el teclado o el lector de pantalla
-   abren igual. Solo se ignora el clic que llega al final de un arrastre que
-   se quedó corto: ahí la solapa vuelve a cerrarse y el sobre no se abre. */
+/* Con el sobre de CSS vale tocar en cualquier parte: el botón está dentro y
+   el clic burbujea. Con el de 3D se abre arrastrando el lacre hacia arriba
+   (js/sobre3d.js), así que un clic o un toque no hace nada; solo cuenta el
+   «clic» que manda el teclado al pulsar Intro o Espacio sobre el botón, que
+   llega con `detail` a 0. Lo mismo mientras js/sobre3d.js decide cuál de los
+   dos sobres se queda (`sobre3dEsperando`): aún no se ve ninguno. Va con una
+   variable que pone ese archivo y no con la clase `esperando` del HTML: si el
+   que llega es un sobre3d.js viejo de la caché, no la pone, y el sobre de CSS
+   que aparece solo a los 4 s se puede abrir. */
 if (capa) {
-  capa.onclick = function () {
-    if (window.sobre3d && window.sobre3d.vieneDeArrastre()) return;
+  capa.onclick = function (ev) {
+    if ((window.sobre3d || window.sobre3dEsperando) && ev && ev.detail !== 0) return;
     abrirSobre();
   };
 }

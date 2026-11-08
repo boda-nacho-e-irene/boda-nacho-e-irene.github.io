@@ -34,6 +34,23 @@
 }
 .sobre-capa.fuera { opacity: 0; pointer-events: none; }
 
+/* Mientras js/sobre3d.js decide si va el sobre de 3D o el de CSS, se ve solo
+   el papel: ni el sobre de CSS ni su pista, que si no asomarían para luego
+   cambiarse por el de 3D. Con `opacity` y no `visibility`, para que el botón
+   siga ahí para el teclado.
+
+   El tope de los 4 s (ESPERA en js/sobre3d.js) va también aquí, en CSS: si el
+   JS no llega a quitar la clase —un sobre3d.js viejo en la caché, un fallo—,
+   el sobre de CSS aparece solo y no se queda la pantalla sin sobre. */
+.sobre-capa.esperando .sobre,
+.sobre-capa.esperando .sobre-pista { opacity: 0; animation: sobre-aparece .4s ease 4s forwards; }
+@keyframes sobre-aparece { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  /* sin animaciones no hay tope que valga: mejor ver el cambio que no ver sobre */
+  .sobre-capa.esperando .sobre,
+  .sobre-capa.esperando .sobre-pista { opacity: 1; }
+}
+
 /* ---------- el sobre en 3D ---------- */
 
 /* El lienzo de js/sobre3d.js tapa la capa entera. Mientras no hay 3D está

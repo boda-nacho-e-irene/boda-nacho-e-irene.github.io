@@ -12,9 +12,16 @@
    Three.js lo pide este archivo, sin bloquear nada, y no un <script defer> en
    el <head>: los `defer` se ejecutan en orden, así que uno del CDN delante de
    pintar.js hacía esperar a la invitación entera —y a la petición al
-   servidor— a que bajasen 600 KB de otro sitio, o a que fallasen. Ahora la
-   invitación arranca sola con el sobre de CSS, y el de 3D lo sustituye en
-   cuanto llega, si el invitado no lo ha abierto ya.
+   servidor— a que bajasen 600 KB de otro sitio, o a que fallasen. La
+   descarga empieza igual de pronto (un `preload` en el <head>), pero la
+   invitación no la espera.
+
+   Mientras se decide, la capa lleva `esperando` (index.html): se ve el papel
+   del fondo pero no el sobre de CSS, para que no asome y luego cambie por el
+   de 3D. Se quita al montar el 3D o, si no puede ser —no baja, no hay WebGL,
+   falla, o tarda más de ESPERA ms—, para dejar el de CSS. Pasado ese tope el
+   3D ya no se monta aunque llegue: el cambio delante del invitado es lo que
+   se quiere evitar.
 
    Los colores salen todos de los tokens de css/base.css: se leen al montar la
    escena, así que el laboratorio de ?lab también manda aquí (al recargar).
@@ -28,8 +35,20 @@
 (function () {
   var URL_THREE = 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js';
   var enLaboratorio = /[?&]lab(?=[&=]|$)/.test(location.search);
+  var ESPERA = 4000;
   var T = null;
   var alApagar = null;     // lo pone montar(): cómo retirarse si algo falla
+  var decidido = false;    // ya se sabe qué sobre se queda
+  // js/sobre.js no abre con un clic mientras tanto: aún no se ve ningún sobre
+  window.sobre3dEsperando = true;
+
+  // deja de esperar: se ve el sobre que haya (el de CSS si no hay en-3d)
+  function decidir() {
+    decidido = true;
+    window.sobre3dEsperando = false;
+    var capa = document.getElementById('sobre');
+    if (capa) capa.className = capa.className.replace(/\s*\besperando\b/g, '');
+  }
 
   function apagar(e) {
     if (window.console) console.warn('Sobre 3D apagado:', e);
@@ -37,6 +56,7 @@
     var f = alApagar;
     alApagar = null;
     if (f) { try { f(); } catch (e2) { /* ya no queda nada que salvar */ } }
+    decidir();
   }
   function seguro(fn) {
     return function () {
@@ -48,12 +68,15 @@
   guion.src = URL_THREE;
   guion.async = true;
   guion.onload = function () {
-    // si el invitado ya abrió el sobre de CSS, el de 3D llega tarde
-    if (!window.THREE || window.sobreAbriendo || window.sobreAbierto) return;
+    // tarde: o ya se dejó el de CSS, o el invitado ya abrió con el teclado
+    if (decidido || !window.THREE || window.sobreAbriendo || window.sobreAbierto) { decidir(); return; }
     T = window.THREE;
     try { montar(); } catch (e) { apagar(e); }
+    decidir();
   };
+  guion.onerror = decidir;
   document.head.appendChild(guion);
+  setTimeout(function () { if (!decidido) decidir(); }, ESPERA);
 
   function montar() {
     var capa = document.getElementById('sobre');
@@ -878,11 +901,8 @@
        Se agarra el lacre (con un margen generoso alrededor, que el dedo es
        gordo) y se sube: la solapa lo sigue. Pasado algo más de un tercio del
        recorrido, al soltar se abre sola; antes, vuelve a cerrarse. Un clic o
-       un toque sin arrastrar abre también, por el botón (js/sobre.js), igual
-       que el teclado: hay quien no puede arrastrar, y los lectores de
-       pantalla del móvil abren con un toque. Lo único que no abre es el clic
-       que llega al final de un arrastre que se quedó corto. */
-    var tGesto = -1e9;   // cuándo acabó el último arrastre de verdad
+       un toque sin arrastrar no hace nada; el teclado sigue abriendo con el
+       botón (js/sobre.js). */
     var punto = new T.Vector3(), borde3 = new T.Vector3();
     function enPantalla(v) {
       v.project(camara);
@@ -914,7 +934,7 @@
       if (estado !== 'reposo' || (ev.button != null && ev.button > 0)) return;
       var q = xy(ev);
       if (!sobreElSello(q.x, q.y)) return;
-      arrastre = { y0: q.y, p: 0, largo: recorrido(), movido: false };
+      arrastre = { y0: q.y, p: 0, largo: recorrido() };
       tSuelta = 0;
       capa.style.cursor = 'grabbing';
       if (capa.setPointerCapture) { try { capa.setPointerCapture(ev.pointerId); } catch (e) { /* nada */ } }
@@ -929,14 +949,12 @@
         }
         return;
       }
-      if (Math.abs(arrastre.y0 - q.y) > 6) arrastre.movido = true;
       arrastre.p = Math.max(0, Math.min(1, (arrastre.y0 - q.y) / arrastre.largo));
       if (!corriendo) pintar();
     }));
     var soltar = seguro(function () {
       if (!arrastre) return;
       capa.style.cursor = '';
-      if (arrastre.movido) tGesto = performance.now();
       if (arrastre.p >= 0.35 && typeof window.abrirSobre === 'function') {
         window.abrirSobre();            // js/sobre.js: abre de verdad
       } else {
@@ -1003,8 +1021,6 @@
           if (!corriendo) pintar();
         }));
       }),
-      // js/sobre.js: si el clic que llega es el final de un arrastre
-      vieneDeArrastre: function () { return performance.now() - tGesto < 600; },
       // js/sobre.js, al quitar la capa
       retirar: seguro(retirarse),
       // para el laboratorio: volver a cerrar el sobre
