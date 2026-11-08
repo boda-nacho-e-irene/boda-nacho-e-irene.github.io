@@ -62,6 +62,8 @@ function revelarSecciones(c) {
 
 function quitarCapa() {
   if (capa) { capa.style.display = 'none'; }
+  // el sobre de 3D deja de escuchar la ventana y suelta la tarjeta gráfica
+  if (window.sobre3d) { window.sobre3d.retirar(); }
   document.body.className = '';
   sobreAbierto = true;
   animarEntrada();
@@ -126,14 +128,14 @@ function medirCrecida(boton) {
   boton.style.setProperty('--crece', crece.toFixed(3));
 }
 
-/* Con el sobre de CSS vale tocar en cualquier parte: el botón está dentro y
-   el clic burbujea. Con el de 3D se abre arrastrando el lacre hacia arriba
-   (js/sobre3d.js), así que un clic o un toque no hace nada; solo cuenta el
-   «clic» que manda el teclado al pulsar Intro o Espacio sobre el botón, que
-   llega con `detail` a 0. */
+/* Vale tocar en cualquier parte: el botón está dentro y el clic burbujea. Con
+   el sobre de 3D el gesto bonito es arrastrar el lacre hacia arriba
+   (js/sobre3d.js), pero un toque, un clic, el teclado o el lector de pantalla
+   abren igual. Solo se ignora el clic que llega al final de un arrastre que
+   se quedó corto: ahí la solapa vuelve a cerrarse y el sobre no se abre. */
 if (capa) {
-  capa.onclick = function (ev) {
-    if (window.sobre3d && ev && ev.detail !== 0) return;
+  capa.onclick = function () {
+    if (window.sobre3d && window.sobre3d.vieneDeArrastre()) return;
     abrirSobre();
   };
 }

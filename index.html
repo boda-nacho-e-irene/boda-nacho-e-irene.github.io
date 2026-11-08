@@ -61,10 +61,9 @@ window.onerror = function (msg, src, linea) {
 <script defer src="js/datos.js"></script>
 <script defer src="js/util.js"></script>
 <script defer src="js/sobre.js"></script>
-<!-- Three.js para el sobre en 3D. Es el último build clásico (sin módulos),
-     el que funciona también con la página abierta desde el disco. Si no
-     baja, js/sobre3d.js no hace nada y queda el sobre de CSS. -->
-<script defer src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<!-- El sobre en 3D. Three.js no va aquí con un `defer`: haría esperar a
+     pintar.js —y con él a la invitación entera— a que bajase del CDN. Lo pide
+     js/sobre3d.js por su cuenta; si no baja, queda el sobre de CSS. -->
 <script defer src="js/sobre3d.js"></script>
 <script defer src="js/cuenta.js"></script>
 <script defer src="js/calendario.js"></script>
