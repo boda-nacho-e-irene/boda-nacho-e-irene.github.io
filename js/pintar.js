@@ -118,6 +118,13 @@ function pintar(d) {
       seccionCuenta() +
 
       '<section class="seccion" id="el-dia">' +
+        /* La junta con la cuenta atrás: una franja de papel con la floritura
+           ocre. Va dentro de esta sección y no suelta entre las dos porque el
+           índice reordena las secciones y la dejaría colgando. Sin cuenta
+           atrás no hay junta que marcar. */
+        (hayCuenta() ? '<div class="junta-floritura" aria-hidden="true">' +
+          '<img src="img/separadores/floritura-horizontal-ocre.webp" width="1200" height="298" alt="">' +
+        '</div>' : '') +
         tituloSinIcono('y... ¿Dónde?') +
         '<div class="lugar-intro-fila">' + marcadorImagen('img/dibujos/mapa.png') +
           '<div class="lugar-intro-texto">' +
@@ -125,12 +132,18 @@ function pintar(d) {
             '<p class="lugar-intro">Juntar a todo el mundo a veces es complicado, nos encantaría que estuviéseis lo máximo posible con nosotros, por eso todo el evento se va a realizar en la misma zona.</p>' +
           '</div>' +
         '</div>' +
-        botonMapa() +
+        /* Como en la cuenta atrás, el botón va lo último: después de la tira. */
         '<div class="franja">' + carruselLugar() + lugaresDelDia() + '</div>' +
+        botonMapa() +
+        /* Y la junta de abajo, con lo azul que venga detrás: la otra floritura. */
+        '<div class="junta-floritura abajo" aria-hidden="true">' +
+          '<img src="img/separadores/floritura-horizontal-ocre-2.webp" width="1200" height="298" alt="">' +
+        '</div>' +
       '</section>' +
 
       '<section class="seccion" id="confirmar">' +
-        titulo('confirmar', t('titulo_confirmar')) +
+        /* Sin el arco encima: la floritura de la junta hace ese papel. */
+        tituloSinIcono(t('titulo_confirmar')) +
         bloque('confirmar',
           '<div class="eleccion">' +
             '<button type="button" class="opcion" id="si" aria-pressed="false">' + escapar(t('confirmar_si')) + '</button>' +

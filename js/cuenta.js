@@ -42,8 +42,9 @@ function seccionCuenta() {
                '<p class="cuenta-intro">' + escapar(t('cuenta_intro_2')) + '</p>' +
              '</div>' +
            '</div>' +
-           bloqueCalendario() +
+           /* Primero las cifras y debajo los botones de guardar la fecha. */
            '<div id="cuenta"></div>' +
+           bloqueCalendario() +
          '</section>';
 }
 

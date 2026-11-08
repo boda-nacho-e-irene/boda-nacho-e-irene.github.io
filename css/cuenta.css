@@ -1,7 +1,15 @@
 /* ---------- cuenta atrás ---------- */
 
 /* Las cifras y el botón de guardar la fecha, debajo: una pantalla. */
-#cuenta-atras { --pantallas: 0; padding-bottom: var(--e6); }
+/* Más aire por fuera y menos por dentro: arriba y abajo la sección se separa
+   de las de al lado —y sale del fundido de papel de las juntas, que mide
+   `--fundido`—, y dentro el título, el texto, los botones y las cifras van
+   juntos, como un solo bloque. */
+#cuenta-atras { --pantallas: 0; padding-bottom: calc(var(--e6) + var(--junta)); }
+
+/* El título, con el interlineado justo: con el de la página (1.55) a este
+   tamaño dejaba casi un renglón vacío debajo. */
+#cuenta-atras .titulo { line-height: 1.15; padding-bottom: 0; margin-bottom: var(--e4); }
 
 /* La sección del «save the date» va con la acuarela rosa. Por arriba y por
    abajo se deshace en papel con el fundido de todas las secciones
@@ -11,7 +19,7 @@
   background:
     linear-gradient(var(--velo-papel), var(--velo-papel)),
     url("../img/fondos/fondo-acuarela-rojo-claro.jpg") center / cover no-repeat;
-  padding-top: var(--e3);
+  padding-top: var(--e6);
 }
 
 /* Columnas de ancho fijo: las cifras no mueven la maqueta al cambiar. Las
@@ -61,7 +69,7 @@
   display: flex;
   align-items: center;
   gap: var(--e3);
-  margin-bottom: var(--e3);
+  margin-bottom: var(--e4);
 }
 .cuenta-intro-texto { flex: 1 1 auto; min-width: 0; }
 .cuenta-intro {
@@ -88,6 +96,11 @@
 #cuenta-atras .cuenta-placeholder {
   order: 2;
   margin-right: calc(-1 * var(--margen) - 5rem);
+  /* El dibujo es más alto que el texto y, con su borde transparente, estiraba
+     la fila y dejaba huecos arriba y abajo. Así sobresale sin empujar: la fila
+     mide lo que el texto. */
+  margin-top: -3rem;
+  margin-bottom: -3rem;
 }
 .cuenta-placeholder img {
   display: block;
@@ -111,7 +124,7 @@
 /* Vive debajo de la cuenta atrás, dentro de la misma sección, separado por la
    misma línea fina que las juntas del resto de la página. */
 .calendario {
-  margin: var(--e2) 0 var(--e3);
+  margin: var(--e4) 0 0;   /* va debajo de las cifras */
   text-align: center;
 }
 
