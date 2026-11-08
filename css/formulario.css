@@ -1,13 +1,29 @@
-/* La cuarta sección (Confirmar) vuelve al papel blanco. Dos IDs para ganarle a
-   `#inicio ~ .seccion` de base.css. */
-#inicio ~ #confirmar { background: var(--papel); }
-
-/* Lo que va después de «Confirmar», en una sola sección sobre el fondo azul. */
+/* Confirmar y los detalles van los dos sobre la acuarela azul: son el final
+   de la invitación, lo que hay que rellenar, y se leen como un solo fondo.
+   Dos IDs para ganarle a `#inicio ~ .seccion` de base.css. */
+#inicio ~ #confirmar,
 #inicio ~ #mas-detalles {
   background:
     linear-gradient(var(--velo-papel), var(--velo-papel)),
     url("../img/fondos/fondo-acuarela-azul.jpg") center / cover no-repeat;
-  padding-top: var(--e4);
+}
+#inicio ~ #mas-detalles { padding-top: var(--e4); }
+
+/* Entre los dos no hay papel: donde se tocan, cada uno se deshace en la
+   bruma azul (el tono medio de la acuarela con su velo, ver base.css), así
+   que la junta es una niebla del mismo color y no un corte. Van en
+   cualquier orden porque el índice baja al final lo que ya está rellenado. */
+#confirmar + #mas-detalles,
+#mas-detalles + #confirmar { --borde-arriba: var(--bruma); }
+#confirmar:has(+ #mas-detalles:not([hidden])),
+#mas-detalles:has(+ #confirmar) { --borde-abajo: var(--bruma); }
+
+/* Arriba, la junta con «¿Dónde?»: papel liso para la floritura (portada.css)
+   y el mismo aire que dejan las otras secciones. */
+#el-dia + #confirmar,
+#el-dia + #mas-detalles {
+  --liso-arriba: var(--junta);
+  padding-top: calc(var(--e6) + var(--junta));
 }
 .tras + .tras { margin-top: var(--e5); }
 
@@ -59,22 +75,14 @@
 
 /* ----------formulario ---------- */
 
-/* Confirmar es lo único que necesitamos de verdad, así que es lo único que se
-   levanta del fondo. Ya no es una caja suelta con sus esquinas: la sección
-   ocupa la pantalla de lado a lado, así que se levanta como una franja de
-   papel de borde a borde, con una línea fina arriba y otra abajo. Sin
-   sombra: a lo ancho de la columna entera se saldría del marco y se
-   derramaría sobre la foto del fondo.
+/* Confirmar va sobre la misma acuarela azul que los detalles (arriba del
+   todo de este archivo), sin franja de papel ni línea debajo.
 
    Una pantalla: los dos botones, el mensaje y el de enviar caben de sobra.
    Con la pantalla y media que pedía antes el formulario se quedaba a media
    altura de una caja el doble de alta, y al saltar aquí lo primero que se
    veía era papel en blanco. Si algún día no cabe, crece solo. */
-#confirmar {
-  --pantallas: 1;
-  background: var(--papel);
-  border-bottom: var(--linea);
-}
+#confirmar { --pantallas: 1; }
 
 /* Nueve chips, el campo de «otra cosa» y el botón: lo mismo que Confirmar. */
 #alergias { --pantallas: 1; }

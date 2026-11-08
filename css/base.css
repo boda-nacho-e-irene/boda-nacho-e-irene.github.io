@@ -19,6 +19,10 @@
   --pliegue:     rgba(38,48,43,.08);    /* dobleces del sobre y borde de la carta */
   --capa-grano:  rgba(233,229,217,.96); /* la capa que apaga el grano del papel */
   --velo-papel:  rgba(233,229,217,.65); /* aclara la acuarela por donde va el texto */
+  /* El tono medio de la acuarela azul con su velo de papel encima: es a lo
+     que se deshacen Confirmar y los detalles en la junta entre los dos, que
+     así se leen como un solo fondo azul. */
+  --bruma:       #DEE2DC;
   --campo:       rgba(255,255,255,.45); /* luz, no piedra: no sigue a la paleta */
   --relleno:     #C6C4BA;               /* lo que se ve a los lados del marco */
 
@@ -140,6 +144,9 @@
      presentación en un móvil (un 10% de la pantalla); subirlo hace las
      uniones más largas y más lentas. */
   --fundido: 5rem;
+  /* El papel liso que se deja a cada lado de una junta con floritura (entre
+     la cuenta atrás y «¿Dónde?», y entre «¿Dónde?» y lo azul). */
+  --junta: 3rem;
 
   /* Lo que el paginador se reserva abajo para no pisar el contenido: su aire,
      su botón y su aire otra vez. */
@@ -292,16 +299,28 @@ main { margin: 0 auto; }
    contenido, opaca en los bordes y transparente en el medio. Sobre una
    sección de papel no se ve; sobre una acuarela es el desvanecido. La
    presentación no la lleva: ya se funde ella sola con su máscara. */
+/* Cada borde dice a qué color se deshace y cuánto color liso deja antes de
+   empezar a deshacerse. Por defecto, papel y nada: el fundido de siempre.
+   Una sección que quiera otra junta solo toca estas cuatro variables (ver la
+   floritura en portada.css y la junta azul en formulario.css). */
+.seccion {
+  --borde-arriba: var(--papel);
+  --borde-abajo:  var(--papel);
+  --liso-arriba:  0px;
+  --liso-abajo:   0px;
+}
 .seccion::after {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
   background: linear-gradient(to bottom,
-    var(--papel),
-    transparent var(--fundido),
-    transparent calc(100% - var(--fundido)),
-    var(--papel));
+    var(--borde-arriba),
+    var(--borde-arriba) var(--liso-arriba),
+    transparent calc(var(--liso-arriba) + var(--fundido)),
+    transparent calc(100% - var(--liso-abajo) - var(--fundido)),
+    var(--borde-abajo) calc(100% - var(--liso-abajo)),
+    var(--borde-abajo));
   pointer-events: none;
 }
 #presentacion::after { content: none; }

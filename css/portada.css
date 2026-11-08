@@ -16,12 +16,12 @@
    se ve solo el marco. */
 .fondo-marco {
   position: absolute;
-  width: 34%;
+  width: 28%;   /* eran un 34 %: algo más pequeños, que no compitan con el texto */
   aspect-ratio: 1;
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center;
-  opacity: .4;
+  opacity: .25;   /* eran .4: más transparentes, que apenas se intuyan */
   animation: fondo-vaiven 16s ease-in-out infinite alternate;
 }
 /* Cada uno en su sitio, con su propio desplazamiento y su propio ritmo: van
@@ -29,8 +29,8 @@
 .fondo-1 { top: 4%; left: 4%; --dx: 12px; --dy: -10px; animation-duration: 15s; background-image: url("../img/dibujos/inicio-1.png"); }
 .fondo-2 { top: 4%; right: 4%; --dx: -14px; --dy: 8px; animation-duration: 18s; background-image: url("../img/dibujos/inicio-2.png"); }
 .fondo-3 { bottom: 4%; left: 4%; --dx: 10px; --dy: -10px; animation-duration: 13s; background-image: url("../img/dibujos/inicio-3.png"); }
-.fondo-4 { bottom: 4%; right: 4%; --dx: -12px; --dy: -8px; animation-duration: 17s; background-image: url("../img/dibujos/inicio-4.png"); }
-.fondo-5 { top: 30%; left: 32%; --dx: 8px; --dy: -8px; animation-duration: 14s; background-image: url("../img/dibujos/inicio-5.png"); }
+.fondo-4 { bottom: 4%; right: 4%; --dx: -12px; --dy: -8px; animation-duration: 17s; background-image: url("../img/dibujos/camara.png"); }
+.fondo-5 { top: 30%; left: 32%; --dx: 8px; --dy: -8px; animation-duration: 14s; background-image: url("../img/dibujos/regalo.png"); }
 @keyframes fondo-vaiven {
   from { transform: translate(0, 0); }
   to { transform: translate(var(--dx), var(--dy)); }
@@ -100,13 +100,60 @@
    la tira de fotos que se mueve sola. */
 #el-dia { --pantallas: 0; }
 
+/* Igual que la cuenta atrás (cuenta.css): más aire por fuera y menos por
+   dentro. El título con su interlineado justo y los bloques —texto, enlace,
+   tira— a la misma distancia entre sí. */
+#el-dia .lugar-intro-fila { margin: 0 0 var(--e4); }
+#el-dia .lugar-mapa { margin: var(--e4) 0 0; }   /* va debajo de la tira */
+#el-dia .franja { margin-top: 0; }
+/* Las dos juntas con floritura de «¿Dónde?»: arriba con la cuenta atrás
+   (rosa → verde) y abajo con lo azul (Confirmar o los detalles, el que venga
+   detrás). En las dos, más papel entre una acuarela y otra y la floritura
+   ocre justo en medio. El papel se reparte igual a los dos lados: `--junta`
+   de papel liso al final de una sección y otro tanto al principio de la
+   siguiente, cada uno con su fundido hacia su acuarela (las variables del
+   fundido están en base.css). Las floritura van clavadas en la línea que
+   separa las dos secciones, centradas sobre ella, así que quedan en el centro
+   del papel pase lo que pase con los altos. */
+#cuenta-atras { --liso-abajo: var(--junta); }
+#cuenta-atras + #el-dia { --liso-arriba: var(--junta); }
+#el-dia { --liso-abajo: var(--junta); }
+/* Lo que crece el papel, se lo lleva también el aire: el contenido sigue
+   empezando y acabando donde ya no hay papel liso. */
+#inicio ~ #cuenta-atras + #el-dia { padding-top: calc(var(--e6) + var(--junta)); }
+/* La floritura de abajo cae a medias sobre la sección siguiente, que se
+   pinta después: por delante de ella para que no la tape. */
+#el-dia { z-index: 1; }
+
+.junta-floritura {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.junta-floritura.abajo { top: auto; bottom: 0; transform: translateY(50%); }
+.junta-floritura img {
+  display: block;
+  width: min(14rem, 60%);
+  height: auto;
+}
+
+/* El mapa es más alto que el texto: sobresale sin estirar la fila. */
+#el-dia .cuenta-placeholder { margin-top: -3rem; margin-bottom: -3rem; }
+
 /* El título de «¿Dónde?» va grande: es lo primero que se lee de la sección. */
 #el-dia .titulo,
 #cuenta-atras .titulo {
   display: inline-block;
   font-size: calc(var(--t-titulo) * 1.45 * var(--escala-titulo));
-  padding: var(--e1) var(--e3);
-  margin-bottom: 0;
+  /* El interlineado justo: con el de la página (1.55) a este tamaño dejaba
+     casi un renglón vacío debajo. */
+  line-height: 1.15;
+  padding: var(--e1) var(--e3) 0;
+  margin-bottom: var(--e4);
   color: var(--tinta);
 }
 
@@ -122,10 +169,11 @@
   background:
     linear-gradient(var(--velo-papel), var(--velo-papel)),
     url("../img/fondos/fondo-acuarela-verde-claro.jpg") center / cover no-repeat;
-  /* Aire para que el título no caiga en lo más blanco del fundido de arriba. */
-  padding-top: var(--e5);
-  /* Y aire debajo de la tira, por lo mismo con el fundido de abajo. */
-  padding-bottom: var(--e4);
+  /* Aire para que el título no caiga en lo más blanco del fundido de arriba,
+     y para separar la sección de la de antes. */
+  padding-top: var(--e6);
+  /* Y aire debajo, por lo mismo con el fundido de abajo y su papel liso. */
+  padding-bottom: calc(var(--e6) + var(--junta));
 }
 
 

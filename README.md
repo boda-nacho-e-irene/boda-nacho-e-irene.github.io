@@ -36,6 +36,7 @@ js/configuracion.js  lo de la hoja por encima de datos.js: aplicarConfiguracion(
                   t() para los textos, recalcularFechas()
 js/util.js        pedir(), jsonp(), escapar(), titulo(), iconos, pantalla()
 js/sobre.js       abrir el sobre y revelar las secciones
+js/sobre3d.js     el sobre en 3D (Three.js): la escena, el gesto y la carta
 js/fotos.js       js/cuenta.js       js/calendario.js
 js/transporte.js  js/playlist.js     js/formulario.js
 js/bloques.js     los formularios plegables, los resúmenes y los envíos
