@@ -9,20 +9,6 @@
    Si no hay Three.js (no bajó del CDN) o no hay WebGL, `window.sobre3d` no se
    llega a poner y js/sobre.js sigue con el sobre de CSS de siempre.
 
-   Three.js lo pide este archivo, sin bloquear nada, y no un <script defer> en
-   el <head>: los `defer` se ejecutan en orden, así que uno del CDN delante de
-   pintar.js hacía esperar a la invitación entera —y a la petición al
-   servidor— a que bajasen 600 KB de otro sitio, o a que fallasen. La
-   descarga empieza igual de pronto (un `preload` en el <head>), pero la
-   invitación no la espera.
-
-   Mientras se decide, la capa lleva `esperando` (index.html): se ve el papel
-   del fondo pero no el sobre de CSS, para que no asome y luego cambie por el
-   de 3D. Se quita al montar el 3D o, si no puede ser —no baja, no hay WebGL,
-   falla, o tarda más de ESPERA ms—, para dejar el de CSS. Pasado ese tope el
-   3D ya no se monta aunque llegue: el cambio delante del invitado es lo que
-   se quiere evitar.
-
    Los colores salen todos de los tokens de css/base.css: se leen al montar la
    escena, así que el laboratorio de ?lab también manda aquí (al recargar).
 
@@ -30,25 +16,21 @@
    fotogramas, el dedo, el tamaño de la ventana— va por `seguro()`: el
    window.onerror del <head> tapa la invitación con el error, y un fallo del
    sobre bonito no puede costar la invitación. Si algo falla, el sobre de 3D
-   se aparta: cerrado, deja el de CSS; abriéndose, termina de abrir. */
+   se aparta: antes de salir, avisa de que va el de CSS; ya fuera y cerrado,
+   sube el de CSS en su lugar; abriéndose, termina de abrir. */
 
 (function () {
-  var URL_THREE = 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js';
-  var enLaboratorio = /[?&]lab(?=[&=]|$)/.test(location.search);
-  var ESPERA = 4000;
-  var T = null;
-  var alApagar = null;     // lo pone montar(): cómo retirarse si algo falla
-  var decidido = false;    // ya se sabe qué sobre se queda
-  // js/sobre.js no abre con un clic mientras tanto: aún no se ve ningún sobre
-  window.sobre3dEsperando = true;
-
-  // deja de esperar: se ve el sobre que haya (el de CSS si no hay en-3d)
-  function decidir() {
-    decidido = true;
-    window.sobre3dEsperando = false;
-    var capa = document.getElementById('sobre');
-    if (capa) capa.className = capa.className.replace(/\s*\besperando\b/g, '');
+  /* La entrada de la página (js/sobre.js) espera a saber qué sobre hay: se lo
+     decimos por todos los caminos. '3d' llega más tarde, cuando el lacre ya
+     está puesto y la escena compilada (ver calentar()). */
+  function avisar(tipo) {
+    if (typeof window.introSobreListo === 'function') window.introSobreListo(tipo);
   }
+
+  if (!window.THREE) { avisar('css'); return; }
+  var T = window.THREE;
+  var enLaboratorio = /[?&]lab(?=[&=]|$)/.test(location.search);
+  var alApagar = null;     // lo pone montar(): cómo retirarse si algo falla
 
   function apagar(e) {
     if (window.console) console.warn('Sobre 3D apagado:', e);
@@ -56,7 +38,8 @@
     var f = alApagar;
     alApagar = null;
     if (f) { try { f(); } catch (e2) { /* ya no queda nada que salvar */ } }
-    decidir();
+    // si aún no había dicho nada, que salga el de CSS (si ya lo dijo, no cuenta)
+    avisar('css');
   }
   function seguro(fn) {
     return function () {
@@ -64,19 +47,8 @@
     };
   }
 
-  var guion = document.createElement('script');
-  guion.src = URL_THREE;
-  guion.async = true;
-  guion.onload = function () {
-    // tarde: o ya se dejó el de CSS, o el invitado ya abrió con el teclado
-    if (decidido || !window.THREE || window.sobreAbriendo || window.sobreAbierto) { decidir(); return; }
-    T = window.THREE;
-    try { montar(); } catch (e) { apagar(e); }
-    decidir();
-  };
-  guion.onerror = decidir;
-  document.head.appendChild(guion);
-  setTimeout(function () { if (!decidido) decidir(); }, ESPERA);
+  try { montar(); } catch (e) { apagar(e); }
+  if (!window.sobre3d) avisar('css');
 
   function montar() {
     var capa = document.getElementById('sobre');
@@ -125,8 +97,14 @@
 
     /* ---------- el motor ---------- */
 
+    /* Un aparato modesto —pantalla táctil o pocos núcleos— empieza con menos
+       píxeles y una sombra más pequeña. Si aun así va justo, aligerar() (en la
+       coreografía) baja un escalón más. */
+    var modesto = !!((window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ||
+                     (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4));
+
     var render = new T.WebGLRenderer({ canvas: lienzo, antialias: true, alpha: true });
-    render.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    render.setPixelRatio(Math.min(window.devicePixelRatio || 1, modesto ? 1.5 : 2));
     render.outputColorSpace = T.SRGBColorSpace;
     render.shadowMap.enabled = true;
     render.shadowMap.type = T.PCFShadowMap;
@@ -147,7 +125,7 @@
     var foco = new T.DirectionalLight(new T.Color(1, 0.98, 0.95), 0.8 * Math.PI);
     foco.position.set(-1.2, 4.5, 2.2);
     foco.castShadow = true;
-    foco.shadow.mapSize.set(2048, 2048);
+    foco.shadow.mapSize.set(modesto ? 1024 : 2048, modesto ? 1024 : 2048);
     foco.shadow.radius = 6;
     foco.shadow.bias = -0.0004;
     foco.shadow.normalBias = 0.015;
@@ -698,8 +676,10 @@
       }
       if (n) cera.color = color3([suma[0] / n * 0.8 | 0, suma[1] / n * 0.8 | 0, suma[2] / n * 0.8 | 0]);
       cera.visible = caraLacre.visible = true;
-      if (!corriendo) pintar();
+      calentar();
     });
+    // sin lacre el sobre se abre igual: mejor eso que quedarse esperando
+    imgLacre.onerror = seguro(function () { calentar(); });
     imgLacre.src = 'img/lacre.webp';
 
     // separado lo justo para que, con la solapa dada la vuelta, el canto de
@@ -738,6 +718,9 @@
     function sale(x) { return 1 - Math.pow(1 - x, 3); }
 
     var estado = 'reposo', t0 = 0, tAbre = 0, corriendo = false;
+    var entrado = false;      // ya se ve: entrar() lo ha subido
+    var SUBIDA = 1.25;        // segundos que tarda en subir desde abajo
+    var ligero = false;       // aligerar(): sin flotar y a un píxel por píxel
     var quieto = 0, tAntes = 0;
     var arrastre = null, pSuelta = 0, tSuelta = 0;   // el dedo sobre el sello
     var p0 = 0, tSolapa = 1.3;                     // desde dónde sigue la solapa
@@ -750,7 +733,7 @@
 
       // reposo: el sobre entra desde abajo y flota, girando un pelo para que
       // el brillo de la cera del lacre se mueva con la luz
-      var flota = sinMovimiento ? 0 : 1;
+      var flota = sinMovimiento || ligero ? 0 : 1;
       matNombre.opacity = !nombreDesde ? 0 : sinMovimiento ? 1 : sale(tramo(ahora - nombreDesde, 0, 700));
       var u = estado === 'abriendo' ? (ahora - tAbre) / 1000 : -1;
 
@@ -761,8 +744,13 @@
       var quiere = estado === 'reposo' && !arrastre ? 0 : 1;
       quieto += (quiere - quieto) * Math.min(1, dt * 7);
       var calma = 1 - quieto;
-      var llega = sale(tramo(t, 0, 1.1));
-      sobre.position.y = (-0.25 * (1 - llega) + Math.sin(t * 0.9) * 0.018 * flota) * calma;
+      /* Sube desde justo debajo del borde de la pantalla —a la distancia de
+         reposo se ven `distReposo * TAN` unidades de medio alto— y llega
+         girando un pelo, como dejado sobre la mesa. */
+      var llega = sinMovimiento ? 1 : sale(tramo(t, 0, SUBIDA));
+      var desde = distReposo * TAN + H / 2 + 0.15;
+      sobre.position.y = (-desde * (1 - llega) + Math.sin(t * 0.9) * 0.018 * flota) * calma;
+      sobre.rotation.z = -0.12 * (1 - llega);
       sobre.rotation.x = Math.sin(t * 0.7) * 0.06 * flota * calma;
       sobre.rotation.y = Math.sin(t * 0.5 + 1) * 0.09 * flota * calma;
 
@@ -844,10 +832,11 @@
       render.render(escena, camara);
     }
 
-    var bucle = seguro(function () {
+    var bucle = seguro(function (ahora) {
       if (!corriendo) return;
       pintar();
-      if (estado === 'fuera') { corriendo = false; return; }
+      medirPaso(ahora);
+      if (estado === 'fuera' || !seMueve(performance.now())) { corriendo = false; return; }
       requestAnimationFrame(bucle);
     });
 
@@ -878,6 +867,53 @@
       pmrem.dispose();
       render.dispose();
       render.forceContextLoss();
+    }
+
+    /* Si nada se mueve no hay nada que pintar: con el sobre flotando siempre
+       hay algo, pero en modo ligero (o sin movimiento) el sobre se queda
+       quieto y el bucle se para hasta que alguien lo toque. */
+    function seMueve(ahora) {
+      if (sinMovimiento) return false;
+      if (!ligero || estado !== 'reposo' || arrastre) return true;
+      return ahora - t0 < SUBIDA * 1000 + 100 ||
+             (tSuelta && ahora - tSuelta < 450) ||
+             (nombreDesde && ahora - nombreDesde < 800);
+    }
+
+    /* Lo que tarda de verdad cada fotograma, con el sobre ya en reposo: si en
+       60 seguidos va de media a más de 20 ms (menos de 50 por segundo), el
+       aparato no da para tanto y se aligera. Los saltos de más de 100 ms no
+       cuentan: son la pestaña escondida o el bucle recién arrancado. */
+    var muestras = 0, sumaPasos = 0, ultimo = 0;
+    function medirPaso(ahora) {
+      if (!ahora) return;
+      if (!ligero && muestras < 60 && ultimo && estado === 'reposo' && !arrastre &&
+          ahora - t0 > SUBIDA * 1000 + 300) {
+        var paso = ahora - ultimo;
+        if (paso < 100) { sumaPasos += paso; muestras++; }
+        if (muestras === 60 && sumaPasos / 60 > 20) aligerar();
+      }
+      ultimo = ahora;
+    }
+
+    // un escalón menos: un píxel por píxel, el sobre quieto y el álbum parado
+    function aligerar() {
+      ligero = true;
+      render.setPixelRatio(1);
+      encuadrar();
+      capa.classList.add('ligero');
+    }
+
+    /* Se compila y se pinta una vez a ciegas —el lienzo sigue apagado hasta
+       entrar()—, así el primer fotograma que ve el invitado no carga con el
+       tirón de compilar los sombreadores. Entonces sí, el sobre está listo. */
+    var calentado = false;
+    function calentar() {
+      if (calentado || !window.sobre3d) return;
+      calentado = true;
+      try { if (render.compile) render.compile(escena, camara); } catch (e) { /* lo hará al pintar */ }
+      pintar();
+      avisar('3d');
     }
 
     function arrancar() {
@@ -931,7 +967,9 @@
     function xy(ev) { return { x: ev.clientX, y: ev.clientY }; }
 
     capa.addEventListener('pointerdown', seguro(function (ev) {
-      if (estado !== 'reposo' || (ev.button != null && ev.button > 0)) return;
+      if (!entrado || estado !== 'reposo' || (ev.button != null && ev.button > 0)) return;
+      // mientras sube no: agarrarlo lo pararía de golpe a medio camino
+      if (!sinMovimiento && performance.now() - t0 < SUBIDA * 1000) return;
       var q = xy(ev);
       if (!sobreElSello(q.x, q.y)) return;
       arrastre = { y0: q.y, p: 0, largo: recorrido() };
@@ -944,7 +982,7 @@
     capa.addEventListener('pointermove', seguro(function (ev) {
       var q = xy(ev);
       if (!arrastre) {
-        if (estado === 'reposo' && ev.pointerType === 'mouse') {
+        if (entrado && estado === 'reposo' && ev.pointerType === 'mouse') {
           capa.style.cursor = sobreElSello(q.x, q.y) ? 'grab' : '';
         }
         return;
@@ -967,8 +1005,9 @@
     capa.addEventListener('pointerup', soltar);
     capa.addEventListener('pointercancel', soltar);
 
-    /* Si algo falla de aquí en adelante: con el sobre cerrado, vuelve el de
-       CSS; si ya se estaba abriendo, se acaba de abrir sin el 3D. */
+    /* Si algo falla de aquí en adelante: si ya se estaba abriendo, se acaba
+       de abrir sin el 3D; si ya se veía cerrado, sube el de CSS en su lugar;
+       si aún no se veía, apagar() avisa y la entrada saca el de CSS. */
     alApagar = function () {
       corriendo = false;
       window.removeEventListener('resize', alRedimensionar);
@@ -979,17 +1018,25 @@
         estado = 'fuera';
         if (!fundido && alFundir) alFundir();
         alTerminar();
-      } else {
-        capa.className = capa.className.replace(/\s*\ben-3d\b/g, '');
+      } else if (entrado) {
+        capa.classList.remove('en-3d');
+        capa.classList.add('intro-sobre');
       }
     };
 
+    /* Montado pero aún sin enseñar: el lienzo sigue apagado y el bucle
+       parado hasta que js/sobre.js diga que toca subir (entrar()). */
     t0 = performance.now();
     reponerPiezas();
-    capa.className += ' en-3d';
-    if (sinMovimiento) { pintar(); } else { arrancar(); }
 
     window.sobre3d = {
+      entrar: seguro(function () {
+        if (entrado) return;
+        entrado = true;
+        t0 = performance.now();
+        capa.classList.add('en-3d');
+        if (sinMovimiento) pintar(); else arrancar();
+      }),
       abrir: seguro(function (fundir, terminar, desplegar) {
         alFundir = fundir;
         alTerminar = terminar;
@@ -1018,7 +1065,8 @@
           if (nombre !== n) return;    // entretanto llegó otro
           escribirNombre();
           nombreDesde = performance.now();
-          if (!corriendo) pintar();
+          // el nombre aparece fundiéndose: hace falta el bucle mientras tanto
+          if (entrado && !sinMovimiento) arrancar(); else if (!corriendo) pintar();
         }));
       }),
       // js/sobre.js, al quitar la capa

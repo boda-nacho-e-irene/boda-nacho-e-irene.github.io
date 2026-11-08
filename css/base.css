@@ -19,6 +19,7 @@
   --pliegue:     rgba(38,48,43,.08);    /* dobleces del sobre y borde de la carta */
   --capa-grano:  rgba(233,229,217,.96); /* la capa que apaga el grano del papel */
   --velo-papel:  rgba(233,229,217,.65); /* aclara la acuarela por donde va el texto */
+  --velo-album:  rgba(233,229,217,.80); /* apaga las fotos del álbum de detrás del sobre */
   /* El tono medio de la acuarela azul con su velo de papel encima: es a lo
      que se deshacen Confirmar y los detalles en la junta entre los dos, que
      así se leen como un solo fondo azul. */
@@ -201,6 +202,7 @@
     --pliegue:     color-mix(in srgb, var(--tinta)  8%,   transparent);
     --capa-grano:  color-mix(in srgb, var(--piedra) 96%,  transparent);
     --velo-papel:  color-mix(in srgb, var(--piedra) 65%,  transparent);
+    --velo-album:  color-mix(in srgb, var(--piedra) 80%,  transparent);
     --relleno:     color-mix(in srgb, var(--piedra) 82%,  var(--tinta));
 
     --mancha-rosa:  color-mix(in srgb, var(--terracota) 20%, transparent);

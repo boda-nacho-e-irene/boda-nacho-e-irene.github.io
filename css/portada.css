@@ -26,11 +26,11 @@
 }
 /* Cada uno en su sitio, con su propio desplazamiento y su propio ritmo: van
    subiendo y bajando despacio alrededor del texto. */
-.fondo-1 { top: 4%; left: 4%; --dx: 12px; --dy: -10px; animation-duration: 15s; background-image: url("../img/dibujos/inicio-1.png"); }
-.fondo-2 { top: 4%; right: 4%; --dx: -14px; --dy: 8px; animation-duration: 18s; background-image: url("../img/dibujos/inicio-2.png"); }
-.fondo-3 { bottom: 4%; left: 4%; --dx: 10px; --dy: -10px; animation-duration: 13s; background-image: url("../img/dibujos/inicio-3.png"); }
-.fondo-4 { bottom: 4%; right: 4%; --dx: -12px; --dy: -8px; animation-duration: 17s; background-image: url("../img/dibujos/camara.png"); }
-.fondo-5 { top: 30%; left: 32%; --dx: 8px; --dy: -8px; animation-duration: 14s; background-image: url("../img/dibujos/regalo.png"); }
+.fondo-1 { top: 4%; left: 4%; --dx: 12px; --dy: -10px; animation-duration: 15s; background-image: url("../img/dibujos/inicio-1.webp"); }
+.fondo-2 { top: 4%; right: 4%; --dx: -14px; --dy: 8px; animation-duration: 18s; background-image: url("../img/dibujos/inicio-2.webp"); }
+.fondo-3 { bottom: 4%; left: 4%; --dx: 10px; --dy: -10px; animation-duration: 13s; background-image: url("../img/dibujos/inicio-3.webp"); }
+.fondo-4 { bottom: 4%; right: 4%; --dx: -12px; --dy: -8px; animation-duration: 17s; background-image: url("../img/dibujos/camara.webp"); }
+.fondo-5 { top: 30%; left: 32%; --dx: 8px; --dy: -8px; animation-duration: 14s; background-image: url("../img/dibujos/regalo.webp"); }
 @keyframes fondo-vaiven {
   from { transform: translate(0, 0); }
   to { transform: translate(var(--dx), var(--dy)); }
