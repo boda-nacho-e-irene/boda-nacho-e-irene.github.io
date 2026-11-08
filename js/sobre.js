@@ -253,6 +253,8 @@ function revelarSecciones(c) {
 
 function quitarCapa() {
   if (capa) { capa.style.display = 'none'; }
+  // el sobre de 3D deja de escuchar la ventana y suelta la tarjeta gráfica
+  if (window.sobre3d) { window.sobre3d.retirar(); }
   // el álbum de detrás ya no se ve: fuera sus fotos y sus animaciones
   if (typeof galeriaFuera === 'function') { galeriaFuera(); }
   // la página ya está a la vista y usa sus propias copias
