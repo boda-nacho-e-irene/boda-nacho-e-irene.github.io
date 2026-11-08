@@ -7,6 +7,7 @@ function cargar() {
     /* Con ?lab y sin token no hay nada que pedirle al servidor: el laboratorio
        se pinta a sí mismo con datos de mentira. */
     if (!lab) { aviso(t('aviso_incompleto')); }
+    paginaLista();
     return;
   }
   /* El nombre del sobre, de la visita anterior: así sale en cuanto se abre la
@@ -14,14 +15,22 @@ function cargar() {
      el servidor dice otro, manda el del servidor. */
   nombreEnSobre(nombreGuardado());
   pedir('GET', API + '?token=' + encodeURIComponent(token), null, function (d) {
-    if (!d) { aviso(t('aviso_sin_conexion')); return; }
-    if (!d.ok) { aviso(t('aviso_no_encontrado')); return; }
+    if (!d) { aviso(t('aviso_sin_conexion')); paginaLista(); return; }
+    if (!d.ok) { aviso(t('aviso_no_encontrado')); paginaLista(); return; }
     /* Antes de pintar nada: lo que dice la hoja pisa a lo de datos.js. Un
        backend viejo no trae `config` y entonces se queda todo como estaba. */
     aplicarConfiguracion(d.config);
     guardarNombre(d.nombre);
     nombreEnSobre(d.nombre);
-    pintar(d);
+    /* Pintar la invitación entera es trabajo gordo: se espera a que el sobre
+       haya acabado de subir (js/sobre.js) para no darle tirones. Ya pintada,
+       sale la pista y lo que iba a bajar al hacer scroll baja ahora, detrás
+       del sobre. */
+    trasIntro(function () {
+      pintar(d);
+      paginaLista();
+      adelantarImagenes(app);
+    });
   });
 }
 
@@ -126,7 +135,7 @@ function pintar(d) {
           '<img src="img/separadores/floritura-horizontal-ocre.webp" width="1200" height="298" alt="">' +
         '</div>' : '') +
         tituloSinIcono('y... ¿Dónde?') +
-        '<div class="lugar-intro-fila">' + marcadorImagen('img/dibujos/mapa.png') +
+        '<div class="lugar-intro-fila">' + marcadorImagen('img/dibujos/mapa.webp') +
           '<div class="lugar-intro-texto">' +
             '<p class="lugar-intro">' + escapar(t('lugar_intro')) + '</p>' +
             '<p class="lugar-intro">Juntar a todo el mundo a veces es complicado, nos encantaría que estuviéseis lo máximo posible con nosotros, por eso todo el evento se va a realizar en la misma zona.</p>' +

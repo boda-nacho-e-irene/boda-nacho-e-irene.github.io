@@ -37,11 +37,28 @@
   background: var(--velo-album);
 }
 
+/* La entrada: cada tira llega desde el lado del que viene su marcha —las que
+   van hacia la izquierda, desde la derecha, y al revés—, una detrás de otra
+   según `--orden`. La mueve la clase `intro-galeria` que pone js/sobre.js
+   cuando las fotos están descodificadas. Es la tira la que entra y la pista
+   de dentro la que marcha: dos `transform` en dos cajas, que no se pisan. */
 .galeria-fila {
   flex: var(--peso) 1 0;
   min-height: 0;
   overflow: hidden;
+  opacity: 0;
+  transform: translateX(110%);
+  transition:
+    transform 1.1s cubic-bezier(.16, 1, .3, 1) calc(var(--orden, 0) * .12s),
+    opacity .5s ease calc(var(--orden, 0) * .12s);
 }
+.galeria-fila.a-derecha { transform: translateX(-110%); }
+.sobre-capa.intro-galeria .galeria-fila { opacity: 1; transform: none; }
+
+/* Al abrir el sobre el álbum se funde entero, de una vez y en una sola capa,
+   y la tarjeta gráfica queda para la carta que se despliega. */
+.galeria-fondo { transition: opacity 1s ease; }
+.sobre-capa.abre .galeria-fondo { opacity: 0; }
 
 /* La pista lleva dos tandas iguales y avanza media: el bucle cierra sin
    saltos. Solo se mueve `transform`, así que la tarjeta gráfica la desliza
@@ -54,6 +71,9 @@
   will-change: transform;
 }
 .galeria-fila.a-derecha .galeria-pista { animation-direction: reverse; }
+/* En un aparato que no da para más (js/sobre3d.js lo mide y pone `ligero`
+   en la capa) las tiras se quedan quietas donde estén. */
+.sobre-capa.ligero .galeria-pista { animation-play-state: paused; }
 
 .galeria-tanda { display: flex; height: 100%; }
 
@@ -68,15 +88,9 @@
   margin-right: var(--e1);
   border-radius: var(--r);
   object-fit: cover;
-  opacity: 0;
-  transition: opacity .8s ease;
 }
-.galeria-tanda img.lista { opacity: 1; }
 
 @keyframes galeria-marcha { to { transform: translateX(-50%); } }
 
-/* Sin movimiento las tiras se quedan quietas: la regla general de
-   css/sobre.css ya para toda animación. Las fotos salen sin fundido. */
-@media (prefers-reduced-motion: reduce) {
-  .galeria-tanda img { opacity: 1; }
-}
+/* Sin movimiento las tiras se quedan quietas y aparecen sin entrada: la
+   regla general de css/sobre.css ya para toda animación y transición. */

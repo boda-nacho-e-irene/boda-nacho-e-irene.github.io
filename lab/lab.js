@@ -648,8 +648,11 @@
     window.sobreAbierto = false;
     window.sobreAbriendo = false;
     s.style.display = '';
-    s.className = window.sobre3d ? 'sobre-capa en-3d' : 'sobre-capa';
+    // la entrada ya pasó: el sobre vuelve directamente, sin esperar turno
+    s.className = 'sobre-capa intro-galeria intro-listo pagina-lista ' +
+                  (window.sobre3d ? 'en-3d' : 'intro-sobre');
     if (window.sobre3d) window.sobre3d.reponer();
+    if (typeof galeriaFondo === 'function') galeriaFondo();
     b.className = 'sobre';
     if (p) p.className = 'sobre-pista';
     document.body.className = 'sobre-visible';

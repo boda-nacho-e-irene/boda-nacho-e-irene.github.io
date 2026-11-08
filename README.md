@@ -53,7 +53,38 @@ lab/lab.js
 El orden de los `<link>` del `<head>` **es** la cascada, y el de los `<script>`
 el orden de ejecución: `datos.js` va primero porque los demás leen sus
 constantes, `configuracion.js` antes de `pintar.js` (mezcla lo de la hoja) y
-`pintar.js` el último, que acaba llamando a `cargar()`.
+`pintar.js`, que acaba llamando a `cargar()`. Three.js y `sobre3d.js` van
+detrás de todo a propósito: un `defer` no corre hasta que han corrido los de
+antes, y delante de `pintar.js` la petición al servidor esperaba a que bajase
+Three.js. `galeria.js` va detrás de `sobre.js`, que es a quien avisa.
+
+### La entrada
+
+Mientras baja lo lento (Three.js, el lacre, la invitación del servidor) la
+página no enseña nada a medio hacer: `js/sobre.js` lleva una entrada por
+turnos. Primero las tiras del álbum entran desde los lados en cuanto sus fotos
+están descodificadas (o a los 1,2 s); 0,7 s después sube el sobre desde abajo,
+el de 3D si `sobre3d.js` ya ha dicho que está listo y el de CSS si no puede o
+si a los 3 s aún no ha dicho nada. Cuando el sobre ha llegado se pinta la
+invitación de detrás (`trasIntro()`), que es trabajo pesado y le daría tirones
+a la subida, y en cuanto está pintada sale la pista (o a los 3 s, si el
+servidor tarda). Los tiempos son las constantes `INTRO_*` de arriba de
+`js/sobre.js`.
+
+Para que la invitación salga entera al abrir y no se vea cargar, lo suyo se
+pide mientras el invitado mira el sobre (`precalentar()` y
+`adelantarImagenes()` en `js/sobre.js`): en cuanto entran las tiras, los
+fondos de las hojas de estilo (acuarelas, dibujos de la portada), que no
+dependen del servidor; y con la invitación pintada, las imágenes que llevan
+`loading="lazy"`, que si no bajarían al hacer scroll. Todo con prioridad baja
+y descodificado de antemano. Con «ahorro de datos» activado no se adelanta
+nada.
+
+Para que vaya fluido también en un móvil justo: el sobre 3D empieza con menos
+resolución y sombra en pantallas táctiles o con pocos núcleos, y si aun así
+los fotogramas pasan de 20 ms de media se aligera (deja de flotar, baja a un
+píxel por píxel, para el bucle cuando nada se mueve y para el álbum). El álbum
+se funde al abrir el sobre y se vacía al quitarse.
 
 Son `<script defer>` normales, no módulos: comparten las variables globales de
 siempre sin `import`/`export`, y la página sigue abriéndose con doble clic

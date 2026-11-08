@@ -12,6 +12,9 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- De aquí baja Three.js: la conexión abierta desde ya ahorra el saludo
+     (DNS y TLS) cuando el navegador llegue a pedirlo. -->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Karla:wght@400;500;600&display=swap" rel="stylesheet">
 
 <!-- La acuarela de la presentación es lo primero que se ve al apartarse el
@@ -52,7 +55,13 @@ window.onerror = function (msg, src, linea) {
 <!-- `defer` los baja mientras se lee la página y los ejecuta luego, en este
      orden y con el DOM ya montado. `datos.js` va primero porque los demás leen
      sus constantes, `configuracion.js` antes de `pintar.js` porque es el que
-     mezcla lo de la hoja, y `pintar.js` el último porque acaba llamando a cargar().
+     mezcla lo de la hoja, y `pintar.js` acaba llamando a cargar().
+     Three.js y el sobre en 3D van los últimos a propósito: un `defer` no
+     corre hasta que han corrido todos los de antes, así que delante de
+     `pintar.js` la petición al servidor esperaba a que bajasen los ~600 KB
+     de Three.js. Al final, la invitación se pide en cuanto está el DOM y
+     Three.js baja a la vez. Mientras, la entrada de js/sobre.js (el álbum
+     y luego el sobre subiendo) cubre la espera.
      Scripts normales, no módulos: comparten las variables de siempre sin
      imports, y así la página sigue abriéndose con doble clic desde el disco.
      Ojo al partir uno: lo que se ejecuta en cuanto baja el archivo (un `var`
@@ -61,15 +70,10 @@ window.onerror = function (msg, src, linea) {
      El laboratorio de ?lab no está aquí: lo baja cargar() y solo si hace falta. -->
 <script defer src="js/datos.js"></script>
 <script defer src="js/util.js"></script>
-<!-- El álbum de detrás del sobre, pronto y antes de Three.js: así se pinta en
-     cuanto está el DOM, sin esperar a que baje lo de la red. -->
-<script defer src="js/galeria.js"></script>
 <script defer src="js/sobre.js"></script>
-<!-- Three.js para el sobre en 3D. Es el último build clásico (sin módulos),
-     el que funciona también con la página abierta desde el disco. Si no
-     baja, js/sobre3d.js no hace nada y queda el sobre de CSS. -->
-<script defer src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-<script defer src="js/sobre3d.js"></script>
+<!-- El álbum de detrás del sobre, pronto: se pinta en cuanto está el DOM, sin
+     esperar a lo de la red. Detrás de sobre.js, que es a quien avisa. -->
+<script defer src="js/galeria.js"></script>
 <script defer src="js/cuenta.js"></script>
 <script defer src="js/calendario.js"></script>
 <script defer src="js/transporte.js"></script>
@@ -79,6 +83,11 @@ window.onerror = function (msg, src, linea) {
 <script defer src="js/indice.js"></script>
 <script defer src="js/configuracion.js"></script>
 <script defer src="js/pintar.js"></script>
+<!-- Three.js para el sobre en 3D. Es el último build clásico (sin módulos),
+     el que funciona también con la página abierta desde el disco. Si no
+     baja, js/sobre3d.js avisa y sale el sobre de CSS. -->
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script defer src="js/sobre3d.js"></script>
 
 </head>
 <body class="sobre-visible">

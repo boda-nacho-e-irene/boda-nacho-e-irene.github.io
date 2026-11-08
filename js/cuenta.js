@@ -35,7 +35,7 @@ function seccionCuenta() {
   return '<section class="seccion" id="cuenta-atras">' +
            tituloSinIcono(t('titulo_cuenta')) +
            '<div class="cuenta-intro-fila">' +
-             marcadorImagen('img/dibujos/calendario.png') +
+             marcadorImagen('img/dibujos/calendario.webp') +
              '<div class="cuenta-intro-texto">' +
                '<p class="cuenta-intro">' + escapar(t('cuenta_intro_1')) + '</p>' +
                '<p class="cuenta-intro cuenta-fecha"><strong>' + escapar(BODA.fecha) + '</strong></p>' +
