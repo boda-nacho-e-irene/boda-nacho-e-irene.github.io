@@ -140,6 +140,69 @@ var LUGAR_FOTOS = [
   { src: 'img/place/images.jpg', ancho: 547, alto: 365, alt: 'El convento de Mave' }
 ];
 
+/* Fotos del álbum que se mueve detrás del sobre mientras carga la invitación
+   (js/galeria.js): las nuestras. Son copias pequeñas —300 px de alto, unos
+   15 KB cada una— para que no le quiten red al sobre: van detrás de un velo de
+   papel y no hace falta más. Los originales están en originales/galeria/ (rama
+   feature/nacho). Sin `alt`: es decoración. Se sacan así (ImageMagick), con
+   el giro del móvil aplicado y sin los datos de la foto (fecha, GPS):
+     magick foto.jpg -auto-orient -resize x300 -strip -quality 60 img/galeria/foto.webp
+   El orden da igual: js/galeria.js las baraja en cada visita y las reparte
+   entre las tiras. */
+var GALERIA_FOTOS = [
+  { src: 'img/galeria/20220414_144458.webp', ancho: 225, alto: 300 },
+  { src: 'img/galeria/20220414_144536.webp', ancho: 400, alto: 300 },
+  { src: 'img/galeria/20220415_100533.webp', ancho: 400, alto: 300 },
+  { src: 'img/galeria/20220501_132154.webp', ancho: 225, alto: 300 },
+  { src: 'img/galeria/20230606_115152.webp', ancho: 225, alto: 300 },
+  { src: 'img/galeria/20230607_135023.webp', ancho: 400, alto: 300 },
+  { src: 'img/galeria/20230608_203901.webp', ancho: 533, alto: 300 },
+  { src: 'img/galeria/20230609_174145.webp', ancho: 225, alto: 300 },
+  { src: 'img/galeria/20230610_195200.webp', ancho: 169, alto: 300 },
+  { src: 'img/galeria/20230610_195239.webp', ancho: 225, alto: 300 },
+  { src: 'img/galeria/img-20200826-wa0050.webp', ancho: 404, alto: 300 },
+  { src: 'img/galeria/img-20201102-wa0064.webp', ancho: 404, alto: 300 },
+  { src: 'img/galeria/img-20210307-wa0080.webp', ancho: 400, alto: 300 },
+  { src: 'img/galeria/img-20210327-wa0041.webp', ancho: 225, alto: 300 },
+  { src: 'img/galeria/img-20210917-wa0041.webp', ancho: 225, alto: 300 },
+  { src: 'img/galeria/img-20220418-wa0009.webp', ancho: 200, alto: 300 },
+  { src: 'img/galeria/img-20221224-wa0046.webp', ancho: 225, alto: 300 },
+  { src: 'img/galeria/img-20231203-wa0001.webp', ancho: 225, alto: 300 },
+  { src: 'img/galeria/img-20250327-wa0000.webp', ancho: 169, alto: 300 },
+  { src: 'img/galeria/img-20250814-wa0010.webp', ancho: 169, alto: 300 },
+  { src: 'img/galeria/img-20250814-wa0032.webp', ancho: 400, alto: 300 },
+  { src: 'img/galeria/img-20260303-wa0005.webp', ancho: 400, alto: 300 },
+  { src: 'img/galeria/img-20260410-wa0020.webp', ancho: 533, alto: 300 },
+  { src: 'img/galeria/img-20260413-wa0008.webp', ancho: 534, alto: 300 },
+  { src: 'img/galeria/img-20260720-wa0021.webp', ancho: 400, alto: 300 },
+  { src: 'img/galeria/pxl_20231224_124424259.webp', ancho: 225, alto: 300 },
+  { src: 'img/galeria/pxl_20260207_092037975.webp', ancho: 169, alto: 300 },
+  { src: 'img/galeria/pxl_20260412_101947782.webp', ancho: 533, alto: 300 },
+  { src: 'img/galeria/pxl_20260623_220303539.webp', ancho: 533, alto: 300 },
+  { src: 'img/galeria/pxl_20260708_183846978.webp', ancho: 533, alto: 300 },
+  { src: 'img/galeria/pxl_20260709_121231578.webp', ancho: 533, alto: 300 },
+  { src: 'img/galeria/pxl_20260812_184826554.webp', ancho: 169, alto: 300 },
+  { src: 'img/galeria/beso-hiedra.webp', ancho: 225, alto: 300 },
+  { src: 'img/galeria/claustro-palmeras.webp', ancho: 169, alto: 300 },
+  { src: 'img/galeria/mirador-atardecer.webp', ancho: 533, alto: 300 },
+  { src: 'img/galeria/playa-atardecer.webp', ancho: 533, alto: 300 },
+  { src: 'img/galeria/puerto-colores.webp', ancho: 400, alto: 300 },
+  { src: 'img/galeria/rio-entre-montes.webp', ancho: 225, alto: 300 },
+  { src: 'img/galeria/selfie-en-casa.webp', ancho: 225, alto: 300 }
+];
+
+/* Las tiras del álbum, de arriba abajo. `peso` es la parte del alto de la
+   pantalla que se lleva cada una —las alturas distintas son el efecto—,
+   `vel` los píxeles por segundo y `dir` el sentido: 1 hacia la izquierda,
+   -1 hacia la derecha. En el móvil se usan solo las tres primeras. */
+var GALERIA_FILAS = [
+  { peso: 3, vel: 24, dir:  1 },
+  { peso: 5, vel: 16, dir: -1 },
+  { peso: 2, vel: 32, dir:  1 },
+  { peso: 4, vel: 20, dir: -1 },
+  { peso: 3, vel: 28, dir:  1 }
+];
+
 
 /* Los textos de la página. Cada clave se usa con t('clave') (js/configuracion.js).
    Los que llevan {algo} se rellenan al pintar. Las frases de *Inicio* van partidas

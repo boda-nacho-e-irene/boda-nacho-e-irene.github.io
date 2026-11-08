@@ -6,6 +6,13 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8080", "--bind", "0.0.0.0"],
       "port": 8080
+    },
+    {
+      "name": "invitacion-8091",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8091", "--bind", "127.0.0.1"],
+      "port": 8091,
+      "autoPort": false
     }
   ]
 }
